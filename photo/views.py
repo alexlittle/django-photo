@@ -42,7 +42,14 @@ def tag_view(request, tag_id):
                                {'title': tag.name,
                                 'photos': photos},
                               context_instance=RequestContext(request))
-    
+ 
+def cloud_view(request):
+    tags = Tag.objects.all().order_by('name')
+    return render_to_response('photo/cloud.html',
+                               {'title': _('Cloud'),
+                                'tags': tags},
+                              context_instance=RequestContext(request))
+       
 def thumbnail_view(request, photo_id):
     photo = Photo.objects.get(pk=photo_id)
     image = settings.PHOTO_ROOT + photo.location.name + photo.file
