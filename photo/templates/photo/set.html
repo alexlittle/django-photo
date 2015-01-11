@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+<div class="row-fluid">
+{% for p in photos %}
+	<div class="photo">
+		<img src="{% url 'photo_thumbnail' p.id %}" class="img-thumbnail" alt="{{ p.file }}" title="{{ p.file }}"/><br/>
+		<small>{{ p.date }}</small><br/>
+		{% for pt in p.tags %}
+			<a href="{% url 'photo_tag' pt.id %}">{{ pt.name }}</a>
+		{% endfor %}
+	</div>
+{% endfor %}
+</div>
+
+
+{% endblock %}

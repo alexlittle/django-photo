@@ -207,3 +207,11 @@ tr.hover:hover {
 div.date-picker-row-fluid {
 	float:left;
 }
+div.photo {
+	width:250px;
+	min-height:300px;
+	display:block;
+	float:left;
+	text-align:center;
+	margin:10px;
+}
