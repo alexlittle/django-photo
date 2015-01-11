@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ location.name }}</h2>
+
+
+{% for p in photos %}
+	<div>
+	{{ p.file }}
+	<img src="{% url 'photo_thumbnail' p.id %}"/>
+	
+	</div>
+{% endfor %}
+
+{% endblock %}
