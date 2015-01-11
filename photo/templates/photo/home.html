@@ -4,4 +4,10 @@
 
 <h1>Photo Database Home</h1>
 
+<ul>
+{% for l in locations %}
+	<li>{{ l.name }}</li>
+
+{% endfor %}
+</ul>
 {% endblock %}
