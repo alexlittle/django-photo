@@ -1,4 +1,7 @@
+import os
+
 from django import forms
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -34,3 +37,11 @@ class ScanFolderForm(forms.Form):
                    css_class='col-lg-offset-2 col-lg-4',
                 ),
             )
+    def clean(self):
+        cleaned_data = super(ScanFolderForm, self).clean()
+        directory = cleaned_data.get("directory")
+        # Check directory exists
+        if not os.path.isdir(settings.PHOTO_ROOT + directory):
+            raise forms.ValidationError(_("Directory does not exist"))
+        
+        return cleaned_data

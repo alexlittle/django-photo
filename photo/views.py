@@ -1,7 +1,10 @@
 
 import base64
+import os
+import glob
 
 from PIL import Image
+from PIL.ExifTags import TAGS
 
 from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, HttpResponse
@@ -64,14 +67,45 @@ def scan_folder(request):
     if request.method == 'POST':
         form = ScanFolderForm(request.POST)
         if form.is_valid(): # All validation rules pass
+            directory = form.cleaned_data.get("directory") 
+            default_tags = form.cleaned_data.get("default_tags")
+            tags = [x.strip() for x in default_tags.split(',')]
             
+            # find if dir is already in locations
+            location, created = Location.objects.get_or_create(name=directory)
             
-            pass
+            # get all the image files from dir
+            image_files = glob.glob(settings.PHOTO_ROOT + directory + "*.jpg")
+            for im in image_files:
+                image_file_name = os.path.basename(im)
+                
+                # find if image exists
+                photo, created = Photo.objects.get_or_create(location=location, file=image_file_name)
+                
+                # add all the tags
+                for t in tags:
+                    tag, created = Tag.objects.get_or_create(name=t)
+                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
+                 
+                exif_tags = get_exif(im)
+                print exif_tags['DateTimeOriginal'] 
+                #photo.date = exif_tags['DateTimeOriginal']
+                #photo.save()
+                 
     else:
         data = {}
         data['default_date'] = timezone.now()
-        data['directory'] = '/photo/'
-        data['default_tags'] = 'test'
+        data['directory'] = '/photos/' + str(timezone.now().year) + '/'
+        data['default_tags'] = ''
         form = ScanFolderForm(initial=data)
 
     return render(request, 'photo/scan.html', {'form': form,'title':_(u'Scan Folder')})
+
+def get_exif(fn):
+    ret = {}
+    i = Image.open(fn)
+    info = i._getexif()
+    for tag, value in info.items():
+        decoded = TAGS.get(tag, tag)
+        ret[decoded] = value
+    return ret
