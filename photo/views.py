@@ -1,7 +1,10 @@
 
 import base64
-import os
+import datetime
 import glob
+import os
+import pytz
+import re
 
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -11,6 +14,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render,render_to_response
 from django.template import RequestContext
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.translation import ugettext_lazy as _
 
 from photo.forms import ScanFolderForm
@@ -88,9 +92,10 @@ def scan_folder(request):
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
                  
                 exif_tags = get_exif(im)
-                print exif_tags['DateTimeOriginal'] 
-                #photo.date = exif_tags['DateTimeOriginal']
-                #photo.save()
+                exif_date = exif_tags['DateTimeOriginal'] 
+                naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
+                photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                photo.save()
                  
     else:
         data = {}
