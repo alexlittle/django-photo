@@ -91,10 +91,12 @@ def scan_folder(request):
                     tag, created = Tag.objects.get_or_create(name=t)
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
                  
-                exif_tags = get_exif(im)
-                exif_date = exif_tags['DateTimeOriginal'] 
-                naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
-                photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                exif_tags, result = get_exif(im)
+                if result:
+                    exif_date = exif_tags['DateTimeOriginal'] 
+                    naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
+                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                    
                 photo.save()
                  
     else:
@@ -110,7 +112,10 @@ def get_exif(fn):
     ret = {}
     i = Image.open(fn)
     info = i._getexif()
-    for tag, value in info.items():
-        decoded = TAGS.get(tag, tag)
-        ret[decoded] = value
-    return ret
+    if info:
+        for tag, value in info.items():
+            decoded = TAGS.get(tag, tag)
+            ret[decoded] = value
+        return ret, True
+    else:
+        return None, False
