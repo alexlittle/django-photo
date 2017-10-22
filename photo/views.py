@@ -141,12 +141,11 @@ def photo_edit_view(request, photo_id):
      
     else:
         tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
-        print tags
         data = {}
         data['tags'] = ", ".join(tags)
         form = EditPhotoForm(initial=data)
 
-    return render(request, 'photo/edit.html', {'form': form,'title':_(u'Edit Photo')})
+    return render(request, 'photo/edit.html', {'form': form,'title':_(u'Edit Photo'), 'photo': photo})
 
 
 def get_exif(fn):
