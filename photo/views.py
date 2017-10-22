@@ -10,6 +10,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render,render_to_response
 from django.template import RequestContext
@@ -65,6 +66,14 @@ def thumbnail_view(request, photo_id):
     response = HttpResponse(content_type="image/jpg")
     im.save(response, "JPEG")
     return response
+
+def photo_view(request, photo_id):
+    photo = Photo.objects.get(pk=photo_id)
+    image = settings.PHOTO_ROOT + photo.location.name + photo.file
+    im = Image.open(image)
+    response = HttpResponse(content_type="image/jpg")
+    im.save(response, "JPEG")
+    return response
       
 def scan_folder(request):
     
@@ -98,7 +107,8 @@ def scan_folder(request):
                     photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
                     
                 photo.save()
-                 
+            
+            return HttpResponseRedirect(reverse('photo_location', kwargs={'location_id': location.id }))     
     else:
         data = {}
         data['default_date'] = timezone.now()
@@ -107,6 +117,13 @@ def scan_folder(request):
         form = ScanFolderForm(initial=data)
 
     return render(request, 'photo/scan.html', {'form': form,'title':_(u'Scan Folder')})
+
+
+
+def photo_edit_view(request, photo_id):
+    
+    
+    return
 
 def get_exif(fn):
     ret = {}

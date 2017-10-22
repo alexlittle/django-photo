@@ -7,11 +7,13 @@
 <div class="row-fluid">
 {% for p in photos %}
 	<div class="photo">
-		<img src="{% url 'photo_thumbnail' p.id %}" class="img-thumbnail" alt="{{ p.file }}" title="{{ p.file }}"/><br/>
+		<a href="{% url 'photo_view' p.id %}" target="_blank"><img src="{% url 'photo_thumbnail' p.id %}" class="img-thumbnail" alt="{{ p.file }}" title="{{ p.file }}"/></a><br/>
 		<small>{{ p.date }}</small><br/>
 		{% for pt in p.tags %}
 			<a href="{% url 'photo_tag' pt.id %}">{{ pt.name }}</a>
 		{% endfor %}
+		<br/>
+		<a href="{% url 'photo_edit' p.id %}">edit</a>
 	</div>
 {% endfor %}
 </div>

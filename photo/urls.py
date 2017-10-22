@@ -11,4 +11,6 @@ urlpatterns = patterns('',
     url(r'^location/(?P<location_id>\d+)$', 'photo.views.location_view', name="photo_location"),
     url(r'^thumbnail/(?P<photo_id>\d+)$', 'photo.views.thumbnail_view', name="photo_thumbnail"),
     url(r'^tag/(?P<tag_id>\d+)$', 'photo.views.tag_view', name="photo_tag"),
+    url(r'^photo/view/(?P<photo_id>\d+)$', 'photo.views.photo_view', name="photo_view"),
+    url(r'^photo/edit/(?P<photo_id>\d+)$', 'photo.views.photo_edit_view', name="photo_edit"),
 )
