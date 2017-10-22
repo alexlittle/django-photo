@@ -45,3 +45,27 @@ class ScanFolderForm(forms.Form):
             raise forms.ValidationError(_("Directory does not exist"))
         
         return cleaned_data
+    
+    
+class EditPhotoForm(forms.Form):
+
+    tags = forms.CharField(
+                required=True,
+                error_messages={'required': _('Please enter at least one tag')},)
+    
+    def __init__(self, *args, **kwargs):
+        super(EditPhotoForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-4'
+        self.helper.layout = Layout(
+                'tags',
+                Div(
+                   Submit('submit', _(u'Update'), css_class='btn btn-default'),
+                   css_class='col-lg-offset-2 col-lg-4',
+                ),
+            )
+    def clean(self):
+        cleaned_data = super(EditPhotoForm, self).clean()
+        return cleaned_data

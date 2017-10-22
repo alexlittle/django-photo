@@ -18,7 +18,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import ugettext_lazy as _
 
-from photo.forms import ScanFolderForm
+from photo.forms import ScanFolderForm, EditPhotoForm
 from photo.models import Location, Photo, PhotoTag, Tag
 
 # Create your views here.
@@ -122,8 +122,32 @@ def scan_folder(request):
 
 def photo_edit_view(request, photo_id):
     
+    photo = Photo.objects.get(pk=photo_id)
     
-    return
+    if request.method == 'POST':
+        form = EditPhotoForm(request.POST)
+        if form.is_valid(): # All validation rules pass
+            
+            # delete any existing tags
+            PhotoTag.objects.filter(photo=photo).delete()
+            
+            new_tags = form.cleaned_data.get("tags")
+            tags = [x.strip() for x in new_tags.split(',')]
+            for t in tags:
+                tag, created = Tag.objects.get_or_create(name=t)
+                photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
+    
+        return HttpResponseRedirect(reverse('photo_location', kwargs={'location_id': photo.location.id }))
+     
+    else:
+        tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
+        print tags
+        data = {}
+        data['tags'] = ", ".join(tags)
+        form = EditPhotoForm(initial=data)
+
+    return render(request, 'photo/edit.html', {'form': form,'title':_(u'Edit Photo')})
+
 
 def get_exif(fn):
     ret = {}
