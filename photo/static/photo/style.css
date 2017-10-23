@@ -1,157 +1,166 @@
 /*
- * Base structure
- #495525 - DC dark green r73,g85,b37
- #77A240 - DC mid green r119,g162, b64
- #a5c727 - DC light green r165,g199,b39
- 
- 2596b4 - light blue
- 2a6083 - mid blue
- 033f62 - dark blue
- ff0054 - pink/red
- 
- */
+bf7c0b - mid brown
+e7d2a7 - light brown
+89a324 - mid green
+5c5441 - dark green/brown
 
-/* Move down content because we have a fixed navbar that is 50px tall */
+
+f8ffff - very light blue
+e0ffff - light blue
+2fcbfe - mid blue
+04689a - dark blue
+*/
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
 body {
+  padding-bottom: 40px;
+  color: #5a5a5a;
   padding-top: 50px;
+  margin-bottom: 60px;
+  font-family: 'Ubuntu', sans-serif;
 }
 
-
-a {
-    color: #2596b4;
-    text-decoration: none;
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f8ffff;
+  border-top: 1px solid #2fcbfe;
+  padding-top:10px;
 }
 
-a:hover, a:focus {
-    color: #ff0054;
-    text-decoration: underline;
-}
-
-.bold {
-	font-weight: bold;
-}
-/*
- * Global add-ons
- */
-
-.sub-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
-}
+/* CUSTOMIZE THE NAVBAR
+-------------------------------------------------- */
 
 .navbar-inverse {
-    background-color: #033f62;
-    border-color: #ff0054;
+	background-color: #f8ffff;
+	border-color: #2fcbfe;
 }
 
 .navbar-inverse .navbar-brand {
-    color: #fff;
+	color: #5a5a5a;
 }
 
-.navbar-header > a > img {
-	margin-right: 5px;
+.navbar-brand {
+	padding: 5px 20px 3px 10px;
 }
+
+.navbar-inverse .navbar-brand:focus, .navbar-inverse .navbar-brand:hover{
+	color: #04689a;	
+}
+
+.navbar-inverse .navbar-brand img{
+	display:inline;
+	padding-right: 10px;
+}
+
 .navbar-inverse .navbar-nav > li > a {
+    color: #5a5a5a;
+}
+
+.navbar-inverse .navbar-nav > li > a:focus, 
+.navbar-inverse .navbar-nav > li > a:hover 
+{
+	background-color: #04689a;
+}
+ 
+
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > .active > a:hover {
+    background-color: #04689a;
     color: #fff;
 }
 
-.navbar-inverse .navbar-nav > li > a:hover,
-.navbar-inverse .navbar-nav > li > a:focus {
-    background-color: #033f62;
+/* Special class on .container surrounding .navbar, used for positioning it into place. */
+.navbar-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 20;
 }
 
-/*
- * Sidebar
- */
-
-/* Hide for mobile, show later */
-.sidebar {
-  display: none;
+/* Flip around the padding for proper display in narrow viewports */
+.navbar-wrapper > .container {
+  padding-right: 0;
+  padding-left: 0;
 }
+.navbar-wrapper .navbar {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+.navbar-wrapper .navbar .container {
+  width: auto;
+}
+
+
+/* Mapping
+-------------------------------------------------- */
+#mapid { height: 300px; }
+
+
+/* h tags
+-------------------------------------------------- */
+
+.h1, .h2, .h3, h1, h2, h3 {
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+
+h1 {
+	color: #04689a;
+	font-size: 150%;
+}
+
+h2 {
+	color: #04689a;
+	font-size: 130%;
+}
+
+
+/* RESPONSIVE CSS
+-------------------------------------------------- */
+
 @media (min-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 51px;
-    bottom: 0;
-    left: 0;
-    z-index: 1000;
-    display: block;
-    padding: 20px;
-    overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    background-color: #f5f5f5;
-    border-right: 1px solid #eee;
+  /* Navbar positioning foo */
+  .navbar-wrapper {
+    margin-top: 20px;
   }
-}
-
-/* Sidebar navigation */
-.nav-sidebar {
-  margin-right: -21px; /* 20px padding + 1px border */
-  margin-bottom: 20px;
-  margin-left: -20px;
-}
-.nav-sidebar > li > a {
-  padding-right: 20px;
-  padding-left: 20px;
-  color: #495525;
-}
-.nav-sidebar > .text {
-  color: #495525;
-  padding: 10px 20px;
-}
-
-.nav-sidebar > .active > a {
-  color: #fff;
-  background-color: #77A240;
-}
-
-.nav > li > a:hover {
-  background-color: #77A240;
-  color: #fff;
-}
-.nav > li > a:focus {
-  background-color: #77A240;
-  color: #fff;
-}
-
-/*
- * Main content
- */
-
-.main {
-  padding: 0;
-}
-@media (min-width: 768px) {
-  .main {
+  .navbar-wrapper .container {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+  .navbar-wrapper .navbar {
     padding-right: 0;
     padding-left: 0;
   }
-}
-.main .page-header {
-  margin-top: 0;
+
+  /* The navbar becomes detached from the top, so we round the corners */
+  .navbar-wrapper .navbar {
+    border-radius: 4px;
+  }
+
+  /* Bump up size of carousel content */
+  .carousel-caption p {
+    margin-bottom: 20px;
+    font-size: 21px;
+    line-height: 1.4;
+  }
+
+  .featurette-heading {
+    font-size: 50px;
+  }
 }
 
-.row {
-	margin: 0;
-}
-
-/*
- * Placeholder dashboard ideas
- */
-
-.placeholders {
-  margin-bottom: 30px;
-  text-align: center;
-}
-.placeholders h4 {
-  margin-bottom: 0;
-}
-.placeholder {
-  margin-bottom: 20px;
-}
-.placeholder img {
-  display: inline-block;
-  border-radius: 50%;
+@media (min-width: 992px) {
+  .featurette-heading {
+    margin-top: 120px;
+  }
 }
 
 /*
@@ -159,21 +168,21 @@ a:hover, a:focus {
  */
  
 .form-control:focus {
-	border-color: #a5c727;
-	box-shadow: 0 1px 1px rgba(0,0,0,0.075) inset, 0 0 8px rgba(165,199,39,0.6);
+	border-color: #2fcbfe;
+	box-shadow: 0 1px 1px rgba(0,0,0,0.075) inset, 0 0 8px rgba(47,203,254,0.6);
 	outline: 0 none;
 }
 
 .btn-primary {
-    background-color: #77A240;
-    border-color: #495525;
+    background-color: #2fcbfe;
+    border-color: ##04689a;
     color: #FFFFFF;
 }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active,
 	.btn-primary.active, .open .dropdown-toggle.btn-primary {
-    background-color: #77A240;
-    border-color: #495525;
+    background-color: #2fcbfe;
+    border-color: ##04689a;
     color: #FFFFFF;
 }
 
@@ -187,26 +196,6 @@ a:hover, a:focus {
     text-decoration: none;
 }
 
-/*
- * Footer
- */
- 
-#footer {
-	border-top: 1px solid #ff0054;
-	margin-top:50px;
-	padding-top: 20px;
-	text-align:right;
-	padding-right:20px;
-}
-
-tr.hover:hover {
-    background-color: yellow;
-    cursor: pointer;
-}
-
-div.date-picker-row-fluid {
-	float:left;
-}
 div.photo {
 	width:250px;
 	min-height:300px;
