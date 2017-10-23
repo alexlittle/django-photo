@@ -5,10 +5,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from tastypie.models import create_api_key
-
-models.signals.post_save.connect(create_api_key, sender=User)
-
 class Location (models.Model):
     name = models.TextField(blank=False, null=False)
     

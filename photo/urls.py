@@ -1,16 +1,17 @@
 # photo/urls.py
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
+
+from photo import views as photo_views
 
 
-urlpatterns = patterns('',
-
-    url(r'^$', 'photo.views.home_view', name="photo_home"),
-    url(r'^scan/$', 'photo.views.scan_folder', name="photo_scan"),
-    url(r'^cloud/$', 'photo.views.cloud_view', name="photo_cloud"),
-    url(r'^location/(?P<location_id>\d+)$', 'photo.views.location_view', name="photo_location"),
-    url(r'^thumbnail/(?P<photo_id>\d+)$', 'photo.views.thumbnail_view', name="photo_thumbnail"),
-    url(r'^tag/(?P<tag_id>\d+)$', 'photo.views.tag_view', name="photo_tag"),
-    url(r'^photo/view/(?P<photo_id>\d+)$', 'photo.views.photo_view', name="photo_view"),
-    url(r'^photo/edit/(?P<photo_id>\d+)$', 'photo.views.photo_edit_view', name="photo_edit"),
-)
+urlpatterns = [
+    url(r'^$', photo_views.home_view, name="photo_home"),
+    url(r'^scan/$', photo_views.scan_folder, name="photo_scan"),
+    url(r'^cloud/$', photo_views.cloud_view, name="photo_cloud"),
+    url(r'^location/(?P<location_id>\d+)$', photo_views.location_view, name="photo_location"),
+    url(r'^thumbnail/(?P<photo_id>\d+)$', photo_views.thumbnail_view, name="photo_thumbnail"),
+    url(r'^tag/(?P<tag_id>\d+)$', photo_views.tag_view, name="photo_tag"),
+    url(r'^photo/view/(?P<photo_id>\d+)$', photo_views.photo_view, name="photo_view"),
+    url(r'^photo/edit/(?P<photo_id>\d+)$', photo_views.photo_edit_view, name="photo_edit"),
+]
