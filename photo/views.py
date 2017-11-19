@@ -58,7 +58,7 @@ def thumbnail_view(request, photo_id, max_size):
     photo = Photo.objects.get(pk=photo_id)
     image = settings.PHOTO_ROOT + photo.location.name + photo.file
     im = Image.open(image)
-    im.thumbnail(size=(max_size,max_size))
+    im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)
     response = HttpResponse(content_type="image/jpg")
     im.save(response, "JPEG")
     return response

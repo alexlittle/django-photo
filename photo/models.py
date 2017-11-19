@@ -5,8 +5,11 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
+from PIL import Image
+
 class Location (models.Model):
     name = models.TextField(blank=False, null=False)
+    title = models.TextField(blank=True, null=True)
     
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
