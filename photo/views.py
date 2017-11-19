@@ -19,24 +19,24 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import ugettext_lazy as _
 
 from photo.forms import ScanFolderForm, EditPhotoForm
-from photo.models import Location, Photo, PhotoTag, Tag
+from photo.models import Album, Photo, PhotoTag, Tag
 
 # Create your views here.
 
 
 def home_view(request):
-    locations = Location.objects.all().order_by('-name')
+    albums = Album.objects.all().order_by('-name')
     return render(request, 'photo/home.html',
-                              {'locations': locations,})
+                              {'albums': albums,})
     
-def location_view(request, location_id):
-    location = Location.objects.get(pk=location_id)
-    photos = Photo.objects.filter(location=location).order_by('date')
+def album_view(request, album_id):
+    album = Album.objects.get(pk=album_id)
+    photos = Photo.objects.filter(album=album).order_by('date')
     for p in photos:
         p.tags = Tag.objects.filter(phototag__photo=p)
     
-    return render(request, 'photo/set.html',
-                               {'title': location.name,
+    return render(request, 'photo/album.html',
+                               {'title': album.name,
                                 'photos': photos})
   
 def tag_view(request, tag_id):
@@ -44,7 +44,7 @@ def tag_view(request, tag_id):
     photos = Photo.objects.filter(phototag__tag=tag).order_by('date')
     for p in photos:
         p.tags = Tag.objects.filter(phototag__photo=p)
-    return render(request, 'photo/set.html',
+    return render(request, 'photo/album.html',
                                {'title': tag.name,
                                 'photos': photos})
  
@@ -56,7 +56,7 @@ def cloud_view(request):
        
 def thumbnail_view(request, photo_id, max_size):
     photo = Photo.objects.get(pk=photo_id)
-    image = settings.PHOTO_ROOT + photo.location.name + photo.file
+    image = settings.PHOTO_ROOT + photo.album.name + photo.file
     im = Image.open(image)
     im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)
     response = HttpResponse(content_type="image/jpg")
@@ -65,7 +65,7 @@ def thumbnail_view(request, photo_id, max_size):
 
 def photo_view(request, photo_id):
     photo = Photo.objects.get(pk=photo_id)
-    image = settings.PHOTO_ROOT + photo.location.name + photo.file
+    image = settings.PHOTO_ROOT + photo.album.name + photo.file
     im = Image.open(image)
     response = HttpResponse(content_type="image/jpg")
     im.save(response, "JPEG")
@@ -81,7 +81,7 @@ def scan_folder(request):
             tags = [x.strip() for x in default_tags.split(',')]
             
             # find if dir is already in locations
-            location, created = Location.objects.get_or_create(name=directory)
+            album, created = Album.objects.get_or_create(name=directory)
             
             # get all the image files from dir
             image_files = glob.glob(settings.PHOTO_ROOT + directory + "*.jpg")
@@ -89,7 +89,7 @@ def scan_folder(request):
                 image_file_name = os.path.basename(im)
                 
                 # find if image exists
-                photo, created = Photo.objects.get_or_create(location=location, file=image_file_name)
+                photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
                 
                 # add all the tags
                 for t in tags:
@@ -104,7 +104,7 @@ def scan_folder(request):
                     
                 photo.save()
             
-            return HttpResponseRedirect(reverse('photo_location', kwargs={'location_id': location.id }))     
+            return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id }))     
     else:
         data = {}
         data['default_date'] = timezone.now()
@@ -133,7 +133,7 @@ def photo_edit_view(request, photo_id):
                 tag, created = Tag.objects.get_or_create(name=t)
                 photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
     
-        return HttpResponseRedirect(reverse('photo_location', kwargs={'location_id': photo.location.id }))
+        return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': photo.album.id }))
      
     else:
         tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)

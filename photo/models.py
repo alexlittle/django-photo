@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from PIL import Image
 
-class Location (models.Model):
+class Album (models.Model):
     name = models.TextField(blank=False, null=False)
     title = models.TextField(blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
@@ -19,7 +19,7 @@ class Location (models.Model):
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
     date = models.DateTimeField(default=timezone.now)
-    location = models.ForeignKey(Location) 
+    album = models.ForeignKey(Album) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
     

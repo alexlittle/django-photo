@@ -5,8 +5,8 @@
 <h1>Photo Database Home</h1>
 
 <ul>
-{% for l in locations %}
-	<li><a href="{% url 'photo_location' l.id %}">{{ l.name }}</a></li>
+{% for l in albums %}
+	<li><a href="{% url 'photo_album' l.id %}">{{ l.name }}</a></li>
 
 {% endfor %}
 </ul>
