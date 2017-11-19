@@ -6,11 +6,15 @@ import os
 import pytz
 import re
 
+from io import BytesIO
+
 from PIL import Image
 from PIL.ExifTags import TAGS
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.base import ContentFile
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.template import RequestContext
@@ -19,7 +23,7 @@ from django.utils.dateparse import parse_datetime
 from django.utils.translation import ugettext_lazy as _
 
 from photo.forms import ScanFolderForm, EditPhotoForm
-from photo.models import Album, Photo, PhotoTag, Tag
+from photo.models import Album, Photo, PhotoTag, Tag, ThumbnailCache
 
 # Create your views here.
 
@@ -38,13 +42,6 @@ def album_view(request, album_id):
     return render(request, 'photo/album.html',
                                {'title': album.name,
                                 'photos': photos})
-  
-def album_cover_view(request, album_id, max_size):
-    try:
-        p = Photo.objects.get(album__id=album_id,album_cover=True)
-    except Photo.DoesNotExist:
-        p = Photo.objects.filter(album__id=album_id).earliest('date')
-    return redirect('photo_thumbnail', photo_id=p.id, max_size=max_size)
     
 def tag_view(request, tag_id):
     tag = Tag.objects.get(pk=tag_id)
@@ -61,15 +58,6 @@ def cloud_view(request):
                                {'title': _('Cloud'),
                                 'tags': tags})
        
-def thumbnail_view(request, photo_id, max_size):
-    photo = Photo.objects.get(pk=photo_id)
-    image = settings.PHOTO_ROOT + photo.album.name + photo.file
-    im = Image.open(image)
-    im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)
-    response = HttpResponse(content_type="image/jpg")
-    im.save(response, "JPEG")
-    return response
-
 def photo_view(request, photo_id):
     photo = Photo.objects.get(pk=photo_id)
     image = settings.PHOTO_ROOT + photo.album.name + photo.file
@@ -151,6 +139,20 @@ def photo_edit_view(request, photo_id):
     return render(request, 'photo/edit.html', {'form': form,'title':_(u'Edit Photo'), 'photo': photo})
 
 
+def photo_set_cover(request, photo_id):
+    photo = Photo.objects.get(pk=photo_id)
+    album = Album.objects.get(pk=photo.album.id)
+    photos = Photo.objects.filter(album=album)
+    for p in photos:
+        p.album_cover = False
+        p.save()
+        
+    
+    photo.album_cover = True
+    photo.save()
+    
+    return redirect('photo_album', album_id=album.id)
+    
 def get_exif(fn):
     ret = {}
     i = Image.open(fn)
