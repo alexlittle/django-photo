@@ -4,10 +4,18 @@
 
 <h1>Photo Database Home</h1>
 
-<ul>
-{% for l in albums %}
-	<li><a href="{% url 'photo_album' l.id %}">{{ l.name }}</a></li>
-
+      <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+{% for a in albums %}
+	<tr>
+		<td>
+		<img src="{% url 'photo_album_cover' a.id  150 %}" class="img-thumbnail" alt="{{ a.get_cover }}" title="{{ a.get_cover }}"/>
+		</td>
+		<td><a href="{% url 'photo_album' a.id %}">{{ a.name }}</a></td>
+		<td>{{ a.title }}</td>
+	</tr>
 {% endfor %}
-</ul>
+	</table>
+</div>
+
 {% endblock %}

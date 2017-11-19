@@ -22,6 +22,7 @@ class Photo (models.Model):
     album = models.ForeignKey(Album) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
+    album_cover = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.file

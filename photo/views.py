@@ -12,7 +12,7 @@ from PIL.ExifTags import TAGS
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -39,6 +39,13 @@ def album_view(request, album_id):
                                {'title': album.name,
                                 'photos': photos})
   
+def album_cover_view(request, album_id, max_size):
+    try:
+        p = Photo.objects.get(album__id=album_id,album_cover=True)
+    except Photo.DoesNotExist:
+        p = Photo.objects.filter(album__id=album_id).earliest('date')
+    return redirect('photo_thumbnail', photo_id=p.id, max_size=max_size)
+    
 def tag_view(request, tag_id):
     tag = Tag.objects.get(pk=tag_id)
     photos = Photo.objects.filter(phototag__tag=tag).order_by('date')
