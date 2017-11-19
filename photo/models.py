@@ -10,15 +10,30 @@ from PIL import Image
 class Location (models.Model):
     name = models.TextField(blank=False, null=False)
     title = models.TextField(blank=True, null=True)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return self.name
     
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
     date = models.DateTimeField(default=timezone.now)
-    location = models.ForeignKey(Location)   
+    location = models.ForeignKey(Location) 
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)  
+    
+    def __unicode__(self):
+        return self.file
     
 class Tag (models.Model):
     name = models.TextField(blank=False, null=False)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
 
+    def __unicode__(self):
+        return self.name
+    
 class PhotoTag(models.Model):
     photo = models.ForeignKey(Photo)
     tag = models.ForeignKey(Tag)
