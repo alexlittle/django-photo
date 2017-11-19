@@ -51,7 +51,11 @@ def tag_view(request, tag_id):
     return render(request, 'photo/album.html',
                                {'title': tag.name,
                                 'photos': photos})
- 
+
+def tag_name_view(request, name):
+    tag = Tag.objects.get(name=name)
+    return redirect(tag_view, tag_id=tag.id)
+     
 def cloud_view(request):
     tags = Tag.objects.all().order_by('name')
     return render(request,'photo/cloud.html',

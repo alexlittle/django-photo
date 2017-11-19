@@ -1,3 +1,4 @@
+import hashlib
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -54,11 +55,11 @@ class Photo (models.Model):
             buffer = BytesIO()
             im.save(fp=buffer, format='JPEG')
             pillow_image = ContentFile(buffer.getvalue())
-    
+            file_name = hashlib.md5(buffer.getvalue()).hexdigest()
             thumb = ThumbnailCache(size=max_size, photo=photo, image=InMemoryUploadedFile(
                                                                                  pillow_image,       # file
                                                                                  None,               # field_name
-                                                                                 photo.file,           # file name
+                                                                                 file_name,           # file name
                                                                                  'image/jpeg',       # content_type
                                                                                  pillow_image.tell,  # size
                                                                                  None)               # content_type_extra
@@ -85,4 +86,4 @@ class ThumbnailCache(models.Model):
     size = models.IntegerField(blank=False, null=False) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True) 
-    image = models.ImageField(upload_to='thumbcache/%Y/%m/%d', max_length=200, blank=True, null=True)
+    image = models.ImageField(upload_to='thumbcache', max_length=200, blank=True, null=True)
