@@ -30,13 +30,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         max_size = options['size']
-        print options
         if options['tag']:
             photos = Photo.objects.filter(phototag__tag__name=options['tag']).exclude(thumbnailcache__size=max_size)
         else:
             photos = Photo.objects.exclude(thumbnailcache__size=max_size)
             
-        print photos.count()
+        print str(photos.count()) + " to process"
+        
         for p in photos:
             print "processing: " + p.album.name + p.file
             print p.get_thumbnail(p,max_size)
