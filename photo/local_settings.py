@@ -5,6 +5,7 @@ def modify(settings):
     settings['INSTALLED_APPS'] += ('photo','crispy_forms')
     settings['CRISPY_TEMPLATE_PACK'] = 'bootstrap3'
     settings['PHOTO_ROOT'] = '/home/alex/data'
+    settings['DEFAULT_THUMBNAIL_SIZES'] = [250]
     
 
     

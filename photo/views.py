@@ -102,6 +102,9 @@ def scan_folder(request):
                     photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
                     
                 photo.save()
+                #create thumbnails
+                for size in settings.DEFAULT_THUMBNAIL_SIZES:
+                    photo.get_thumbnail(photo,size)
             
             return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id }))     
     else:
