@@ -1,4 +1,5 @@
 import hashlib
+import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,6 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from io import BytesIO
 
 from PIL import Image
+
+from photo.cache_storage import ImageCacheFileSystemStorage
 
 class Album (models.Model):
     name = models.TextField(blank=False, null=False)
@@ -49,22 +52,25 @@ class Photo (models.Model):
         try:
             thumb = ThumbnailCache.objects.get(photo=photo, size=max_size)
         except ThumbnailCache.DoesNotExist:
-            image = settings.PHOTO_ROOT + photo.album.name + photo.file
-            im = Image.open(image)
-            im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)        
-            buffer = BytesIO()
-            im.save(fp=buffer, format='JPEG')
-            pillow_image = ContentFile(buffer.getvalue())
-            file_name = hashlib.md5(buffer.getvalue()).hexdigest()
-            thumb = ThumbnailCache(size=max_size, photo=photo, image=InMemoryUploadedFile(
-                                                                                 pillow_image,       # file
-                                                                                 None,               # field_name
-                                                                                 file_name,           # file name
-                                                                                 'image/jpeg',       # content_type
-                                                                                 pillow_image.tell,  # size
-                                                                                 None)               # content_type_extra
-                                   )
-            thumb.save()
+            try: 
+                image = settings.PHOTO_ROOT + photo.album.name + photo.file
+                im = Image.open(image)
+                im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)        
+                buffer = BytesIO()
+                im.save(fp=buffer, format='JPEG')
+                pillow_image = ContentFile(buffer.getvalue())
+                file_name = hashlib.md5(buffer.getvalue()).hexdigest()
+                thumb = ThumbnailCache(size=max_size, photo=photo, image=InMemoryUploadedFile(
+                                                                                     pillow_image,       # file
+                                                                                     None,               # field_name
+                                                                                     file_name,           # file name
+                                                                                     'image/jpeg',       # content_type
+                                                                                     pillow_image.tell,  # size
+                                                                                     None)               # content_type_extra
+                                       )
+                thumb.save()
+            except IOError:
+                return None 
            
         return thumb.image.url
     
@@ -79,11 +85,20 @@ class Tag (models.Model):
 class PhotoTag(models.Model):
     photo = models.ForeignKey(Photo)
     tag = models.ForeignKey(Tag)
-    
+ 
+def image_file_name(instance, filename):
+        basename, ext = os.path.splitext(filename)
+        return os.path.join('cache', filename[0:2], filename[2:4], filename + ext.lower())   
     
 class ThumbnailCache(models.Model):
     photo = models.ForeignKey(Photo)
     size = models.IntegerField(blank=False, null=False) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True) 
-    image = models.ImageField(upload_to='thumbcache', max_length=200, blank=True, null=True)
+    image = models.ImageField(upload_to=image_file_name,  blank=True, null=True)
+    
+    
+    
+    
+    
+    

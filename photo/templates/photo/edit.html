@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load thumbnail %}
 
 {% load crispy_forms_tags %}
 
 {% block content %}
 <h1>{{ title }}</h1>
 
-<img src="{% url 'photo_thumbnail' photo.id  300 %}" class="img-thumbnail" alt="{{ photo.file }}" title="{{ photo.file }}"/>
+<img src="{{ photo|get_thumbnail:250 }}" class="img-thumbnail" alt="{{ photo.file }}" title="{{ photo.file }}"/>
 
 {% crispy form %}
 
