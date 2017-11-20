@@ -24,6 +24,10 @@ class Album (models.Model):
     def __unicode__(self):
         return self.name
     
+    class Meta:
+        verbose_name = _('Album')
+        verbose_name_plural = _('Album')
+        
     @staticmethod
     def get_cover(album,max_size):
         try:
@@ -47,6 +51,10 @@ class Photo (models.Model):
     def __unicode__(self):
         return self.file
     
+    class Meta:
+        verbose_name = _('Photo')
+        verbose_name_plural = _('Photos')
+        
     @staticmethod
     def get_thumbnail(photo,max_size):
         try:
@@ -73,19 +81,41 @@ class Photo (models.Model):
                 return None 
            
         return thumb.image.url
-    
-class Tag (models.Model):
-    name = models.TextField(blank=False, null=False)
+
+
+class TagCategory(models.Model):
+    name = models.CharField(max_length=20, blank=False, null=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         return self.name
     
+    class Meta:
+        verbose_name = _('Tag Category')
+        verbose_name_plural = _('Tag Categories')
+         
+class Tag (models.Model):
+    name = models.TextField(blank=False, null=False)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
+    tagcategory  = models.ForeignKey(TagCategory,null=True,default=None)
+
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = _('Tag')
+        verbose_name_plural = _('Tags')
+        
 class PhotoTag(models.Model):
     photo = models.ForeignKey(Photo)
     tag = models.ForeignKey(Tag)
  
+    class Meta:
+        verbose_name = _('Photo Tag')
+        verbose_name_plural = _('Photo Tags')
+        
 def image_file_name(instance, filename):
         basename, ext = os.path.splitext(filename)
         return os.path.join('cache', filename[0:2], filename[2:4], filename + ext.lower())   
@@ -97,7 +127,9 @@ class ThumbnailCache(models.Model):
     updated_date = models.DateTimeField(auto_now=True) 
     image = models.ImageField(upload_to=image_file_name,  blank=True, null=True)
     
-    
+    class Meta:
+        verbose_name = _('Thumbnail Cache')
+        verbose_name_plural = _('Thumbnail Caches')
     
     
     
