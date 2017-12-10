@@ -58,7 +58,8 @@ class Photo (models.Model):
     @staticmethod
     def get_thumbnail(photo,max_size):
         try:
-            thumb = ThumbnailCache.objects.get(photo=photo, size=max_size)
+            print photo.id, max_size
+            thumb = ThumbnailCache.objects.filter(photo=photo, size=max_size)[:1].get()
         except ThumbnailCache.DoesNotExist:
             try: 
                 image = settings.PHOTO_ROOT + photo.album.name + photo.file
