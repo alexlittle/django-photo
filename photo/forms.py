@@ -69,3 +69,22 @@ class EditPhotoForm(forms.Form):
     def clean(self):
         cleaned_data = super(EditPhotoForm, self).clean()
         return cleaned_data
+    
+    
+class SearchForm(forms.Form):
+    q = forms.CharField(
+        required=True,
+        error_messages={'required': _(u'Please enter something to search for')},)
+
+    def __init__(self, *args, **kwargs):
+        super(SearchForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_show_labels = False
+        self.helper.form_method = "GET"
+        self.helper.form_class = 'form-horizontal'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.layout = Layout(
+            FieldWithButtons('q', Submit('submit', _(u'Go'),
+                                         css_class='btn btn-default')),
+
+        )

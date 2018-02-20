@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h2>Search</h2>
+
+    {% crispy form %}
+
+    {% if query %}
+        <h3>Results</h3>
+
+        {% for result in page.object_list %}
+            <div class="photo">
+                <a href="{% url 'photo_view' result.object.id %}" target="_blank"><img src="" class="img-thumbnail" alt="{{ result.object.file }}" title="{{ result.object.file }}"/></a><br/>
+				<small>{{ p.date }}</small><br/>
+				{% for pt in result.object.tags %}
+					<a href="{% url 'photo_tag' pt.id %}">{{ pt.name }}</a>
+				{% endfor %}
+			</div>
+        {% empty %}
+            <p>No results found.</p>
+        {% endfor %}
+
+        {% if page.has_previous or page.has_next %}
+            <div>
+                {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+                |
+                {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        {# Show some example queries to run, maybe query syntax, something else? #}
+    {% endif %}
+{% endblock %}

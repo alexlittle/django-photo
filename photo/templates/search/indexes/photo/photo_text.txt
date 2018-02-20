@@ -1,0 +1,3 @@
+{{ object.get_tags }}
+{{ object.album.name }}
+{{ object.album.title }}

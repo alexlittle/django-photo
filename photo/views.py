@@ -12,9 +12,10 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.template import RequestContext
@@ -22,11 +23,10 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import ugettext_lazy as _
 
-from photo.forms import ScanFolderForm, EditPhotoForm
+from haystack.query import SearchQuerySet
+
+from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm
 from photo.models import Album, Photo, PhotoTag, Tag, ThumbnailCache
-
-# Create your views here.
-
 
 def home_view(request):
     albums = Album.objects.all().order_by('-name')
@@ -61,6 +61,44 @@ def cloud_view(request):
     return render(request,'photo/cloud.html',
                                {'title': _('Cloud'),
                                 'tags': tags})
+
+def search_view(request):
+    search_query = request.GET.get('q', '')
+
+    if search_query:
+        print search_query
+        search_results = SearchQuerySet().filter(content=search_query)
+        print search_results
+        for s in search_results:
+            print s
+    else:
+        search_results = []
+
+    data = {}
+    data['q'] = search_query
+    form = SearchForm(initial=data)
+
+    paginator = Paginator(search_results, 50)
+    # Make sure page request is an int. If not, deliver first page.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    try:
+        results = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        results = paginator.page(paginator.num_pages)
+
+
+    return render(request, 'photo/search.html', {
+        'form': form,
+        'query': search_query,
+        'page': results,
+        'total_results': paginator.count,
+    })
+
+
        
 def photo_view(request, photo_id):
     photo = Photo.objects.get(pk=photo_id)

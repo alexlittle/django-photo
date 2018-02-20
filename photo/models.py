@@ -54,7 +54,11 @@ class Photo (models.Model):
     class Meta:
         verbose_name = _('Photo')
         verbose_name_plural = _('Photos')
-        
+    
+    def get_tags(self):
+        tags = Tag.objects.filter(phototag__photo=self).values_list('name', flat=True)
+        return ', '.join(tags)
+            
     @staticmethod
     def get_thumbnail(photo,max_size):
         try:
