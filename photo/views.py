@@ -97,9 +97,12 @@ def scan_folder(request):
                  
                 exif_tags, result = get_exif(im)
                 if result:
-                    exif_date = exif_tags['DateTimeOriginal'] 
-                    naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
-                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                    try:
+                        exif_date = exif_tags['DateTimeOriginal'] 
+                        naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
+                        photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                    except KeyError:
+                        photo.date = form.cleaned_data.get("default_date")
                     
                 photo.save()
                 #create thumbnails

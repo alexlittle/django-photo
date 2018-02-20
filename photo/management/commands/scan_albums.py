@@ -72,13 +72,14 @@ class Command(BaseCommand):
                        
         print count_not_found
         
-        '''
+        
         # Scan albums in DB to ensure they all exist on file
         albums = Album.objects.all()
         
         for album in albums:
             if os.path.isdir(settings.PHOTO_ROOT + album.name):
-                print album.name + " " + bcolors.OK + "found" + bcolors.ENDC
+                #print album.name + " " + bcolors.OK + "found" + bcolors.ENDC
+                pass
             else:
                 print bcolors.WARNING + album.name + " " + " NOT FOUND" + bcolors.ENDC
-        '''
+        
