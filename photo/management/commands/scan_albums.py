@@ -41,7 +41,23 @@ class Command(BaseCommand):
                     '/photos/2006/',
                     '/photos/2007/',
                     '/photos/2008/',
+                    '/photos/2008/2008-05-ledbury/',
+                    '/photos/2008/08/',
+                    '/photos/2008/2008-08-leaving-ou/',
+                    '/photos/2008/09/',
+                    '/photos/2008/10/',
+                    '/photos/2008/11/',
+                    '/photos/2008/12/',
+                    '/photos/2008/12/gheralta/',
                     '/photos/2009/',
+                    '/photos/2009/01/danakil/',
+                    '/photos/2009/01/',
+                    '/photos/2009/02/',
+                    '/photos/2009/02/simiens/',
+                    '/photos/2009/02/simiens/360/',
+                    '/photos/2009/03/',
+                    '/photos/2009/04/',
+                    '/photos/2009/05/',
                     '/photos/2010/',
                     '/photos/2011/',
                     '/photos/2012/',
@@ -51,6 +67,8 @@ class Command(BaseCommand):
                     '/photos/2016/',
                     '/photos/2017/',
                     '/photos/2018/',
+                    
+                    
                     ]
        
         for path in paths:

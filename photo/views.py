@@ -141,7 +141,11 @@ def scan_folder(request):
                         photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
                     except KeyError:
                         photo.date = form.cleaned_data.get("default_date")
-                    
+                    except AttributeError:
+                        photo.date = form.cleaned_data.get("default_date")
+                    except ValueError:
+                        photo.date = form.cleaned_data.get("default_date")
+                        
                 photo.save()
                 #create thumbnails
                 for size in settings.DEFAULT_THUMBNAIL_SIZES:
