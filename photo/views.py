@@ -86,11 +86,7 @@ def search_view(request):
     search_query = request.GET.get('q', '')
 
     if search_query:
-        print search_query
         search_results = SearchQuerySet().filter(content=search_query)
-        print search_results
-        for s in search_results:
-            print s
     else:
         search_results = []
 

@@ -25,7 +25,8 @@
 				<small>{{ result.object.date }}</small><br/>
 				{% for pt in result.object.tags %}
 					<a href="{% url 'photo_tag' pt.id %}">{{ pt.name }}</a>
-				{% endfor %}
+				{% endfor %}<br/>
+				<a href="{% url 'photo_album' result.object.album.id %}">{{ result.object.album.name }}</a>
 			</div>
         {% empty %}
             <p>No results found.</p>
