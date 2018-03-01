@@ -28,6 +28,8 @@ class Command(BaseCommand):
         for t in tags:
             print ("http://localhost:8000%s" % reverse('admin:photo_tag_change', args=(t.id, )))
             
+        print tags.count()
+            
             
             
         

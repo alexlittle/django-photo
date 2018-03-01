@@ -11,6 +11,14 @@
     {% if query %}
         <h3>Results</h3>
 
+		{% if page.has_previous or page.has_next %}
+            <div>
+                {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+                |
+                {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+            </div>
+        {% endif %}
+        
         {% for result in page.object_list %}
             <div class="photo">
                 <a href="{% url 'photo_view' result.object.id %}" target="_blank"><img src="{{ result.object|get_thumbnail:250 }}" class="img-thumbnail" alt="{{ result.object.file }}" title="{{ result.object.file }}"/></a><br/>
@@ -24,7 +32,7 @@
         {% endfor %}
 
         {% if page.has_previous or page.has_next %}
-            <div>
+            <div style="clear:both;">
                 {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
                 |
                 {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
