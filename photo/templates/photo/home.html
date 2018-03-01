@@ -5,9 +5,18 @@
 
 <h1>Photo Database Home</h1>
 
-      <div class="table-responsive">
+{% if page.has_previous or page.has_next %}
+    <div>
+        {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+        |
+        {% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+    </div>
+{% endif %}
+
+
+<div class="table-responsive">
       <table class="table table-bordered table-hover">
-{% for a in albums %}
+{% for a in page.object_list %}
 	<tr>
 		<td>
 		<img src="{{ a|get_cover:150 }}" class="img-thumbnail"/>
@@ -18,5 +27,13 @@
 {% endfor %}
 	</table>
 </div>
+
+{% if page.has_previous or page.has_next %}
+    <div>
+        {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+        |
+        {% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+    </div>
+{% endif %}
 
 {% endblock %}

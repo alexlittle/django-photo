@@ -30,8 +30,22 @@ from photo.models import Album, Photo, PhotoTag, Tag, ThumbnailCache
 
 def home_view(request):
     albums = Album.objects.all().order_by('-name')
+    
+    paginator = Paginator(albums, 25)
+    # Make sure page request is an int. If not, deliver first page.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    
+    try:
+        albums = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        albums = paginator.page(paginator.num_pages)
+        
     return render(request, 'photo/home.html',
-                              {'albums': albums,})
+                              {'page': albums,
+                                'total_albums': paginator.count,})
     
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
