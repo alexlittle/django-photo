@@ -32,7 +32,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         paths = ['photos', 'negatives']
        
-        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg']
+        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf']
         # Scan directory structure to find photos that haven't been uploaded to DB
         count_not_found = 0
        

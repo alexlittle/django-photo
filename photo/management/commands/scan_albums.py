@@ -61,6 +61,7 @@ class Command(BaseCommand):
                     '/photos/2010/',
                     '/photos/2011/',
                     '/photos/2012/',
+                    '/photos/2012/2012-05-31-hew-video/',
                     '/photos/2013/',
                     '/photos/2014/',
                     '/photos/2015/',
