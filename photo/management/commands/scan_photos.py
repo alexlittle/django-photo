@@ -43,9 +43,9 @@ class Command(BaseCommand):
         )
         
         parser.add_argument(
-            '--notfoundonly',
+            '--verbose',
             action='store_true',
-            dest='notfoundonly',
+            dest='verbose',
             help='only show items not found',
         )
         
@@ -76,7 +76,8 @@ class Command(BaseCommand):
                        
                        try:
                            Photo.objects.get(album__name=album, file=name)
-                           #print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
+                           if options['verbose']:
+                               print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
                        except Photo.DoesNotExist: 
                            print bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC
                            count_not_found+=1
@@ -91,7 +92,7 @@ class Command(BaseCommand):
             
             for photo in photos:
                 if os.path.isfile(settings.PHOTO_ROOT + photo.album.name + photo.file):
-                    if not options['notfoundonly']:
+                    if options['verbose']:
                         print photo.album.name + photo.file + " " + bcolors.OK + "found" + bcolors.ENDC
                 else:
                     print bcolors.WARNING + photo.album.name + photo.file + " " + " NOT FOUND" + bcolors.ENDC

@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^$', photo_views.home_view, name="photo_home"),
     url(r'^scan/$', photo_views.scan_folder, name="photo_scan"),
     url(r'^cloud/$', photo_views.cloud_view, name="photo_cloud"),
+    url(r'^cloud/(?P<category>\w+)$', photo_views.cloud_category_view, name="photo_cloud_category"),
     url(r'^search/$', photo_views.search_view, name="photo_search"),
     url(r'^album/(?P<album_id>\d+)$', photo_views.album_view, name="photo_album"),
     url(r'^tag/(?P<tag_id>\d+)$', photo_views.tag_view, name="photo_tag"),

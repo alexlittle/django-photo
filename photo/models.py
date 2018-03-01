@@ -113,8 +113,8 @@ class Tag (models.Model):
         verbose_name_plural = _('Tags')
         
 class PhotoTag(models.Model):
-    photo = models.ForeignKey(Photo)
-    tag = models.ForeignKey(Tag)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag,  on_delete=models.CASCADE)
  
     class Meta:
         verbose_name = _('Photo Tag')

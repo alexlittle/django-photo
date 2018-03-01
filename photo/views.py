@@ -75,6 +75,12 @@ def cloud_view(request):
     return render(request,'photo/cloud.html',
                                {'title': _('Cloud'),
                                 'tags': tags})
+    
+def cloud_category_view(request, category):
+    tags = Tag.objects.filter(tagcategory__name=category).order_by('name')
+    return render(request,'photo/cloud.html',
+                               {'title': _('Cloud'),
+                                'tags': tags})
 
 def search_view(request):
     search_query = request.GET.get('q', '')
