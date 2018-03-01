@@ -26,7 +26,28 @@ class Command(BaseCommand):
 
 
     def add_arguments(self, parser):
-        pass
+
+        # Optional argument to start the summary calculation from the beginning
+        parser.add_argument(
+            '--filesonly',
+            action='store_true',
+            dest='filesonly',
+            help='Scan files only to check they are in the db',
+        )
+        
+        parser.add_argument(
+            '--dbonly',
+            action='store_true',
+            dest='dbonly',
+            help='Scan DB only to check files exist on disk',
+        )
+        
+        parser.add_argument(
+            '--notfoundonly',
+            action='store_true',
+            dest='notfoundonly',
+            help='only show items not found',
+        )
         
 
     def handle(self, *args, **options):
@@ -34,39 +55,47 @@ class Command(BaseCommand):
        
         ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf']
         # Scan directory structure to find photos that haven't been uploaded to DB
-        count_not_found = 0
-       
-        for path in paths:
-           for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT, path), topdown=True):
-               for name in files:
-                   if name.endswith('-timelapse') or '-timelapse' in root:
-                       continue
-                   
-                   ignore = False
-                   for ext in ignore_extensions:
-                       if name.endswith(ext):
-                            ignore = True
-                   if ignore:
-                       continue
-                   
-                   album = root.replace(settings.PHOTO_ROOT, '') + "/"
-                   
-                   try:
-                       Photo.objects.get(album__name=album, file=name)
-                       #print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
-                   except Photo.DoesNotExist: 
-                       print bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC
-                       count_not_found+=1
+        if not options['dbonly']:
+        
+            count_not_found = 0
+           
+            for path in paths:
+               for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT, path), topdown=True):
+                   for name in files:
+                       if name.endswith('-timelapse') or '-timelapse' in root:
+                           continue
                        
-        print count_not_found
+                       ignore = False
+                       for ext in ignore_extensions:
+                           if name.endswith(ext):
+                                ignore = True
+                       if ignore:
+                           continue
+                       
+                       album = root.replace(settings.PHOTO_ROOT, '') + "/"
+                       
+                       try:
+                           Photo.objects.get(album__name=album, file=name)
+                           #print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
+                       except Photo.DoesNotExist: 
+                           print bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC
+                           count_not_found+=1
+                           
+            print count_not_found
         
-        '''
+        
         # Scan albums in DB to ensure they all exist on file
-        albums = Album.objects.all()
+        if not options['filesonly']:
+            count_not_found = 0
+            photos = Photo.objects.all()
+            
+            for photo in photos:
+                if os.path.isfile(settings.PHOTO_ROOT + photo.album.name + photo.file):
+                    if not options['notfoundonly']:
+                        print photo.album.name + photo.file + " " + bcolors.OK + "found" + bcolors.ENDC
+                else:
+                    print bcolors.WARNING + photo.album.name + photo.file + " " + " NOT FOUND" + bcolors.ENDC
+                    count_not_found+=1
+                    
+            print count_not_found
         
-        for album in albums:
-            if os.path.isdir(settings.PHOTO_ROOT + album.name):
-                print album.name + " " + bcolors.OK + "found" + bcolors.ENDC
-            else:
-                print bcolors.WARNING + album.name + " " + " NOT FOUND" + bcolors.ENDC
-        '''
