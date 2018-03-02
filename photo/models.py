@@ -15,6 +15,8 @@ from PIL import Image
 
 from photo.cache_storage import ImageCacheFileSystemStorage
 
+from .fields import AutoSlugField
+
 class Album (models.Model):
     name = models.TextField(blank=False, null=False)
     title = models.TextField(blank=True, null=True)
@@ -89,6 +91,7 @@ class Photo (models.Model):
 
 class TagCategory(models.Model):
     name = models.CharField(max_length=20, blank=False, null=False)
+    slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
 
@@ -101,6 +104,7 @@ class TagCategory(models.Model):
          
 class Tag (models.Model):
     name = models.TextField(blank=False, null=False)
+    slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
     tagcategory  = models.ForeignKey(TagCategory,null=True,default=None)
