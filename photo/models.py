@@ -42,6 +42,33 @@ class Album (models.Model):
                 return None
             
         return p.get_thumbnail(p,max_size)
+
+class TagCategory(models.Model):
+    name = models.CharField(max_length=20, blank=False, null=False)
+    slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = _('Tag Category')
+        verbose_name_plural = _('Tag Categories')
+         
+class Tag (models.Model):
+    name = models.TextField(blank=False, null=False)
+    slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
+    created_date = models.DateTimeField(default=timezone.now)
+    updated_date = models.DateTimeField(auto_now=True)
+    tagcategory  = models.ForeignKey(TagCategory,null=True,default=None)
+
+    def __unicode__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = _('Tag')
+        verbose_name_plural = _('Tags')
     
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
@@ -51,6 +78,7 @@ class Photo (models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
     album_cover = models.BooleanField(default=False)
+    tags = models.ManyToManyField(Tag, through='PhotoTag' )
     
     def __unicode__(self):
         return self.file
@@ -59,10 +87,14 @@ class Photo (models.Model):
         verbose_name = _('Photo')
         verbose_name_plural = _('Photos')
     
+    '''
+    Just used for search indexing right now
+    @todo - can be removed and use proper _set approach
+    '''
     def get_tags(self):
         tags = Tag.objects.filter(phototag__photo=self).values_list('name', flat=True)
         return ', '.join(tags)
-            
+        
     @staticmethod
     def get_thumbnail(photo,max_size):
         try:
@@ -91,32 +123,7 @@ class Photo (models.Model):
         return thumb.image.url
 
 
-class TagCategory(models.Model):
-    name = models.CharField(max_length=20, blank=False, null=False)
-    slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = _('Tag Category')
-        verbose_name_plural = _('Tag Categories')
-         
-class Tag (models.Model):
-    name = models.TextField(blank=False, null=False)
-    slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
-    created_date = models.DateTimeField(default=timezone.now)
-    updated_date = models.DateTimeField(auto_now=True)
-    tagcategory  = models.ForeignKey(TagCategory,null=True,default=None)
-
-    def __unicode__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = _('Tag')
-        verbose_name_plural = _('Tags')
         
 class PhotoTag(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE)

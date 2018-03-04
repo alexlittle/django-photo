@@ -20,14 +20,9 @@
         {% endif %}
         
         {% for result in page.object_list %}
-            <div class="photo">
-                <a href="{% url 'photo_view' result.object.id %}" target="_blank"><img src="{{ result.object|get_thumbnail:250 }}" class="img-thumbnail" alt="{{ result.object.file }}" title="{{ result.object.file }}"/></a><br/>
-				<small>{{ result.object.date }}</small><br/>
-				{% for pt in result.object.tags %}
-					<a href="{% url 'photo_tag' pt.id %}">{{ pt.name }}</a>
-				{% endfor %}<br/>
-				<a href="{% url 'photo_album' result.object.album.id %}">{{ result.object.album.name }}</a>
-			</div>
+        	{% with p=result.object %}
+        		{% include 'photo/includes/photo.html' %}
+        	{% endwith %}
         {% empty %}
             <p>No results found.</p>
         {% endfor %}

@@ -50,9 +50,6 @@ def home_view(request):
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
     photos = Photo.objects.filter(album=album).order_by('date')
-    for p in photos:
-        p.tags = Tag.objects.filter(phototag__photo=p)
-    
     return render(request, 'photo/album.html',
                                {'title': album.name,
                                 'photos': photos})
@@ -60,9 +57,7 @@ def album_view(request, album_id):
 def tag_view(request, tag_id):
     tag = Tag.objects.get(pk=tag_id)
     photos = Photo.objects.filter(phototag__tag=tag).order_by('date')
-    for p in photos:
-        p.tags = Tag.objects.filter(phototag__photo=p)
-    return render(request, 'photo/album.html',
+    return render(request, 'photo/tag.html',
                                {'title': tag.name,
                                 'photos': photos})
 
