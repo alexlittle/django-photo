@@ -52,7 +52,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--autodelete',
             action='store_true',
-            dest='verbose',
+            dest='autodelete',
             help='delete items that are not found',
         )
         
@@ -62,7 +62,7 @@ class Command(BaseCommand):
        
         ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf']
         # Scan directory structure to find photos that haven't been uploaded to DB
-        if not options['dbonly']:
+        if options['filesonly']:
         
             count_not_found = 0
            
@@ -93,7 +93,7 @@ class Command(BaseCommand):
         
         
         # Scan albums in DB to ensure they all exist on file
-        if not options['filesonly']:
+        if options['dbonly']:
             count_not_found = 0
             photos = Photo.objects.all()
             
