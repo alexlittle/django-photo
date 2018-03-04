@@ -1,7 +1,7 @@
 # coding: utf-8
 
 """
-Model field definitions for Django ORB
+Model field definitions
 """
 
 from autoslug import AutoSlugField as BaseSlugField

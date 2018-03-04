@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ title }}</h2>
+
+<ul>
+{% for t in tags %}
+	<li><a href="{% url 'photo_tag' t.id %}">{{ t.name }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

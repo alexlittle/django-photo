@@ -49,6 +49,13 @@ class Command(BaseCommand):
             help='only show items not found',
         )
         
+        parser.add_argument(
+            '--autodelete',
+            action='store_true',
+            dest='verbose',
+            help='delete items that are not found',
+        )
+        
 
     def handle(self, *args, **options):
         paths = ['photos', 'negatives']
@@ -96,6 +103,9 @@ class Command(BaseCommand):
                         print photo.album.name + photo.file + " " + bcolors.OK + "found" + bcolors.ENDC
                 else:
                     print bcolors.WARNING + photo.album.name + photo.file + " " + " NOT FOUND" + bcolors.ENDC
+                    if options['autodelete']:
+                        photo.delete()
+                        print bcolors.WARNING + "... DELETED" + bcolors.ENDC
                     count_not_found+=1
                     
             print count_not_found

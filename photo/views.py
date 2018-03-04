@@ -78,7 +78,7 @@ def cloud_view(request):
     
 def cloud_category_view(request, category):
     tags = Tag.objects.filter(tagcategory__name=category).order_by('name')
-    return render(request,'photo/cloud.html',
+    return render(request,'photo/cloud_category.html',
                                {'title': _('Cloud'),
                                 'tags': tags})
 

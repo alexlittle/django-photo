@@ -19,6 +19,7 @@ from .fields import AutoSlugField
 
 class Album (models.Model):
     name = models.TextField(blank=False, null=False)
+    slug = AutoSlugField(populate_from='name', max_length=200, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
@@ -44,6 +45,7 @@ class Album (models.Model):
     
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
+    slug = AutoSlugField(populate_from='file', max_length=100, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
     album = models.ForeignKey(Album) 
     created_date = models.DateTimeField(default=timezone.now)
@@ -129,7 +131,7 @@ def image_file_name(instance, filename):
         return os.path.join('cache', filename[0:2], filename[2:4], filename + ext.lower())   
     
 class ThumbnailCache(models.Model):
-    photo = models.ForeignKey(Photo)
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
     size = models.IntegerField(blank=False, null=False) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True) 
