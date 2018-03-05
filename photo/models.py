@@ -78,7 +78,7 @@ class Photo (models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
     album_cover = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag, through='PhotoTag' )
+    tags = models.ManyToManyField(Tag, through='PhotoTag', name='tags' )
     
     def __unicode__(self):
         return self.file
@@ -122,8 +122,14 @@ class Photo (models.Model):
            
         return thumb.image.url
 
+class PhotoProps(models.Model):
+    photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=False, null=False)
+    value = models.CharField(max_length=100, blank=False, null=False)
 
-
+    class Meta:
+        verbose_name = _('Photo property')
+        verbose_name_plural = _('Photo properties')
         
 class PhotoTag(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE)

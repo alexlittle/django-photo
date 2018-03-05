@@ -14,6 +14,52 @@ class PhotoAdmin(admin.ModelAdmin):
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'tagcategory')  
     search_fields = ['name']
+    actions = ['mark_category_place', 
+               'mark_category_person', 
+               'mark_category_animal',
+               'mark_category_date',
+               'mark_category_object',
+               'mark_category_food',
+               'mark_category_event',
+               'mark_category_activity',
+               'mark_category_organisation',]
+
+    def mark_category_place(self, request, queryset):
+        tc = TagCategory.objects.get(name='Place')
+        queryset.update(tagcategory=tc)
+    
+    def mark_category_person(self, request, queryset):
+        tc = TagCategory.objects.get(name='Person')
+        queryset.update(tagcategory=tc)
+        
+    def mark_category_animal(self, request, queryset):
+        tc = TagCategory.objects.get(name='Animal')
+        queryset.update(tagcategory=tc)
+        
+    def mark_category_date(self, request, queryset):
+        tc = TagCategory.objects.get(name='Date')
+        queryset.update(tagcategory=tc)
+    
+    def mark_category_object(self, request, queryset):
+        tc = TagCategory.objects.get(name='Object')
+        queryset.update(tagcategory=tc)
+        
+    def mark_category_food(self, request, queryset):
+        tc = TagCategory.objects.get(name='Food')
+        queryset.update(tagcategory=tc)
+    
+    def mark_category_event(self, request, queryset):
+        tc = TagCategory.objects.get(name='Event')
+        queryset.update(tagcategory=tc)
+        
+    def mark_category_activity(self, request, queryset):
+        tc = TagCategory.objects.get(name='Activity')
+        queryset.update(tagcategory=tc)
+        
+    def mark_category_organisation(self, request, queryset):
+        tc = TagCategory.objects.get(name='Organisation')
+        queryset.update(tagcategory=tc)
+    
     
 class TagCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )  

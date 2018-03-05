@@ -13,4 +13,5 @@
 	| <a href="{% url 'photo_set_cover' p.id %}">{% trans 'set cover' %}</a>
 	{% endif %}<br/>
 	<a href="{% url 'photo_album' p.album.id %}">{{ p.album.name }}</a>
+	<input type="checkbox" id="photo_{{ p.id }}"/>
 </div>
