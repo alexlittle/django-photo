@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCache
+from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCache, PhotoProps, TagProps
 
 class AlbumAdmin(admin.ModelAdmin):
     list_display = ('name', 'title')
@@ -71,11 +71,20 @@ class PhotoTagAdmin(admin.ModelAdmin):
 class ThumbnailCacheAdmin(admin.ModelAdmin):
     list_display = ('photo', 'size', 'image') 
     search_fields = ['photo', 'image']
-    
+ 
+class PhotoPropsAdmin(admin.ModelAdmin):
+    list_display = ('photo', 'name', 'value')   
+ 
+class TagPropsAdmin(admin.ModelAdmin):
+    list_display = ('tag', 'name', 'value') 
+          
 admin.site.register(Album, AlbumAdmin)   
 admin.site.register(Photo, PhotoAdmin)  
 admin.site.register(Tag, TagAdmin)  
 admin.site.register(PhotoTag, PhotoTagAdmin)  
 admin.site.register(TagCategory, TagCategoryAdmin)  
 admin.site.register(ThumbnailCache, ThumbnailCacheAdmin)
+admin.site.register(PhotoProps, PhotoPropsAdmin)
+admin.site.register(TagProps, TagPropsAdmin)
+
 

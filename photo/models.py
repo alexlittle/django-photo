@@ -69,6 +69,13 @@ class Tag (models.Model):
     class Meta:
         verbose_name = _('Tag')
         verbose_name_plural = _('Tags')
+        
+    def get_prop(self, property):
+        try:
+            tag_prop = TagProps.objects.get(tag=self,name=property)
+            return tag_prop.value
+        except TagProps.DoesNotExist:
+            return None
     
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
@@ -138,6 +145,15 @@ class PhotoTag(models.Model):
     class Meta:
         verbose_name = _('Photo Tag')
         verbose_name_plural = _('Photo Tags')
+        
+class TagProps(models.Model):
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, blank=False, null=False)
+    value = models.CharField(max_length=100, blank=False, null=False)
+
+    class Meta:
+        verbose_name = _('Tag property')
+        verbose_name_plural = _('Tag properties')
         
 def image_file_name(instance, filename):
         basename, ext = os.path.splitext(filename)
