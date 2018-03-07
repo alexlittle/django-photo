@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^tag/name/(?P<name>\w+)$', photo_views.tag_name_view, name="photo_tag_name"),
     url(r'^photo/view/(?P<photo_id>\d+)$', photo_views.photo_view, name="photo_view"),
     url(r'^photo/edit/(?P<photo_id>\d+)$', photo_views.photo_edit_view, name="photo_edit"),
+    url(r'^photo/favourites/$', photo_views.photo_favourites_view, name="photo_favourites_view"),
     url(r'^photo/setcover/(?P<photo_id>\d+)$', photo_views.photo_set_cover, name="photo_set_cover"),
+    
     
 ]

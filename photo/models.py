@@ -94,6 +94,14 @@ class Photo (models.Model):
     def get_tags(self):
         tags = Tag.objects.filter(phototag__photo=self).values_list('name', flat=True)
         return ', '.join(tags)
+    
+    def get_prop(self, property):
+        try:
+            photo_prop = PhotoProps.objects.get(photo=self,name=property)
+            return photo_prop.value
+        except PhotoProps.DoesNotExist:
+            return None
+        
         
     @staticmethod
     def get_thumbnail(photo,max_size):

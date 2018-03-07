@@ -4,12 +4,12 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <h2>Search</h2>
+    <h2>{% trans 'Search' %}</h2>
 
     {% crispy form %}
 
     {% if query %}
-        <h3>Results</h3>
+        <h3>{% trans 'Results' %}s</h3>
 
 		{% if page.has_previous or page.has_next %}
             <div>
@@ -24,7 +24,7 @@
         		{% include 'photo/includes/photo.html' %}
         	{% endwith %}
         {% empty %}
-            <p>No results found.</p>
+            <p>{% trans 'No results found.' %}</p>
         {% endfor %}
 
         {% if page.has_previous or page.has_next %}

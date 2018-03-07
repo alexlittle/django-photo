@@ -118,6 +118,24 @@ def photo_view(request, photo_id):
     response = HttpResponse(content_type="image/jpg")
     im.save(response, "JPEG")
     return response
+
+def photo_favourites_view(request):
+    photos = Photo.objects.filter(photoprops__name='favourite',photoprops__value='true').order_by('-date')
+    print photos
+    paginator = Paginator(photos, 25)
+    # Make sure page request is an int. If not, deliver first page.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    
+    try:
+        photos_page = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        photos_page = paginator.page(paginator.num_pages)
+        
+    return render(request, 'photo/favourites.html',
+                              {'page': photos_page })
       
 def scan_folder(request):
     
