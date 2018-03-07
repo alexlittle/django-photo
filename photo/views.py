@@ -70,6 +70,13 @@ def cloud_view(request):
     return render(request,'photo/cloud.html',
                                {'title': _('Cloud'),
                                 'tags': tags})
+
+def map_view(request):
+    tags = Tag.objects.filter(tagcategory__name='Place').exclude(tagprops__name='lat', tagprops__value='0')
+    
+    return render(request,'photo/map.html',
+                               {'title': _('Map'),
+                                'tags': tags})
     
 def cloud_category_view(request, category):
     tags = Tag.objects.filter(tagcategory__name=category).order_by('name')

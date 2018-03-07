@@ -76,6 +76,12 @@ class Tag (models.Model):
             return tag_prop.value
         except TagProps.DoesNotExist:
             return None
+        
+    def get_lat(self):
+        return self.get_prop('lat')
+    
+    def get_lng(self):
+        return self.get_prop('lng')
     
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)

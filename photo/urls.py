@@ -7,6 +7,7 @@ from photo import views as photo_views
 
 urlpatterns = [
     url(r'^$', photo_views.home_view, name="photo_home"),
+    url(r'^map/$', photo_views.map_view, name="photo_map"),
     url(r'^scan/$', photo_views.scan_folder, name="photo_scan"),
     url(r'^cloud/$', photo_views.cloud_view, name="photo_cloud"),
     url(r'^cloud/(?P<category>\w+)$', photo_views.cloud_category_view, name="photo_cloud_category"),
