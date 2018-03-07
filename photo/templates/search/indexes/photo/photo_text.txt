@@ -1,3 +1,7 @@
-{{ object.get_tags }}
+
 {{ object.album.name }}
 {{ object.album.title }}
+
+{% for tag in object.tags.all %}
+	{{ tag.name }}
+{% endfor %}

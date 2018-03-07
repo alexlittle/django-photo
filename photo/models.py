@@ -87,14 +87,6 @@ class Photo (models.Model):
         verbose_name = _('Photo')
         verbose_name_plural = _('Photos')
     
-    '''
-    Just used for search indexing right now
-    @todo - can be removed and use proper _set approach
-    '''
-    def get_tags(self):
-        tags = Tag.objects.filter(phototag__photo=self).values_list('name', flat=True)
-        return ', '.join(tags)
-    
     def get_prop(self, property):
         try:
             photo_prop = PhotoProps.objects.get(photo=self,name=property)
