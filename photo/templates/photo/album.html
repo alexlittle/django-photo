@@ -3,13 +3,17 @@
 {% load thumbnail %}
 {% block content %}
 
-<h2>{{ title }}</h2>
+<h2>{{ album.name }}</h2>
 
+<h3>{{ album.description }}</h3>
+
+<form method="get" action="{% url 'photo_update_tags' album.id %}">
 <div class="row-fluid">
 {% for p in photos %}
 	{% include 'photo/includes/photo.html' %}
 {% endfor %}
 </div>
-
+<input type="submit"/>
+</form>
 
 {% endblock %}

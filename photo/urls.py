@@ -18,6 +18,6 @@ urlpatterns = [
     url(r'^photo/edit/(?P<photo_id>\d+)$', photo_views.photo_edit_view, name="photo_edit"),
     url(r'^photo/favourites/$', photo_views.photo_favourites_view, name="photo_favourites_view"),
     url(r'^photo/setcover/(?P<photo_id>\d+)$', photo_views.photo_set_cover, name="photo_set_cover"),
-    
+    url(r'^album/updatetags/(?P<album_id>\d+)$', photo_views.photo_update_tags, name="photo_update_tags"),
     
 ]

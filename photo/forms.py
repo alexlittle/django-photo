@@ -88,3 +88,29 @@ class SearchForm(forms.Form):
                                          css_class='btn btn-default')),
 
         )
+        
+class UpdateTagsForm(forms.Form):
+    UPDATE_ACTIONS = (('delete',_(u'Delete Tag/s')),('add',_(u'Add Tag/s')))
+    
+    action = forms.ChoiceField(required=True,
+                          choices=UPDATE_ACTIONS)
+    tags = forms.CharField(required=True)
+    
+    def __init__(self, *args, **kwargs):
+        super(UpdateTagsForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-4'
+        self.helper.layout = Layout(
+                'action',
+                'tags',
+                Div(
+                   Submit('submit', _(u'Update'), css_class='btn btn-default'),
+                   css_class='col-lg-offset-2 col-lg-4',
+                ),
+            )
+    def clean(self):
+        cleaned_data = super(UpdateTagsForm, self).clean()
+        return cleaned_data
+    

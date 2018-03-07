@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from haystack.query import SearchQuerySet
 
-from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm
+from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
 from photo.models import Album, Photo, PhotoTag, Tag, ThumbnailCache
 
 def home_view(request):
@@ -51,7 +51,7 @@ def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
     photos = Photo.objects.filter(album=album).order_by('date')
     return render(request, 'photo/album.html',
-                               {'title': album.name,
+                               {'album': album,
                                 'photos': photos})
     
 def tag_view(request, tag_id):
@@ -236,6 +236,21 @@ def photo_set_cover(request, photo_id):
     photo.save()
     
     return redirect('photo_album', album_id=album.id)
+
+def photo_update_tags(request, album_id):
+    
+    album = Album.objects.get(id=album_id)
+    photo_ids = request.GET.get('photo_id', '')
+    
+    print photo_ids
+    
+    if request.method == 'POST':
+        form = UpdateTagsForm(request.POST)
+    else:
+        form = UpdateTagsForm()
+
+    return render(request, 'photo/update_tags.html', {'form': form,'title':_(u'Update Tags'), 'album': album})   
+    
     
 def get_exif(fn):
     ret = {}
