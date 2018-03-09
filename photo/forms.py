@@ -90,7 +90,7 @@ class SearchForm(forms.Form):
         )
         
 class UpdateTagsForm(forms.Form):
-    UPDATE_ACTIONS = (('delete',_(u'Delete Tag/s')),('add',_(u'Add Tag/s')))
+    UPDATE_ACTIONS = (('add',_(u'Add Tag/s')), ('delete',_(u'Delete Tag/s')))
     
     action = forms.ChoiceField(required=True,
                           choices=UPDATE_ACTIONS)

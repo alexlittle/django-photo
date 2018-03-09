@@ -30,7 +30,14 @@ class Album (models.Model):
     class Meta:
         verbose_name = _('Album')
         verbose_name_plural = _('Album')
-        
+    
+    def has_cover(self): 
+        try:
+            p = Photo.objects.get(album=self,album_cover=True)
+        except Photo.DoesNotExist:
+            return False
+        return True
+       
     @staticmethod
     def get_cover(album,max_size):
         try:

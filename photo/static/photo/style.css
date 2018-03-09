@@ -182,7 +182,7 @@ h2 {
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active,
 	.btn-primary.active, .open .dropdown-toggle.btn-primary {
     background-color: #2fcbfe;
-    border-color: ##04689a;
+    border-color: #04689a;
     color: #FFFFFF;
 }
 
@@ -203,4 +203,18 @@ div.photo {
 	float:left;
 	text-align:center;
 	margin:10px;
+}
+
+.tag {
+	background-color: #2fcbfe;
+	color: #f8ffff;
+	border-color: #04689a;
+	padding: 5px;
+	margin: 2px;
+	line-height: 30px;
+	white-space: nowrap;
+}
+
+.faded {
+	opacity: 0.5;
 }
