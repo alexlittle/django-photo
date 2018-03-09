@@ -90,6 +90,10 @@ class Tag (models.Model):
     def get_lng(self):
         return self.get_prop('lng')
     
+    def get_photo_count(self):
+        return Photo.objects.filter(phototag__tag=self).count()
+    
+    
 class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
     slug = AutoSlugField(populate_from='file', max_length=100, blank=True, null=True)
