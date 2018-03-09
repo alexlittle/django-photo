@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     
                 url = 'http://api.geonames.org/searchJSON?' + urllib.urlencode(params)
                 print url
-                exit
+
                 u = urllib2.urlopen(urllib2.Request(url), timeout=10)
             
                 data = u.read()  

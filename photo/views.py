@@ -72,7 +72,7 @@ def cloud_view(request):
                                 'tags': tags})
 
 def map_view(request):
-    tags = Tag.objects.filter(tagcategory__name='Place').exclude(tagprops__name='lat', tagprops__value='0')
+    tags = Tag.objects.filter(tagcategory__name='Place').exclude(tagprops__name='lat', tagprops__value='0').distinct()
     
     return render(request,'photo/map.html',
                                {'title': _('Map'),
