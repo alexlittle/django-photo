@@ -8,12 +8,14 @@
 <h3>{{ album.description }}</h3>
 
 <form method="get" action="{% url 'photo_update_tags' album.id %}">
+<input type="submit" value="{% trans 'Update selected' %}"/>
+
 <div class="row-fluid">
 {% for p in photos %}
 	{% include 'photo/includes/photo.html' %}
 {% endfor %}
 </div>
-<input type="submit"/>
+
 </form>
 
 {% endblock %}

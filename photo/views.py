@@ -237,8 +237,7 @@ def photo_set_cover(request, photo_id):
     for p in photos:
         p.album_cover = False
         p.save()
-        
-    
+
     photo.album_cover = True
     photo.save()
     
@@ -247,12 +246,29 @@ def photo_set_cover(request, photo_id):
 def photo_update_tags(request, album_id):
     
     album = Album.objects.get(id=album_id)
-    photo_ids = request.GET.get('photo_id', '')
+    photo_ids = request.GET.getlist('photo_id', [])
     
     print photo_ids
     
     if request.method == 'POST':
         form = UpdateTagsForm(request.POST)
+        if form.is_valid():
+            action = form.cleaned_data.get("action")
+            update_tags = form.cleaned_data.get("tags")
+            tags = [x.strip() for x in update_tags.split(',')]
+            
+            for t in tags:
+                tag, created = Tag.objects.get_or_create(name=t)
+                for p in photo_ids:
+                    photo = Photo.objects.get(id=p)
+                    if action == "delete":
+                        PhotoTag.objects.filter(photo__album=album, photo=photo, tag=tag).delete()
+                        
+                    if action == "add":
+                        photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
+            
+            
+            return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album_id }))
     else:
         form = UpdateTagsForm()
 
