@@ -29,18 +29,26 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tags = Tag.objects.filter(tagcategory__name='Place').exclude(tagprops__name='lat')
         print tags.count()
-        for tag in tags[:50]:
+        for tag in tags:
             print tag.name
             try:
-                url = 'http://api.geonames.org/searchJSON?q=%s&username=%s&maxRows=5' % (urllib.quote_plus(tag.name), 'alexlittle')
+                params = {
+                    'q': urllib.quote_plus(tag.name.encode('utf-8')),
+                    'username': settings.GEONAMES_USERNAME,
+                    'maxRows': 5}
+                if tag.get_prop('country'):
+                    params['country'] = tag.get_prop('country')
+                    
+                url = 'http://api.geonames.org/searchJSON?' + urllib.urlencode(params)
                 print url
+                exit
                 u = urllib2.urlopen(urllib2.Request(url), timeout=10)
             
                 data = u.read()  
                 dataJSON = json.loads(data,"utf-8")
             
                 print dataJSON['geonames'][0]
-                accept = raw_input("Accept this? y/i/n")
+                accept = raw_input("Accept this? [Yes/Ignore/No]")
                 if accept == 'y':
                     print 'accepted'
                     lat = dataJSON['geonames'][0]['lat']
@@ -48,9 +56,7 @@ class Command(BaseCommand):
                     TagProps(tag=tag, name='lat',value=lat).save()
                     TagProps(tag=tag, name='lng',value=lng).save()
                 if accept =='i':
-                    print 'ignore'
-                    TagProps(tag=tag, name='lat',value=0).save()
-                    TagProps(tag=tag, name='lng',value=0).save() 
+                    print 'ignoring'
                 if accept =='n':
                     print 'no'
                     TagProps(tag=tag, name='lat',value=0).save()

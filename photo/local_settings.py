@@ -18,6 +18,8 @@ def modify(settings):
     }                                
     settings['HAYSTACK_SIGNAL_PROCESSOR'] = 'haystack.signals.RealtimeSignalProcessor'
     
+    settings['GEONAMES_USERNAME'] = 'alexlittle'
+    
     # @todo - use these in map.html template
     settings['HOME_LAT'] = 62.60
     settings['HOME_LNG'] = 29.76

@@ -62,6 +62,7 @@ class TagCategory(models.Model):
     class Meta:
         verbose_name = _('Tag Category')
         verbose_name_plural = _('Tag Categories')
+        
          
 class Tag (models.Model):
     name = models.TextField(blank=False, null=False)
@@ -76,6 +77,7 @@ class Tag (models.Model):
     class Meta:
         verbose_name = _('Tag')
         verbose_name_plural = _('Tags')
+        ordering = ['name']
         
     def get_prop(self, property):
         try:
