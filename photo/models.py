@@ -133,7 +133,7 @@ class Photo (models.Model):
                 im = Image.open(image)
                 im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)        
                 buffer = BytesIO()
-                im.save(fp=buffer, format='JPEG')
+                im.save(fp=buffer, format='JPEG', dpi=(600, 600))
                 pillow_image = ContentFile(buffer.getvalue())
                 file_name = hashlib.md5(buffer.getvalue()).hexdigest()
                 thumb = ThumbnailCache(size=max_size, photo=photo, image=InMemoryUploadedFile(

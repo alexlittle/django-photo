@@ -47,9 +47,14 @@ class Command(BaseCommand):
         photos = Photo.objects.filter(album=album)
         photo_page = []
         
+        image = settings.MEDIA_ROOT + '..' + album.get_cover(album,700)
+        im = Image(image)
+        photo_page.append(im)
+        
+        
         for photo in photos:
             #image = settings.PHOTO_ROOT + album.name + photo.file
-            image = settings.MEDIA_ROOT + '..' + photo.get_thumbnail(photo,1000)
+            image = settings.MEDIA_ROOT + '..' + photo.get_thumbnail(photo,700)
             im = Image(image)
             photo_page.append(im)
             

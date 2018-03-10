@@ -218,7 +218,8 @@ def photo_edit_view(request, photo_id):
             for t in tags:
                 tag, created = Tag.objects.get_or_create(name=t)
                 photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
-    
+            photo.title = form.cleaned_data.get("title")
+            photo.save()
         return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': photo.album.id }))
      
     else:

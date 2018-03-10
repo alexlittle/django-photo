@@ -48,7 +48,8 @@ class ScanFolderForm(forms.Form):
     
     
 class EditPhotoForm(forms.Form):
-
+    title = forms.CharField(
+                required=False,)
     tags = forms.CharField(
                 required=True,
                 error_messages={'required': _('Please enter at least one tag')},)
@@ -60,6 +61,7 @@ class EditPhotoForm(forms.Form):
         self.helper.label_class = 'col-lg-2'
         self.helper.field_class = 'col-lg-4'
         self.helper.layout = Layout(
+                'title',
                 'tags',
                 Div(
                    Submit('submit', _(u'Update'), css_class='btn btn-default'),
