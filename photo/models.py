@@ -100,11 +100,13 @@ class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
     slug = AutoSlugField(populate_from='file', max_length=100, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
+    title = models.TextField(blank=False, null=True)
     album = models.ForeignKey(Album) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
     album_cover = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag, through='PhotoTag', name='tags' )
+    
     
     def __unicode__(self):
         return self.file

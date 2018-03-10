@@ -8,8 +8,8 @@ class AlbumAdmin(admin.ModelAdmin):
     search_fields = ['name','title']
   
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ('file', 'date', 'album')  
-    search_fields = ['file']
+    list_display = ('file', 'date', 'title', 'album')  
+    search_fields = ['file', 'title']
     
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'tagcategory')  

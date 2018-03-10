@@ -4,3 +4,4 @@ Pillow==3.4.2
 django-haystack>=2.3.0
 pysolr>=3.3.0
 django-autoslug==1.9.3
+reportlab==3.4.0
