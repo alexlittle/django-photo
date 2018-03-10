@@ -41,7 +41,11 @@ class Command(BaseCommand):
         
         print "Creating album for... " + album.name
         
-        doc = SimpleDocTemplate("/home/alex/temp/hello.pdf",pagesize=A4,
+        if album.title:
+            filename = album.title
+        else:
+            filename = str(album.id)
+        doc = SimpleDocTemplate("/home/alex/Downloads/" + filename + ".pdf",pagesize=A4,
                         rightMargin=30,leftMargin=30,
                         topMargin=30,bottomMargin=30)
         
