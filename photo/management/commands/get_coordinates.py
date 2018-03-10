@@ -62,11 +62,13 @@ class Command(BaseCommand):
                     TagProps(tag=tag, name='lat',value=0).save()
                     TagProps(tag=tag, name='lng',value=0).save()
             except IndexError:
-                TagProps(tag=tag, name='lat',value=0).save()
-                TagProps(tag=tag, name='lng',value=0).save()
+                pass
+                # TagProps(tag=tag, name='lat',value=0).save()
+                # TagProps(tag=tag, name='lng',value=0).save()
             except KeyError:
-                TagProps(tag=tag, name='lat',value=0).save()
-                TagProps(tag=tag, name='lng',value=0).save()
+                pass
+                # TagProps(tag=tag, name='lat',value=0).save()
+                # TagProps(tag=tag, name='lng',value=0).save()
             
             
             
