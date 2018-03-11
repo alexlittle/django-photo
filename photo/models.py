@@ -21,6 +21,7 @@ class Album (models.Model):
     name = models.TextField(blank=False, null=False)
     slug = AutoSlugField(populate_from='name', max_length=200, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
+    date_display = models.TextField(blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
     
@@ -100,7 +101,7 @@ class Photo (models.Model):
     file = models.TextField(blank=False, null=False)
     slug = AutoSlugField(populate_from='file', max_length=100, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
-    title = models.TextField(blank=False, null=True)
+    title = models.TextField(blank=True, null=True)
     album = models.ForeignKey(Album) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  

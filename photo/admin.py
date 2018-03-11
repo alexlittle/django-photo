@@ -4,8 +4,8 @@ from django.contrib import admin
 from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCache, PhotoProps, TagProps
 
 class AlbumAdmin(admin.ModelAdmin):
-    list_display = ('name', 'title')
-    search_fields = ['name','title']
+    list_display = ('name', 'title', 'date_display')
+    search_fields = ['name','title', 'date_display']
   
 class PhotoAdmin(admin.ModelAdmin):
     list_display = ('file', 'date', 'title', 'album')  
