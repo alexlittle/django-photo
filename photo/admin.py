@@ -6,10 +6,19 @@ from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCach
 class AlbumAdmin(admin.ModelAdmin):
     list_display = ('name', 'title', 'date_display')
     search_fields = ['name','title', 'date_display']
-  
+    
+class PhotoPropsInline(admin.TabularInline):
+    model = PhotoProps
+ 
 class PhotoAdmin(admin.ModelAdmin):
     list_display = ('file', 'date', 'title', 'album')  
     search_fields = ['file', 'title']
+    inlines = [
+        PhotoPropsInline,
+    ]
+    
+class TagPropsInline(admin.TabularInline):
+    model = TagProps   
     
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'tagcategory')  
@@ -23,6 +32,9 @@ class TagAdmin(admin.ModelAdmin):
                'mark_category_event',
                'mark_category_activity',
                'mark_category_organisation',]
+    inlines = [
+        TagPropsInline,
+    ]
 
     def mark_category_place(self, request, queryset):
         tc = TagCategory.objects.get(name='Place')
@@ -59,7 +71,8 @@ class TagAdmin(admin.ModelAdmin):
     def mark_category_organisation(self, request, queryset):
         tc = TagCategory.objects.get(name='Organisation')
         queryset.update(tagcategory=tc)
-    
+
+  
     
 class TagCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )  
