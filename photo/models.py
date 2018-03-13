@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -15,7 +17,7 @@ from PIL import Image
 
 from photo.cache_storage import ImageCacheFileSystemStorage
 
-from .fields import AutoSlugField
+from photo.fields import AutoSlugField
 
 class Album (models.Model):
     name = models.TextField(blank=False, null=False)
@@ -151,6 +153,15 @@ class Photo (models.Model):
            
         return thumb.image.url
 
+
+@receiver(post_delete, sender=Photo)
+def photo_delete_file(sender, instance, **kwargs):
+    file_to_delete =  settings.PHOTO_ROOT + instance.album.name +instance.file
+    print "deleting ...." + file_to_delete
+    os.remove(file_to_delete)
+    print "File removed"
+    
+    
 class PhotoProps(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False, null=False)
