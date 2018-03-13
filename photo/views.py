@@ -194,7 +194,7 @@ def scan_folder(request):
     else:
         data = {}
         data['default_date'] = timezone.now()
-        data['directory'] = '/photos/' + str(timezone.now().year) + '/'
+        data['directory'] = '/' + str(timezone.now().year) + '/'
         data['default_tags'] = ''
         form = ScanFolderForm(initial=data)
 

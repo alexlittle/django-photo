@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load thumbnail %}
+{% load admin_urls %}
+
 {% block content %}
 
 <h1>Photo Database Home</h1>
@@ -26,7 +28,10 @@
 		{% endif %}
 		</td>
 		<td><a href="{% url 'photo_album' a.id %}">{{ a.name }}</a></td>
-		<td>{{ a.title }}</td>
+		<td>{{ a.title }}<br/>
+			<a href="{% url 'admin:photo_album_change' a.id %}" target="_blank">{% trans 'Edit' %}</a>
+			| <a href="" target="_blank">{% trans 'Export PDF' %}</a>
+		</td>
 	</tr>
 {% endfor %}
 	</table>

@@ -4,7 +4,7 @@ def modify(settings):
     
     settings['INSTALLED_APPS'] += ('photo','crispy_forms','haystack')
     settings['CRISPY_TEMPLATE_PACK'] = 'bootstrap3'
-    settings['PHOTO_ROOT'] = '/home/alex/data'
+    settings['PHOTO_ROOT'] = '/home/alex/data/photos'
     settings['DEFAULT_THUMBNAIL_SIZES'] = [250]
     
     settings['HAYSTACK_CONNECTIONS'] = {
