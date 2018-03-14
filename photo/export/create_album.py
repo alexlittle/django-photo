@@ -1,6 +1,5 @@
 
-
-
+import os
 
 from django.conf import settings
 
@@ -26,8 +25,13 @@ def make(album_id):
         filename = album.title
     else:
         filename = str(album.id)
+    
+    album_url = 'albums/' +  filename + ".pdf"
+    album_filename = os.path.join(settings.PHOTO_ROOT, album_url) 
+    
+    
         
-    doc = SimpleDocTemplate("/home/alex/Downloads/" + filename + ".pdf",pagesize=A4,
+    doc = SimpleDocTemplate(album_filename,pagesize=A4,
                     rightMargin=30,leftMargin=30,
                     topMargin=30,bottomMargin=30)
     
@@ -66,3 +70,6 @@ def make(album_id):
         photo_page.append(Spacer(1, 12))
         
     doc.build(photo_page)
+    
+    return album_filename
+

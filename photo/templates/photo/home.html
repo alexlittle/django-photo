@@ -30,7 +30,7 @@
 		<td><a href="{% url 'photo_album' a.id %}">{{ a.name }}</a></td>
 		<td>{{ a.title }}<br/>
 			<a href="{% url 'admin:photo_album_change' a.id %}" target="_blank">{% trans 'Edit' %}</a>
-			| <a href="" target="_blank">{% trans 'Export PDF' %}</a>
+			| <a href="{% url 'photo_export_pdf' a.id %}" target="_blank">{% trans 'Export PDF' %}</a>
 		</td>
 	</tr>
 {% endfor %}
