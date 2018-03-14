@@ -20,6 +20,10 @@ def modify(settings):
     
     settings['GEONAMES_USERNAME'] = 'alexlittle'
     
+    settings['ALBUM_COVER_THUMBNAIL_SIZE'] = 150
+    settings['PHOTO_DEFAULT_THUMBNAIL_SIZE'] = 250
+    settings['PHOTO_DEFAULT_PDF_SIZE'] = 700
+    
     # @todo - use these in map.html template
     settings['HOME_LAT'] = 62.60
     settings['HOME_LNG'] = 29.76

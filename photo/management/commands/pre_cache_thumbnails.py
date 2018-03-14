@@ -19,7 +19,11 @@ class Command(BaseCommand):
 
 
     def add_arguments(self, parser):
-        parser.add_argument('size', type=int)
+        parser.add_argument(
+            '-s',
+            '--size',
+            dest='size',
+            type=int)
         
         parser.add_argument(
             '-t',
@@ -29,15 +33,22 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        max_size = options['size']
-        if options['tag']:
-            photos = Photo.objects.filter(phototag__tag__name=options['tag']).exclude(thumbnailcache__size=max_size)
+        if options['size']:
+            sizes = [options['size']]
         else:
-            photos = Photo.objects.exclude(thumbnailcache__size=max_size)
+            sizes = [settings.ALBUM_COVER_THUMBNAIL_SIZE, 
+                     settings.PHOTO_DEFAULT_THUMBNAIL_SIZE,
+                     settings.PHOTO_DEFAULT_PDF_SIZE]
             
-        print str(photos.count()) + " to process"
-        
-        for p in photos:
-            print "processing: " + p.album.name + p.file
-            print p.get_thumbnail(p,max_size)
+        for size in sizes:
+            if options['tag']:
+                photos = Photo.objects.filter(phototag__tag__name=options['tag']).exclude(thumbnailcache__size=size)
+            else:
+                photos = Photo.objects.exclude(thumbnailcache__size=size)
+                
+            print str(photos.count()) + " to process"
+            
+            for p in photos:
+                print "processing: " + p.album.name + p.file
+                print p.get_thumbnail(p,size)
         

@@ -28,8 +28,6 @@ def make(album_id):
     
     album_url = 'albums/' +  filename + ".pdf"
     album_filename = os.path.join(settings.PHOTO_ROOT, album_url) 
-    
-    
         
     doc = SimpleDocTemplate(album_filename,pagesize=A4,
                     rightMargin=30,leftMargin=30,
@@ -40,12 +38,12 @@ def make(album_id):
     styles=getSampleStyleSheet()
     styleCentered = ParagraphStyle(name="centeredStyle", alignment=TA_CENTER)
     
-    
-    if album.title:
+    if album.has_cover():
         image = settings.MEDIA_ROOT + '..' + album.get_cover(album,700)
         im = Image(image)
         photo_page.append(im)
-        
+    
+    if album.title:
         photo_page.append(Spacer(1, 12))
         ptext = '<font size=40>' + album.title + '</font>'
         photo_page.append(Paragraph(ptext, styleCentered))

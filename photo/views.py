@@ -29,7 +29,7 @@ from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsFor
 from photo.models import Album, Photo, PhotoTag, Tag, ThumbnailCache
 
 def home_view(request):
-    albums = Album.objects.all().order_by('-name')
+    albums = Album.objects.all().order_by('name')
     
     paginator = Paginator(albums, 25)
     # Make sure page request is an int. If not, deliver first page.

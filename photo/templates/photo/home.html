@@ -27,11 +27,12 @@
 			<img src="{{ a|get_cover:150 }}" class="img-thumbnail faded"/>
 		{% endif %}
 		</td>
-		<td><a href="{% url 'photo_album' a.id %}">{{ a.name }}</a></td>
-		<td>{{ a.title }}<br/>
+		<td><b>{{ a.title }}</b><br/>
+			{{ a.date_display }} <br/>
 			<a href="{% url 'admin:photo_album_change' a.id %}" target="_blank">{% trans 'Edit' %}</a>
 			| <a href="{% url 'photo_export_pdf' a.id %}" target="_blank">{% trans 'Export PDF' %}</a>
 		</td>
+		<td><a href="{% url 'photo_album' a.id %}">{{ a.name }}</a></td>
 	</tr>
 {% endfor %}
 	</table>

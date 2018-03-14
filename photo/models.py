@@ -39,6 +39,8 @@ class Album (models.Model):
             p = Photo.objects.get(album=self,album_cover=True)
         except Photo.DoesNotExist:
             return False
+        except Photo.MultipleObjectsReturned:
+            pass
         return True
        
     @staticmethod
@@ -50,6 +52,8 @@ class Album (models.Model):
                 p = Photo.objects.filter(album=album).earliest('date')
             except Photo.DoesNotExist:
                 return None
+        except Photo.MultipleObjectsReturned:
+            p = Photo.objects.filter(album=album,album_cover=True).first()
             
         return p.get_thumbnail(p,max_size)
 
