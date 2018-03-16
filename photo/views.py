@@ -233,8 +233,7 @@ def photo_edit_view(request, photo_id):
 
 def photo_set_cover(request, photo_id):
     photo = Photo.objects.get(pk=photo_id)
-    album = Album.objects.get(pk=photo.album.id)
-    photos = Photo.objects.filter(album=album)
+    photos = Photo.objects.filter(album=photo.album, album_cover=True)
     for p in photos:
         p.album_cover = False
         p.save()
@@ -242,7 +241,7 @@ def photo_set_cover(request, photo_id):
     photo.album_cover = True
     photo.save()
     
-    return redirect('photo_album', album_id=album.id)
+    return redirect('photo_album', album_id=photo.album.id)
 
 def photo_update_tags(request, album_id):
     

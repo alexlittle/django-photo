@@ -4,11 +4,10 @@
 {% block content %}
 
 {% if album.has_cover %}
-	<img src="{{ album|get_cover:150 }}" class="img-thumbnail"/>
+	<img src="{{ album|get_cover:150 }}" class="img-thumbnail album-cover"/>
 {% endif %}
 
 <h2>{{ album.title }} [ {{ album.name }} ]</h2>
-
 
 <form method="get" action="{% url 'photo_update_tags' album.id %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
