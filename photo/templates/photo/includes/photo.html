@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load thumbnail %}
+{% load props %}
 {% load admin_urls %}
 
 <div class="photo">
@@ -8,6 +9,11 @@
 		{{ p.title }}<br/>
 	{% endif %}
 	<small>{{ p.date }}</small><br/>
+	{% if p|get_photo_prop:'favourite' == 'true' %} 
+		<a href="{% url 'photo_unstar' p.id %}" class="fav-star" >&starf;</a>
+	{% else %}
+		<a href="{% url 'photo_star' p.id %}" class="fav-star" >&star;</a>
+	{% endif %}
 	{% for pt in p.tags.all %}
 		<a href="{% url 'photo_tag' pt.id %}" class="tag">{{ pt.name }}</a>
 	{% endfor %}

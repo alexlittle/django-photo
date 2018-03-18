@@ -222,3 +222,8 @@ div.photo {
 .album-cover {
 	margin:20px;
 }
+
+.fav-star {
+	color: #04689a;
+	font-size: 25pt;
+}

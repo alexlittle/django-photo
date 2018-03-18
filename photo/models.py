@@ -128,8 +128,17 @@ class Photo (models.Model):
             return photo_prop.value
         except PhotoProps.DoesNotExist:
             return None
-        
-        
+     
+    def set_prop(self, property, value):  
+        if self.get_prop(property) is None:
+            pp = PhotoProps(photo=self,name=property, value=value)
+            pp.save()
+        else: 
+            pp = PhotoProps.objects.get(photo=self,name=property)
+            pp.value = value
+            pp.save()
+        return True
+    
     @staticmethod
     def get_thumbnail(photo,max_size):
         try:

@@ -243,6 +243,17 @@ def photo_set_cover(request, photo_id):
     
     return redirect('photo_album', album_id=photo.album.id)
 
+
+def photo_star_view(request, photo_id):
+    photo = Photo.objects.get(pk=photo_id)
+    photo.set_prop('favourite', 'true')
+    return redirect('photo_album', album_id=photo.album.id)
+
+def photo_unstar_view(request, photo_id):
+    photo = Photo.objects.get(pk=photo_id)
+    photo.set_prop('favourite', 'false')
+    return redirect('photo_album', album_id=photo.album.id)
+
 def photo_update_tags(request, album_id):
     
     album = Album.objects.get(id=album_id)
