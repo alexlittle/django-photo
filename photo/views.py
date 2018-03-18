@@ -128,7 +128,6 @@ def photo_view(request, photo_id):
 
 def photo_favourites_view(request):
     photos = Photo.objects.filter(photoprops__name='favourite',photoprops__value='true').order_by('-date')
-    print photos
     paginator = Paginator(photos, 25)
     # Make sure page request is an int. If not, deliver first page.
     try:

@@ -29,16 +29,16 @@ class Command(BaseCommand):
 
         # Optional argument to start the summary calculation from the beginning
         parser.add_argument(
-            '--filesonly',
+            '--files',
             action='store_true',
-            dest='filesonly',
+            dest='files',
             help='Scan files only to check they are in the db',
         )
         
         parser.add_argument(
-            '--dbonly',
+            '--db',
             action='store_true',
-            dest='dbonly',
+            dest='db',
             help='Scan DB only to check files exist on disk',
         )
         
@@ -58,42 +58,43 @@ class Command(BaseCommand):
         
 
     def handle(self, *args, **options):
-        paths = ['photos', 'negatives']
        
         ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf']
         # Scan directory structure to find photos that haven't been uploaded to DB
-        if options['filesonly']:
+        if options['files']:
         
             count_not_found = 0
-           
-            for path in paths:
-               for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT, path), topdown=True):
-                   for name in files:
-                       if name.endswith('-timelapse') or '-timelapse' in root:
-                           continue
-                       
-                       ignore = False
-                       for ext in ignore_extensions:
-                           if name.endswith(ext):
-                                ignore = True
-                       if ignore:
-                           continue
-                       
-                       album = root.replace(settings.PHOTO_ROOT, '') + "/"
-                       
-                       try:
-                           Photo.objects.get(album__name=album, file=name)
-                           if options['verbose']:
-                               print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
-                       except Photo.DoesNotExist: 
-                           print bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC
-                           count_not_found+=1
+        
+            for root, dirs, files in os.walk(settings.PHOTO_ROOT, topdown=True):
+               for name in files:
+                   if name.endswith('-timelapse') or '-timelapse' in root:
+                       continue
+                   
+                   ignore = False
+                   for ext in ignore_extensions:
+                       if name.endswith(ext):
+                            ignore = True
+                   if ignore:
+                       continue
+                   
+                   album = root.replace(settings.PHOTO_ROOT, '') + "/"
+                   
+                   try:
+                       if options['verbose']:
+                           print "checking..." + album + name
+                       Photo.objects.get(album__name=album, file=name)
+                       if options['verbose']:
+                           print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
+                   except Photo.DoesNotExist: 
+                       print bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC
+                       count_not_found+=1
+                
                            
             print count_not_found
         
         
         # Scan albums in DB to ensure they all exist on file
-        if options['dbonly']:
+        if options['db']:
             count_not_found = 0
             photos = Photo.objects.all()
             
