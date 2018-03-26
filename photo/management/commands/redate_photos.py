@@ -46,15 +46,21 @@ class Command(BaseCommand):
             exif_tags, result = get_exif(im)
             if result:
                 try:
-                    exif_date = exif_tags['DateTimeOriginal'] 
+                    if 'DateTimeOriginal' in exif_tags:
+                        exif_date = exif_tags['DateTimeOriginal'] 
+                    elif 'DateTimeDigitized' in exif_tags:
+                        exif_date = exif_tags['DateTimeDigitized'] 
+                    elif 'DateTime' in exif_tags:
+                        exif_date = exif_tags['DateTime'] 
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
                     photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
                     photo.save()
                     print "updated: " + photo.file
                 except KeyError:
-                    pass
+                    print exif_tags 
+                    print "KeyError"  + photo.file
                 except AttributeError:
-                    pass
+                    print "AttributeError " + photo.file
                 except ValueError:
-                    pass
+                    print "ValueError " + photo.file
         
