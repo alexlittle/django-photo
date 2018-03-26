@@ -33,7 +33,7 @@ def make(album_id):
                     rightMargin=30,leftMargin=30,
                     topMargin=30,bottomMargin=30)
     
-    photos = Photo.objects.filter(album=album).order_by('date')
+    photos = Photo.objects.filter(album=album).exclude(photoprops__name='exclude.album.export', photoprops__value='true').order_by('date')
     photo_page = []
     styles=getSampleStyleSheet()
     styleCentered = ParagraphStyle(name="centeredStyle", alignment=TA_CENTER)

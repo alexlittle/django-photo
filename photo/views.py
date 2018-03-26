@@ -32,7 +32,6 @@ def home_view(request):
     albums = Album.objects.all().order_by('name')
     
     paginator = Paginator(albums, 25)
-    # Make sure page request is an int. If not, deliver first page.
     try:
         page = int(request.GET.get('page', '1'))
     except ValueError:
@@ -49,10 +48,14 @@ def home_view(request):
     
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
-    photos = Photo.objects.filter(album=album).order_by('date')
+    photos = Photo.objects.filter(album=album)
+    
+    if request.GET.get('view', '') == 'print':
+        photos = photos.exclude(photoprops__name='exclude.album.export', photoprops__value='true')
+        
     return render(request, 'photo/album.html',
                                {'album': album,
-                                'photos': photos})
+                                'photos': photos.order_by('date')})
     
 def tag_view(request, tag_id):
     tag = Tag.objects.get(pk=tag_id)

@@ -19,6 +19,7 @@
 	{% endfor %}
 	<br/>
 	<a href="{% url 'photo_edit' p.id %}">{% trans 'edit' %}</a> 
+	(<a href="{% url 'admin:photo_photo_change' p.id %}" target="_blank">+</a>)
 	{% if p.album_cover is False %}
 	| <a href="{% url 'photo_set_cover' p.id %}">{% trans 'set cover' %}</a>
 	{% endif %}
