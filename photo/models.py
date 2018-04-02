@@ -32,7 +32,7 @@ class Album (models.Model):
     
     class Meta:
         verbose_name = _('Album')
-        verbose_name_plural = _('Album')
+        verbose_name_plural = _('Albums')
     
     def has_cover(self): 
         try:

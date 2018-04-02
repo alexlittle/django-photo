@@ -29,65 +29,63 @@ class Command(BaseCommand):
         pass
         
 
-    def handle(self, *args, **options):
-        paths = ['photos', 'negatives']
-       
+    def handle(self, *args, **options):       
        
        # Scan directory structure to find dirs that haven't been uploaded to DB
         count_not_found = 0
         ignore = [
-                    '/photos/2004/',
-                    '/photos/2005/',
-                    '/photos/2006/',
-                    '/photos/2007/',
-                    '/photos/2008/',
-                    '/photos/2008/2008-05-ledbury/',
-                    '/photos/2008/08/',
-                    '/photos/2008/2008-08-leaving-ou/',
-                    '/photos/2008/09/',
-                    '/photos/2008/10/',
-                    '/photos/2008/11/',
-                    '/photos/2008/12/',
-                    '/photos/2008/12/gheralta/',
-                    '/photos/2009/',
-                    '/photos/2009/01/danakil/',
-                    '/photos/2009/01/',
-                    '/photos/2009/02/',
-                    '/photos/2009/02/simiens/',
-                    '/photos/2009/02/simiens/360/',
-                    '/photos/2009/03/',
-                    '/photos/2009/04/',
-                    '/photos/2009/05/',
-                    '/photos/2010/',
-                    '/photos/2011/',
-                    '/photos/2012/',
-                    '/photos/2012/2012-05-31-hew-video/',
-                    '/photos/2013/',
-                    '/photos/2014/',
-                    '/photos/2015/',
-                    '/photos/2016/',
-                    '/photos/2017/',
-                    '/photos/2018/',
-                    
-                    
+                    '/2004/',
+                    '/2005/',
+                    '/2006/',
+                    '/2007/',
+                    '/2008/',
+                    '/2008/2008-05-ledbury/',
+                    '/2008/08/',
+                    '/2008/2008-08-leaving-ou/',
+                    '/2008/09/',
+                    '/2008/10/',
+                    '/2008/11/',
+                    '/2008/12/',
+                    '/2008/12/gheralta/',
+                    '/2009/',
+                    '/2009/01/danakil/',
+                    '/2009/01/',
+                    '/2009/02/',
+                    '/2009/02/simiens/',
+                    '/2009/02/simiens/360/',
+                    '/2009/03/',
+                    '/2009/04/',
+                    '/2009/05/',
+                    '/2010/',
+                    '/2011/',
+                    '/2012/',
+                    '/2012/2012-05-31-hew-video/',
+                    '/2013/',
+                    '/2014/',
+                    '/2015/',
+                    '/2016/',
+                    '/2017/',
+                    '/2018/',
+                    '/albums/',
+                    '/negatives/',
                     ]
        
-        for path in paths:
-           for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT, path), topdown=True):
-               for name in dirs:
-                   if name.endswith('-timelapse') or '-timelapse' in root:
-                       continue
-                   album_path = (os.path.join(root, name)).replace(settings.PHOTO_ROOT, '') + "/"
-                   
-                   if album_path in ignore:
-                       continue
-                   
-                   try:
-                       Album.objects.get(name=album_path)
-                       #print album_path + " " + bcolors.OK + "found" + bcolors.ENDC
-                   except Album.DoesNotExist:
-                       print bcolors.WARNING + album_path + " " + " NOT FOUND" + bcolors.ENDC
-                       count_not_found+=1
+        
+        for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT), topdown=True):
+           for name in dirs:
+               if name.endswith('-timelapse') or '-timelapse' in root:
+                   continue
+               album_path = (os.path.join(root, name)).replace(settings.PHOTO_ROOT, '') + "/"
+               
+               if album_path in ignore:
+                   continue
+               
+               try:
+                   Album.objects.get(name=album_path)
+                   #print album_path + " " + bcolors.OK + "found" + bcolors.ENDC
+               except Album.DoesNotExist:
+                   print bcolors.WARNING + album_path + " " + " NOT FOUND" + bcolors.ENDC
+                   count_not_found+=1
                        
         print count_not_found
         

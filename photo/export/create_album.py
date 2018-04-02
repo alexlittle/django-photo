@@ -59,7 +59,7 @@ def make(album_id):
         photo_page.append(im)
         photo_page.append(Spacer(1, 12))
         if photo.title:
-            ptext = '<font size=20>' + photo.title + '</font>'
+            ptext = '<font size=20>[id:{0}] - {1}</font>'.format(photo.id, photo.title)
             photo_page.append(Paragraph(ptext, styleCentered))
             photo_page.append(Spacer(1, 15))
         

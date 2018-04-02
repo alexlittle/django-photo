@@ -17,6 +17,7 @@ from django.core.files.base import ContentFile
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.db.models import F, Max
 from django.shortcuts import render, redirect
 from django.template import RequestContext
 from django.utils import timezone
@@ -29,7 +30,8 @@ from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsFor
 from photo.models import Album, Photo, PhotoTag, Tag, ThumbnailCache
 
 def home_view(request):
-    albums = Album.objects.all().order_by('name')
+    albums = Album.objects.all().annotate(max_date=Max('photo__date')).order_by('-max_date')
+    years = Tag.objects.filter(tagcategory__slug='date')
     
     paginator = Paginator(albums, 25)
     try:
@@ -44,6 +46,7 @@ def home_view(request):
         
     return render(request, 'photo/home.html',
                               {'page': albums,
+                               'years': years,
                                 'total_albums': paginator.count,})
     
 def album_view(request, album_id):
@@ -228,6 +231,7 @@ def photo_edit_view(request, photo_id):
         tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
         data = {}
         data['tags'] = ", ".join(tags)
+        data['title'] = photo.title
         form = EditPhotoForm(initial=data)
 
     return render(request, 'photo/edit.html', {'form': form,'title':_(u'Edit Photo'), 'photo': photo})

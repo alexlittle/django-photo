@@ -7,6 +7,12 @@
 
 <h1>Photo Database Home</h1>
 
+{% for y in years %}
+	{{y}}
+{% endfor %}
+
+
+
 {% if page.has_previous or page.has_next %}
     <div>
         {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
@@ -26,6 +32,8 @@
 		{% else %}
 			<img src="{{ a|get_cover:150 }}" class="img-thumbnail faded"/>
 		{% endif %}
+		<br/>
+			<small>{{ a.max_date }}</small>
 		</td>
 		<td><b>{{ a.title }}</b><br/>
 			{{ a.date_display }} <br/>
