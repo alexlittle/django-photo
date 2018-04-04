@@ -1,3 +1,4 @@
+import functools
 import hashlib
 import os
 
@@ -147,6 +148,7 @@ class Photo (models.Model):
             try: 
                 image = settings.PHOTO_ROOT + photo.album.name + photo.file
                 im = Image.open(image)
+                im = image_transpose_exif(im)
                 im.thumbnail((int(max_size),int(max_size)), Image.ANTIALIAS)        
                 buffer = BytesIO()
                 im.save(fp=buffer, format='JPEG', dpi=(600, 600))
@@ -216,6 +218,24 @@ class ThumbnailCache(models.Model):
         verbose_name = _('Thumbnail Cache')
         verbose_name_plural = _('Thumbnail Caches')
     
-    
-    
+
+def image_transpose_exif(im):
+    exif_orientation_tag = 0x0112 # contains an integer, 1 through 8
+    exif_transpose_sequences = [  # corresponding to the following
+        [],
+        [Image.FLIP_LEFT_RIGHT],
+        [Image.ROTATE_180],
+        [Image.FLIP_TOP_BOTTOM],
+        [Image.FLIP_LEFT_RIGHT, Image.ROTATE_90],
+        [Image.ROTATE_270],
+        [Image.FLIP_TOP_BOTTOM, Image.ROTATE_90],
+        [Image.ROTATE_90],
+    ]
+
+    try:
+        seq = exif_transpose_sequences[im._getexif()[exif_orientation_tag] - 1]
+    except (AttributeError, TypeError, KeyError, IndexError):
+        return im
+    else:
+        return functools.reduce(lambda im, op: im.transpose(op), seq, im)   
     
