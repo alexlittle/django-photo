@@ -29,7 +29,7 @@ class Command(BaseCommand):
         albums = Album.objects.filter(title=None)
         counter = 0
         for a in albums:
-            print a.name + " - http://localhost:8000" + reverse('admin:photo_album_change', args=(a.id,))
+            print a.name + " - http://localhost:8000" + reverse('photo_album', args=(a.id,))
             counter += 1
                 
         print counter

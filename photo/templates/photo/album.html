@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load admin_urls %}
 {% load i18n %}
 {% load thumbnail %}
 {% block content %}
@@ -7,7 +8,7 @@
 	<img src="{{ album|get_cover:150 }}" class="img-thumbnail album-cover"/>
 {% endif %}
 
-<h2>{{ album.title }} [ {{ album.name }} ]</h2>
+<h2>{{ album.title }} [ {{ album.name }} - <a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'edit' %}</a>]</h2>
 
 <form method="get" action="{% url 'photo_update_tags' album.id %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
