@@ -59,17 +59,26 @@ def album_view(request, album_id):
     return render(request, 'photo/album.html',
                                {'album': album,
                                 'photos': photos.order_by('date')})
-    
-def tag_view(request, tag_id):
-    tag = Tag.objects.get(pk=tag_id)
+
+def tag_slug_view(request, slug):
+    tag = Tag.objects.get(slug=slug)
     photos = Photo.objects.filter(phototag__tag=tag).order_by('date')
+    
+    paginator = Paginator(photos, 25)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    
+    try:
+        photos = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        photos = paginator.page(paginator.num_pages)
+    
     return render(request, 'photo/tag.html',
                                {'title': tag.name,
-                                'photos': photos})
+                                'page': photos})
 
-def tag_name_view(request, name):
-    tag = Tag.objects.get(name=name)
-    return redirect(tag_view, tag_id=tag.id)
      
 def cloud_view(request):
     tags = Tag.objects.all().order_by('name')

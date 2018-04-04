@@ -6,7 +6,7 @@
 
 <ul>
 {% for t in tags %}
-	<li><a href="{% url 'photo_tag' t.id %}">{{ t.name }}</a></li>
+	<li><a href="{% url 'photo_tag_slug' t.slug %}">{{ t.name }}</a></li>
 {% endfor %}
 </ul>
 

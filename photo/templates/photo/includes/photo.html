@@ -15,7 +15,7 @@
 		<a href="{% url 'photo_star' p.id %}" class="fav-star" >&star;</a>
 	{% endif %}
 	{% for pt in p.tags.all %}
-		<a href="{% url 'photo_tag' pt.id %}" class="tag">{{ pt.name }}</a>
+		<a href="{% url 'photo_tag_slug' pt.slug %}" class="tag">{{ pt.name }}</a>
 	{% endfor %}
 	<br/>
 	<a href="{% url 'photo_edit' p.id %}">{% trans 'edit' %}</a> 

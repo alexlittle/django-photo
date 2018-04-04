@@ -6,7 +6,7 @@
 
 
 {% for t in tags %}
-	<a href="{% url 'photo_tag' t.id %}" class="tag">{{ t.name }}</a>
+	<a href="{% url 'photo_tag_slug' t.slug %}" class="tag">{{ t.name }}</a>
 {% endfor %}
 
 

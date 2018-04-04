@@ -21,7 +21,7 @@ class TagPropsInline(admin.TabularInline):
     model = TagProps   
     
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tagcategory')  
+    list_display = ('name', 'tagcategory', 'slug')  
     search_fields = ['name']
     actions = ['mark_category_place', 
                'mark_category_person', 

@@ -5,11 +5,29 @@
 
 <h2>{{ title }}</h2>
 
+
+{% if page.has_previous or page.has_next %}
+    <div>
+        {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+        |
+        {% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+    </div>
+{% endif %}
+
 <div class="row-fluid">
-{% for p in photos %}
+{% for p in page.object_list %}
 	{% include 'photo/includes/photo.html' %}
 {% endfor %}
 </div>
+
+<div style="clear:both"></div>
+{% if page.has_previous or page.has_next %}
+    <div>
+        {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
+        |
+        {% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
+    </div>
+{% endif %}
 
 
 {% endblock %}
