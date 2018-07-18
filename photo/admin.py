@@ -4,7 +4,7 @@ from django.contrib import admin
 from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCache, PhotoProps, TagProps
 
 class AlbumAdmin(admin.ModelAdmin):
-    list_display = ('name', 'title', 'date_display')
+    list_display = ('name', 'title', 'date_display', 'slug')
     search_fields = ['name','title', 'date_display']
     
 class PhotoPropsInline(admin.TabularInline):
