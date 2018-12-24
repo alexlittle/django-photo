@@ -20,7 +20,7 @@ if BASE_DIR not in sys.path:
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost.photo']
+ALLOWED_HOSTS = ['localhost.photo', 'localhost']
 
 ADMINS = (
     ('Alex Little', 'consult@alexlittle.net'),
