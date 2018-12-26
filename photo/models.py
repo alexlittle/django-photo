@@ -173,8 +173,10 @@ class Photo (models.Model):
 def photo_delete_file(sender, instance, **kwargs):
     file_to_delete =  settings.PHOTO_ROOT + instance.album.name +instance.file
     print "deleting ...." + file_to_delete
-    os.remove(file_to_delete)
-    print "File removed"
+    try:
+        os.remove(file_to_delete)
+    except:
+        print "File not removed"
     
     
 class PhotoProps(models.Model):
