@@ -30,7 +30,7 @@ class Command(BaseCommand):
         counter = 0
         for a in albums:
             if not a.has_cover():
-                print a.name + " - http://localhost:8000" + reverse('photo_album', args=(a.id,))
+                print a.name + " - http://localhost.photo" + reverse('photo_album', args=(a.id,))
                 counter += 1
                 
         print counter

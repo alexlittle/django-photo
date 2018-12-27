@@ -171,10 +171,11 @@ def scan_folder(request):
             album, created = Album.objects.get_or_create(name=directory)
             
             # get all the image files from dir
-            image_files = glob.glob(settings.PHOTO_ROOT + directory + "*.jpg")
+            image_files = glob.glob(settings.PHOTO_ROOT + directory + "*.[jJpP][pPnN][gG]")
             for im in image_files:
-                image_file_name = os.path.basename(im)
                 
+                image_file_name = os.path.basename(im)
+                print image_file_name
                 # find if image exists
                 photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
                 
@@ -183,7 +184,10 @@ def scan_folder(request):
                     tag, created = Tag.objects.get_or_create(name=t)
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
                  
-                exif_tags, result = get_exif(im)
+                try:
+                    exif_tags, result = get_exif(im)
+                except AttributeError: #png files don't generally have exif data
+                    result = False
                 if result:
                     try:
                         exif_date = exif_tags['DateTimeOriginal'] 
