@@ -35,10 +35,10 @@ class Command(BaseCommand):
         try:
             album = Album.objects.get(id=options['album'])
         except Album.DoesNotExist:
-            print "No Album Specified"
+            print("No Album Specified")
             return
         
-        print "Updating dates for... " + album.name
+        print("Updating dates for... " + album.name)
         photos = Photo.objects.filter(album=album)
         
         for photo in photos:
@@ -55,12 +55,12 @@ class Command(BaseCommand):
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
                     photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
                     photo.save()
-                    print "updated: " + photo.file
+                    print("updated: " + photo.file)
                 except KeyError:
-                    print exif_tags 
-                    print "KeyError"  + photo.file
+                    print(exif_tags) 
+                    print("KeyError"  + photo.file)
                 except AttributeError:
-                    print "AttributeError " + photo.file
+                    print("AttributeError " + photo.file)
                 except ValueError:
-                    print "ValueError " + photo.file
+                    print("ValueError " + photo.file)
         

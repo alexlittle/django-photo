@@ -16,10 +16,10 @@ def make(album_id):
     try:
         album = Album.objects.get(id=album_id)
     except Album.DoesNotExist:
-        print "No Album Specified"
+        print("No Album Specified")
         return
     
-    print "Creating album for... " + album.name
+    print("Creating album for... " + album.name)
     
     if album.title:
         filename = album.title
@@ -39,7 +39,7 @@ def make(album_id):
     styleCentered = ParagraphStyle(name="centeredStyle", alignment=TA_CENTER)
     
     if album.has_cover():
-        image = settings.MEDIA_ROOT + '..' + album.get_cover(album,700)
+        image = os.path.join(settings.MEDIA_ROOT, '..' , album.get_cover(album,700)[1:])
         im = Image(image)
         photo_page.append(im)
     
@@ -54,7 +54,7 @@ def make(album_id):
     
     for photo in photos:
         #image = settings.PHOTO_ROOT + album.name + photo.file
-        image = settings.MEDIA_ROOT + '..' + photo.get_thumbnail(photo,700)
+        image = os.path.join(settings.MEDIA_ROOT, '..' , photo.get_thumbnail(photo,700)[1:])
         im = Image(image)
         photo_page.append(im)
         photo_page.append(Spacer(1, 12))

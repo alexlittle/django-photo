@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
 from photo.models import PhotoTag, Tag, TagProps
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 class Command(BaseCommand):
     help = "gets lat/lng for places"
@@ -28,9 +28,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         tags = Tag.objects.filter(tagcategory__name='Place').exclude(tagprops__name='lat')
-        print tags.count()
+        print(tags.count())
         for tag in tags:
-            print tag.name
+            print(tag.name)
             try:
                 params = {
                     'q': urllib.quote_plus(tag.name.encode('utf-8')),
@@ -40,25 +40,25 @@ class Command(BaseCommand):
                     params['country'] = tag.get_prop('country')
                     
                 url = 'http://api.geonames.org/searchJSON?' + urllib.urlencode(params)
-                print url
+                print(url)
 
                 u = urllib2.urlopen(urllib2.Request(url), timeout=10)
             
                 data = u.read()  
                 dataJSON = json.loads(data,"utf-8")
             
-                print dataJSON['geonames'][0]
+                print(dataJSON['geonames'][0])
                 accept = raw_input("Accept this? [Yes/Ignore/No]")
                 if accept == 'y':
-                    print 'accepted'
+                    print('accepted')
                     lat = dataJSON['geonames'][0]['lat']
                     lng = dataJSON['geonames'][0]['lng']
                     TagProps(tag=tag, name='lat',value=lat).save()
                     TagProps(tag=tag, name='lng',value=lng).save()
                 if accept =='i':
-                    print 'ignoring'
+                    print('ignoring')
                 if accept =='n':
-                    print 'no'
+                    print('no')
                     TagProps(tag=tag, name='lat',value=0).save()
                     TagProps(tag=tag, name='lng',value=0).save()
             except IndexError:

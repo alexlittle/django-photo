@@ -46,9 +46,9 @@ class Command(BaseCommand):
             else:
                 photos = Photo.objects.exclude(thumbnailcache__size=size)
                 
-            print str(photos.count()) + " to process"
+            print(str(photos.count()) + " to process")
             
             for p in photos:
-                print "processing: " + p.album.name + p.file
-                print p.get_thumbnail(p,size)
+                print("processing: " + p.album.name + p.file)
+                print(p.get_thumbnail(p,size))
         

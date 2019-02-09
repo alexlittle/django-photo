@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 import os,sys
 
-from django.core import urlresolvers
-
 BASE_DIR = os.path.dirname(os.path.dirname(__file__)) 
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
@@ -118,7 +116,8 @@ EMAIL_FILE_PATH = '/tmp/'
 
 #####################################################################
 # Authentication
-LOGIN_URL = urlresolvers.reverse_lazy('profile_login')
+from django import urls
+LOGIN_URL = urls.reverse_lazy('profile_login')
 AUTHENTICATION_BACKENDS =  [
     'django.contrib.auth.backends.ModelBackend',
 ]

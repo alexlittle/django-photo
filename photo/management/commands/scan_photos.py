@@ -81,16 +81,16 @@ class Command(BaseCommand):
                    
                    try:
                        if options['verbose']:
-                           print "checking..." + album + name
+                           print("checking..." + album + name)
                        Photo.objects.get(album__name=album, file=name)
                        if options['verbose']:
-                           print album + name + " " + bcolors.OK + "found" + bcolors.ENDC
+                           print(album + name + " " + bcolors.OK + "found" + bcolors.ENDC)
                    except Photo.DoesNotExist: 
-                       print bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC
+                       print(bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC)
                        count_not_found+=1
                 
                            
-            print count_not_found
+            print(count_not_found)
         
         
         # Scan albums in DB to ensure they all exist on file
@@ -101,13 +101,13 @@ class Command(BaseCommand):
             for photo in photos:
                 if os.path.isfile(settings.PHOTO_ROOT + photo.album.name + photo.file):
                     if options['verbose']:
-                        print photo.album.name + photo.file + " " + bcolors.OK + "found" + bcolors.ENDC
+                        print(photo.album.name + photo.file + " " + bcolors.OK + "found" + bcolors.ENDC)
                 else:
-                    print bcolors.WARNING + photo.album.name + photo.file + " " + " NOT FOUND" + bcolors.ENDC
+                    print(bcolors.WARNING + photo.album.name + photo.file + " " + " NOT FOUND" + bcolors.ENDC)
                     if options['autodelete']:
                         photo.delete()
-                        print bcolors.WARNING + "... DELETED" + bcolors.ENDC
+                        print(bcolors.WARNING + "... DELETED" + bcolors.ENDC)
                     count_not_found+=1
                     
-            print count_not_found
+            print(count_not_found)
         

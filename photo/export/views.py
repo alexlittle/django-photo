@@ -1,5 +1,5 @@
 
-import create_album
+import photo.export.create_album
 
 from shutil import copy2
 

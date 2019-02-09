@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
 from photo.models import PhotoTag, Tag
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 class Command(BaseCommand):
     help = "Finds all uncategorised tags"
@@ -26,7 +26,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tags = Tag.objects.filter(tagcategory=None)
         for t in tags:
-            print ("http://localhost.photo%s" % reverse('admin:photo_tag_change', args=(t.id, )))
+            print("http://localhost.photo%s" % reverse('admin:photo_tag_change', args=(t.id, )))
             
         print(tags.count())
             

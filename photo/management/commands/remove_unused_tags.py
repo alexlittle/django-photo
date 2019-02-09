@@ -25,6 +25,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tags = Tag.objects.filter(phototag=None)
         for t in tags:
-            print "Removing: " + t.name
+            print("Removing: " + t.name)
             t.delete()
         

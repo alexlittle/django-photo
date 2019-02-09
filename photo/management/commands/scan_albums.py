@@ -82,12 +82,12 @@ class Command(BaseCommand):
                
                try:
                    Album.objects.get(name=album_path)
-                   #print album_path + " " + bcolors.OK + "found" + bcolors.ENDC
+                   #print(album_path + " " + bcolors.OK + "found" + bcolors.ENDC)
                except Album.DoesNotExist:
-                   print bcolors.WARNING + album_path + " " + " NOT FOUND" + bcolors.ENDC
+                   print(bcolors.WARNING + album_path + " " + " NOT FOUND" + bcolors.ENDC)
                    count_not_found+=1
                        
-        print count_not_found
+        print(count_not_found)
         
         
         # Scan albums in DB to ensure they all exist on file
@@ -95,8 +95,8 @@ class Command(BaseCommand):
         
         for album in albums:
             if os.path.isdir(settings.PHOTO_ROOT + album.name):
-                #print album.name + " " + bcolors.OK + "found" + bcolors.ENDC
+                #print(album.name + " " + bcolors.OK + "found" + bcolors.ENDC)
                 pass
             else:
-                print bcolors.WARNING + album.name + " " + " NOT FOUND" + bcolors.ENDC
+                print(bcolors.WARNING + album.name + " " + " NOT FOUND" + bcolors.ENDC)
         

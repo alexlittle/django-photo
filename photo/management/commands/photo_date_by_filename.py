@@ -42,6 +42,6 @@ class Command(BaseCommand):
             new_month = int(photo.file[8:10])
             new_day = int(photo.file[10:12])
             new_date = datetime.date(new_year,new_month,new_day)
-            print new_date
+            print(new_date)
             photo.date = new_date
             photo.save()

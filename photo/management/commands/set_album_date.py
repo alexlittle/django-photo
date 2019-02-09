@@ -27,7 +27,7 @@ class Command(BaseCommand):
         albums = Album.objects.filter(date_display=None)
         for a in albums:
             parts = a.name.split('/')
-            print a.name
+            print(a.name)
             date_parts = parts[2].split('-')
             try:
                 display_date = datetime.datetime(int(date_parts[0]),int(date_parts[1]),1,0,0,0).strftime('%B %Y')

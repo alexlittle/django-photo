@@ -15,7 +15,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.db.models import F, Max
 from django.shortcuts import render, redirect
@@ -175,7 +175,7 @@ def scan_folder(request):
             for im in image_files:
                 
                 image_file_name = os.path.basename(im)
-                print image_file_name
+                print(image_file_name)
                 # find if image exists
                 photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
                 
@@ -278,7 +278,7 @@ def photo_update_tags(request, album_id):
     album = Album.objects.get(id=album_id)
     photo_ids = request.GET.getlist('photo_id', [])
     
-    print photo_ids
+    print(photo_ids)
     
     if request.method == 'POST':
         form = UpdateTagsForm(request.POST)

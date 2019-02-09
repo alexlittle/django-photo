@@ -16,8 +16,6 @@ from io import BytesIO
 
 from PIL import Image
 
-from photo.cache_storage import ImageCacheFileSystemStorage
-
 from photo.fields import AutoSlugField
 
 class Album (models.Model):
@@ -77,7 +75,7 @@ class Tag (models.Model):
     slug = AutoSlugField(populate_from='name', max_length=100, blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
-    tagcategory  = models.ForeignKey(TagCategory,null=True,default=None)
+    tagcategory  = models.ForeignKey(TagCategory, null=True, default=None, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return self.name
@@ -109,7 +107,7 @@ class Photo (models.Model):
     slug = AutoSlugField(populate_from='file', max_length=100, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
     title = models.TextField(blank=True, null=True)
-    album = models.ForeignKey(Album) 
+    album = models.ForeignKey(Album, on_delete=models.CASCADE) 
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
     album_cover = models.BooleanField(default=False)
@@ -172,11 +170,11 @@ class Photo (models.Model):
 @receiver(post_delete, sender=Photo)
 def photo_delete_file(sender, instance, **kwargs):
     file_to_delete =  settings.PHOTO_ROOT + instance.album.name +instance.file
-    print "deleting ...." + file_to_delete
+    print("deleting ...." + file_to_delete)
     try:
         os.remove(file_to_delete)
     except:
-        print "File not removed"
+        print("File not removed")
     
     
 class PhotoProps(models.Model):
