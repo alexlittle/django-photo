@@ -1,12 +1,11 @@
 
-import photo.export.create_album
-
 from shutil import copy2
 
 from django.conf import settings
 from django.http import HttpResponse, FileResponse, HttpResponseRedirect
 
 from photo.models import Photo, Tag
+from photo.export import create_album
 
 def make_view_pdf(request, album_id):
     album_url = create_album.make(album_id)
