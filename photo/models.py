@@ -26,7 +26,7 @@ class Album (models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     class Meta:
@@ -62,7 +62,7 @@ class TagCategory(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     class Meta:
@@ -77,7 +77,7 @@ class Tag (models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     tagcategory  = models.ForeignKey(TagCategory, null=True, default=None, on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     class Meta:
@@ -114,7 +114,7 @@ class Photo (models.Model):
     tags = models.ManyToManyField(Tag, through='PhotoTag', name='tags' )
     
     
-    def __unicode__(self):
+    def __str__(self):
         return self.file
     
     class Meta:
@@ -161,7 +161,9 @@ class Photo (models.Model):
                                                                                      None)               # content_type_extra
                                        )
                 thumb.save()
-            except IOError:
+            except IOError as ioe:
+                print(photo.id)
+                print(ioe)
                 return None 
            
         return thumb.image.url
