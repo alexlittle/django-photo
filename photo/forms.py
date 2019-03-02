@@ -53,6 +53,10 @@ class EditPhotoForm(forms.Form):
     tags = forms.CharField(
                 required=True,
                 error_messages={'required': _('Please enter at least one tag')},)
+    date = forms.DateField(
+                required=True,
+                error_messages={'required': _('Please enter a valid date'),
+                                'invalid': _('Please enter a valid date')},)
     
     def __init__(self, *args, **kwargs):
         super(EditPhotoForm, self).__init__(*args, **kwargs)
@@ -63,6 +67,7 @@ class EditPhotoForm(forms.Form):
         self.helper.layout = Layout(
                 'title',
                 'tags',
+                Div('date', css_class='date-picker-row-fluid'),
                 Div(
                    Submit('submit', _(u'Update'), css_class='btn btn-default'),
                    css_class='col-lg-offset-2 col-lg-4',

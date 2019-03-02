@@ -237,6 +237,7 @@ def photo_edit_view(request, photo_id):
                 tag, created = Tag.objects.get_or_create(name=t)
                 photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
             photo.title = form.cleaned_data.get("title")
+            photo.date = form.cleaned_data.get("date")
             photo.save()
         return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': photo.album.id }))
      
@@ -245,6 +246,7 @@ def photo_edit_view(request, photo_id):
         data = {}
         data['tags'] = ", ".join(tags)
         data['title'] = photo.title
+        data['date'] = photo.date
         form = EditPhotoForm(initial=data)
 
     return render(request, 'photo/edit.html', {'form': form,'title':_(u'Edit Photo'), 'photo': photo})

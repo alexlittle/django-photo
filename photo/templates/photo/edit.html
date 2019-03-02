@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load thumbnail %}
-
 {% load crispy_forms_tags %}
 
+{% block extra_scripts %}
+	<script type="text/javascript">
+		{% include "includes/init-date-picker-js.html" %}
+	</script>
+{% endblock extra_scripts %}
+
+{% block extra_body %}
+		onload="setUpDatePicker();"
+{% endblock extra_body %}
+	
 {% block content %}
 <h1>{{ title }}</h1>
 
