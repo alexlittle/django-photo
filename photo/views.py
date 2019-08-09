@@ -164,6 +164,8 @@ def scan_folder(request):
         form = ScanFolderForm(request.POST)
         if form.is_valid(): # All validation rules pass
             directory = form.cleaned_data.get("directory") 
+            if not directory.endswith('/'):
+                directory = directory + '/'
             default_tags = form.cleaned_data.get("default_tags")
             tags = [x.strip() for x in default_tags.split(',')]
             
