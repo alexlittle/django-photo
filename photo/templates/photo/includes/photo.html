@@ -8,6 +8,7 @@
 	{% if p.title %}
 		{{ p.title }}<br/>
 	{% endif %}
+	<small>{{ p.file }}</small><br/>
 	<small>{{ p.date }}</small><br/>
 	{% if p|get_photo_prop:'favourite' == 'true' %} 
 		<a href="{% url 'photo_unstar' p.id %}" class="fav-star" >&starf;</a>

@@ -111,7 +111,8 @@ class Photo (models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)  
     album_cover = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag, through='PhotoTag', name='tags' )
+    tags = models.ManyToManyField(Tag, through='PhotoTag', name='tags')
+    md5hash = models.CharField(max_length=32, blank=True, null=True)
     
     
     def __str__(self):
