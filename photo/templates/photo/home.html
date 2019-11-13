@@ -8,7 +8,7 @@
 <h1>Photo Database Home</h1>
 
 {% for y in years %}
-	{{ y.name }}
+	<a href="{% url 'photo_tag_slug' y.name %}">{{ y.name }}</a>
 {% endfor %}
 
 

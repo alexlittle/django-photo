@@ -34,6 +34,7 @@ class Command(BaseCommand):
        # Scan directory structure to find dirs that haven't been uploaded to DB
         count_not_found = 0
         ignore = [
+                    '/export/',
                     '/2004/',
                     '/2005/',
                     '/2006/',
@@ -66,6 +67,7 @@ class Command(BaseCommand):
                     '/2016/',
                     '/2017/',
                     '/2018/',
+                    '/2019/',
                     '/albums/',
                     '/negatives/',
                     ]

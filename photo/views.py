@@ -289,18 +289,26 @@ def photo_update_tags(request, album_id):
         if form.is_valid():
             action = form.cleaned_data.get("action")
             update_tags = form.cleaned_data.get("tags")
+            date = form.cleaned_data.get("date")
             tags = [x.strip() for x in update_tags.split(',')]
             
             for t in tags:
-                tag, created = Tag.objects.get_or_create(name=t)
+                if t is not None:
+                    tag, created = Tag.objects.get_or_create(name=t)
+        
+                    for p in photo_ids:
+                        photo = Photo.objects.get(id=p)
+                        if action == "delete":
+                            PhotoTag.objects.filter(photo__album=album, photo=photo, tag=tag).delete()
+                            
+                        if action == "add":
+                            photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
+            
+            if action == "change_date":
                 for p in photo_ids:
                     photo = Photo.objects.get(id=p)
-                    if action == "delete":
-                        PhotoTag.objects.filter(photo__album=album, photo=photo, tag=tag).delete()
-                        
-                    if action == "add":
-                        photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
-            
+                    photo.date = date
+                    photo.save()
             
             return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album_id }))
     else:

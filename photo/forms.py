@@ -97,11 +97,18 @@ class SearchForm(forms.Form):
         )
         
 class UpdateTagsForm(forms.Form):
-    UPDATE_ACTIONS = (('add',_(u'Add Tag/s')), ('delete',_(u'Delete Tag/s')))
+    UPDATE_ACTIONS = (('add',_(u'Add Tag/s')),
+                      ('delete',_(u'Delete Tag/s')),
+                      ('change_date',_(u'Change date'))
+                      )
     
     action = forms.ChoiceField(required=True,
                           choices=UPDATE_ACTIONS)
-    tags = forms.CharField(required=True)
+    tags = forms.CharField(required=False)
+    date = forms.DateField(
+                required=False,
+                error_messages={'required': _('Please enter a valid date'),
+                                'invalid': _('Please enter a valid date')},)
     
     def __init__(self, *args, **kwargs):
         super(UpdateTagsForm, self).__init__(*args, **kwargs)
@@ -112,6 +119,7 @@ class UpdateTagsForm(forms.Form):
         self.helper.layout = Layout(
                 'action',
                 'tags',
+                Div('date', css_class='date-picker-row-fluid'),
                 Div(
                    Submit('submit', _(u'Update'), css_class='btn btn-default'),
                    css_class='col-lg-offset-2 col-lg-4',

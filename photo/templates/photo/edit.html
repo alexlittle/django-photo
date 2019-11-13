@@ -17,6 +17,7 @@
 <h1>{{ title }}</h1>
 
 <img src="{{ photo|get_thumbnail:250 }}" class="img-thumbnail" alt="{{ photo.file }}" title="{{ photo.file }}"/>
+<br/>{{ photo.file }}
 
 {% crispy form %}
 

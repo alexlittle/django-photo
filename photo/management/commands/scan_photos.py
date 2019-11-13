@@ -59,7 +59,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
        
-        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf']
+        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf', 'pdf', '.heic', '.mov']
         # Scan directory structure to find photos that haven't been uploaded to DB
         if options['files']:
         
@@ -72,7 +72,7 @@ class Command(BaseCommand):
                    
                    ignore = False
                    for ext in ignore_extensions:
-                       if name.endswith(ext):
+                       if name.lower().endswith(ext):
                             ignore = True
                    if ignore:
                        continue
