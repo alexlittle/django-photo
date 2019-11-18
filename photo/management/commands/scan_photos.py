@@ -11,8 +11,10 @@ from optparse import make_option
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 
 from photo.models import Album, Photo
+from photo.views import upload_album
 
 class bcolors:
     HEADER = '\033[95m'
@@ -56,15 +58,23 @@ class Command(BaseCommand):
             help='delete items that are not found',
         )
         
+        parser.add_argument(
+            '--autoadd',
+            action='store_true',
+            dest='autoadd',
+            help='add items that are not found',
+        )
+        
 
     def handle(self, *args, **options):
        
-        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf', 'pdf', '.heic', '.mov']
+        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv', '.thm', '.mpg', '.doc', '.xcf', 'pdf', '.heic', '.mov', '.mkv']
         # Scan directory structure to find photos that haven't been uploaded to DB
         if options['files']:
         
             count_not_found = 0
-        
+            folders_to_add = []
+            
             for root, dirs, files in os.walk(settings.PHOTO_ROOT, topdown=True):
                for name in files:
                    if name.endswith('-timelapse') or '-timelapse' in root:
@@ -87,12 +97,21 @@ class Command(BaseCommand):
                            print(album + name + " " + bcolors.OK + "found" + bcolors.ENDC)
                    except Photo.DoesNotExist: 
                        print(bcolors.WARNING + album + name  + " " + " NOT FOUND" + bcolors.ENDC)
+                       if album not in folders_to_add:
+                           folders_to_add.append(album)
                        count_not_found+=1
                 
                            
             print(count_not_found)
         
-        
+            if options['autoadd']:
+                for folder in folders_to_add:
+                    print(folder)
+                    default_tags = input("Enter the default tags...")
+                    print(default_tags)
+                    upload_album(folder, default_tags, timezone.now())
+                
+                
         # Scan albums in DB to ensure they all exist on file
         if options['db']:
             count_not_found = 0

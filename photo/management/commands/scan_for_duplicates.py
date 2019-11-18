@@ -39,7 +39,7 @@ class Command(BaseCommand):
             if photos.count() > 1:
                 for photo in photos:
                     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
-                    print("Duplicate: " + photo_path)
+                    print("Duplicate: http://localhost.photo/album/" + str(photo.album.id) + "#" + str(photo.id))
                 print("---")
                 
                 

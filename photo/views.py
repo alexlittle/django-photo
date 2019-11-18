@@ -167,48 +167,8 @@ def scan_folder(request):
             if not directory.endswith('/'):
                 directory = directory + '/'
             default_tags = form.cleaned_data.get("default_tags")
-            tags = [x.strip() for x in default_tags.split(',')]
-            
-            # find if dir is already in locations
-            album, created = Album.objects.get_or_create(name=directory)
-            
-            # get all the image files from dir
-            image_files = glob.glob(settings.PHOTO_ROOT + directory + "*.[jJpP][pPnN][gG]")
-            for im in image_files:
-                
-                image_file_name = os.path.basename(im)
-                print(image_file_name)
-                # find if image exists
-                photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
-                
-                # add all the tags
-                for t in tags:
-                    tag, created = Tag.objects.get_or_create(name=t)
-                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
-                 
-                try:
-                    exif_tags, result = get_exif(im)
-                except AttributeError: #png files don't generally have exif data
-                    result = False
-                if result:
-                    try:
-                        exif_date = exif_tags['DateTimeOriginal'] 
-                        naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
-                        photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
-                    except KeyError:
-                        if created:
-                            photo.date = form.cleaned_data.get("default_date")
-                    except AttributeError:
-                        if created:
-                            photo.date = form.cleaned_data.get("default_date")
-                    except ValueError:
-                        if created:
-                            photo.date = form.cleaned_data.get("default_date")
-                        
-                photo.save()
-                #create thumbnails
-                for size in settings.DEFAULT_THUMBNAIL_SIZES:
-                    photo.get_thumbnail(photo,size)
+            default_date = form.cleaned_data.get("default_date")
+            upload_album(directory, default_tags, default_date)
             
             return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id }))     
     else:
@@ -328,3 +288,51 @@ def get_exif(fn):
         return ret, True
     else:
         return None, False
+    
+def upload_album(directory, default_tags, default_date):
+    tags = [x.strip() for x in default_tags.split(',')]
+            
+    # find if dir is already in locations
+    album, created = Album.objects.get_or_create(name=directory)
+    
+    # get all the image files from dir
+    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp']
+    
+    for img_ext in image_extensions:
+        image_files = glob.glob(settings.PHOTO_ROOT + directory + img_ext)
+        for im in image_files:
+            
+            image_file_name = os.path.basename(im)
+            print(image_file_name)
+            # find if image exists
+            photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
+            
+            # add all the tags
+            for t in tags:
+                tag, created = Tag.objects.get_or_create(name=t)
+                photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag= tag)
+             
+            try:
+                exif_tags, result = get_exif(im)
+            except AttributeError: #png files don't generally have exif data
+                result = False
+            if result:
+                try:
+                    exif_date = exif_tags['DateTimeOriginal'] 
+                    naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2) )
+                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                except KeyError:
+                    if created:
+                        photo.date = default_date
+                except AttributeError:
+                    if created:
+                        photo.date = default_date
+                except ValueError:
+                    if created:
+                        photo.date = default_date
+                    
+            photo.save()
+            #create thumbnails
+            for size in settings.DEFAULT_THUMBNAIL_SIZES:
+                photo.get_thumbnail(photo,size)
+    
