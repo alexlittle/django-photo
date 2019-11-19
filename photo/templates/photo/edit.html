@@ -16,9 +16,12 @@
 {% block content %}
 <h1>{{ title }}</h1>
 
+	<a href="{% url 'photo_album' photo.album.id %}">{{ photo.album.name }}</a><br/>
 <img src="{{ photo|get_thumbnail:250 }}" class="img-thumbnail" alt="{{ photo.file }}" title="{{ photo.file }}"/>
 <br/>{{ photo.file }}
 
 {% crispy form %}
+
+<a href="{% url 'admin:photo_photo_delete' photo.id %}">{% trans 'delete' %}</a>
 
 {% endblock %}

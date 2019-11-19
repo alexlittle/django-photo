@@ -30,7 +30,6 @@ class Command(BaseCommand):
                 hash = self.md5(photo_path)
                 photo.md5hash = hash
                 photo.save()
-                print(photo_path)
                 
         # check for duplicates
         hashes = Photo.objects.exclude(md5hash=None).values('md5hash').distinct()
@@ -39,7 +38,7 @@ class Command(BaseCommand):
             if photos.count() > 1:
                 for photo in photos:
                     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
-                    print("Duplicate: http://localhost.photo/album/" + str(photo.album.id) + "#" + str(photo.id))
+                    print("Duplicate: http://localhost.photo/photo/edit/" + str(photo.id))
                 print("---")
                 
                 
