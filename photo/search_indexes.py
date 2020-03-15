@@ -1,5 +1,5 @@
 from haystack import indexes
-from photo.models import Photo, PhotoTag, Tag
+from photo.models import Photo
 
 
 class PhotoIndex(indexes.SearchIndex, indexes.Indexable):

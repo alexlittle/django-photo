@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FieldWithButtons
-from crispy_forms.layout import Button, Layout, Fieldset, ButtonHolder, Submit, Div, HTML, Row
+from crispy_forms.layout import Layout, Submit, Div
 
 
 class ScanFolderForm(forms.Form):
@@ -19,8 +19,9 @@ class ScanFolderForm(forms.Form):
                 error_messages={'required': _('Please enter a default date')},)
     default_tags = forms.CharField(
                 required=True,
-                error_messages={'required': _('Please enter at least one tag')},)
-    
+                error_messages={'required':
+                                _('Please enter at least one tag')},)
+
     def __init__(self, *args, **kwargs):
         super(ScanFolderForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -37,27 +38,29 @@ class ScanFolderForm(forms.Form):
                    css_class='col-lg-offset-2 col-lg-4',
                 ),
             )
+
     def clean(self):
         cleaned_data = super(ScanFolderForm, self).clean()
         directory = cleaned_data.get("directory")
         # Check directory exists
         if not os.path.isdir(settings.PHOTO_ROOT + directory):
             raise forms.ValidationError(_("Directory does not exist"))
-        
+
         return cleaned_data
-    
-    
+
+
 class EditPhotoForm(forms.Form):
     title = forms.CharField(
                 required=False,)
     tags = forms.CharField(
                 required=True,
-                error_messages={'required': _('Please enter at least one tag')},)
+                error_messages={'required':
+                                _('Please enter at least one tag')},)
     date = forms.DateField(
                 required=True,
                 error_messages={'required': _('Please enter a valid date'),
                                 'invalid': _('Please enter a valid date')},)
-    
+
     def __init__(self, *args, **kwargs):
         super(EditPhotoForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -73,15 +76,17 @@ class EditPhotoForm(forms.Form):
                    css_class='col-lg-offset-2 col-lg-4',
                 ),
             )
+
     def clean(self):
         cleaned_data = super(EditPhotoForm, self).clean()
         return cleaned_data
-    
-    
+
+
 class SearchForm(forms.Form):
     q = forms.CharField(
         required=True,
-        error_messages={'required': _(u'Please enter something to search for')},)
+        error_messages={'required':
+                        _(u'Please enter something to search for')},)
 
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
@@ -95,21 +100,22 @@ class SearchForm(forms.Form):
                                          css_class='btn btn-default')),
 
         )
-        
+
+
 class UpdateTagsForm(forms.Form):
-    UPDATE_ACTIONS = (('add',_(u'Add Tag/s')),
-                      ('delete',_(u'Delete Tag/s')),
-                      ('change_date',_(u'Change date'))
+    UPDATE_ACTIONS = (('add', _(u'Add Tag/s')),
+                      ('delete', _(u'Delete Tag/s')),
+                      ('change_date', _(u'Change date'))
                       )
-    
+
     action = forms.ChoiceField(required=True,
-                          choices=UPDATE_ACTIONS)
+                               choices=UPDATE_ACTIONS)
     tags = forms.CharField(required=False)
     date = forms.DateField(
                 required=False,
                 error_messages={'required': _('Please enter a valid date'),
                                 'invalid': _('Please enter a valid date')},)
-    
+
     def __init__(self, *args, **kwargs):
         super(UpdateTagsForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -125,7 +131,7 @@ class UpdateTagsForm(forms.Form):
                    css_class='col-lg-offset-2 col-lg-4',
                 ),
             )
+
     def clean(self):
         cleaned_data = super(UpdateTagsForm, self).clean()
         return cleaned_data
-    

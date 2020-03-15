@@ -18,12 +18,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Album',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('slug', photo.fields.AutoSlugField(blank=True, editable=False, max_length=200, null=True, populate_from='name', unique=True)),
+                ('slug', photo.fields.AutoSlugField(blank=True,
+                                                    editable=False,
+                                                    max_length=200,
+                                                    null=True,
+                                                    populate_from='name',
+                                                    unique=True)),
                 ('title', models.TextField(blank=True, null=True)),
                 ('date_display', models.TextField(blank=True, null=True)),
-                ('created_date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('created_date', models.DateTimeField(
+                    default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),
             ],
             options={
@@ -34,15 +41,25 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Photo',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('file', models.TextField()),
-                ('slug', photo.fields.AutoSlugField(blank=True, editable=False, max_length=100, null=True, populate_from='file', unique=True)),
-                ('date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('slug', photo.fields.AutoSlugField(blank=True,
+                                                    editable=False,
+                                                    max_length=100,
+                                                    null=True,
+                                                    populate_from='file',
+                                                    unique=True)),
+                ('date', models.DateTimeField(
+                    default=django.utils.timezone.now)),
                 ('title', models.TextField(blank=True, null=True)),
-                ('created_date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('created_date', models.DateTimeField(
+                    default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),
                 ('album_cover', models.BooleanField(default=False)),
-                ('album', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='photo.Album')),
+                ('album', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='photo.Album')),
             ],
             options={
                 'verbose_name': 'Photo',
@@ -52,10 +69,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PhotoProps',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
                 ('value', models.CharField(max_length=100)),
-                ('photo', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='photo.Photo')),
+                ('photo', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='photo.Photo')),
             ],
             options={
                 'verbose_name': 'Photo property',
@@ -65,8 +85,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PhotoTag',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('photo', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='photo.Photo')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
+                ('photo', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='photo.Photo')),
             ],
             options={
                 'verbose_name': 'Photo Tag',
@@ -76,10 +99,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Tag',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('slug', photo.fields.AutoSlugField(blank=True, editable=False, max_length=100, null=True, populate_from='name', unique=True)),
-                ('created_date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('slug', photo.fields.AutoSlugField(blank=True,
+                                                    editable=False,
+                                                    max_length=100,
+                                                    null=True,
+                                                    populate_from='name',
+                                                    unique=True)),
+                ('created_date', models.DateTimeField(
+                    default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),
             ],
             options={
@@ -91,10 +121,14 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TagCategory',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=20)),
-                ('slug', photo.fields.AutoSlugField(blank=True, editable=False, max_length=100, null=True, populate_from='name', unique=True)),
-                ('created_date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('slug', photo.fields.AutoSlugField(blank=True, editable=False,
+                 max_length=100, null=True, populate_from='name',
+                 unique=True)),
+                ('created_date', models.DateTimeField(
+                    default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),
             ],
             options={
@@ -105,10 +139,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TagProps',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
                 ('value', models.CharField(max_length=100)),
-                ('tag', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='photo.Tag')),
+                ('tag', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='photo.Tag')),
             ],
             options={
                 'verbose_name': 'Tag property',
@@ -118,12 +155,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ThumbnailCache',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True,
+                 primary_key=True, serialize=False, verbose_name='ID')),
                 ('size', models.IntegerField()),
-                ('created_date', models.DateTimeField(default=django.utils.timezone.now)),
+                ('created_date', models.DateTimeField(
+                    default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),
-                ('image', models.ImageField(blank=True, null=True, upload_to=photo.models.image_file_name)),
-                ('photo', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='photo.Photo')),
+                ('image', models.ImageField(blank=True, null=True,
+                 upload_to=photo.models.image_file_name)),
+                ('photo', models.ForeignKey(
+                    on_delete=django.db.models.deletion.CASCADE,
+                    to='photo.Photo')),
             ],
             options={
                 'verbose_name': 'Thumbnail Cache',
@@ -133,16 +175,22 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tag',
             name='tagcategory',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='photo.TagCategory'),
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to='photo.TagCategory'),
         ),
         migrations.AddField(
             model_name='phototag',
             name='tag',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='photo.Tag'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='photo.Tag'),
         ),
         migrations.AddField(
             model_name='photo',
             name='tags',
-            field=models.ManyToManyField(through='photo.PhotoTag', to='photo.Tag'),
+            field=models.ManyToManyField(
+                through='photo.PhotoTag', to='photo.Tag'),
         ),
     ]
