@@ -288,6 +288,21 @@ def photo_update_tags(request, album_id):
                     photo = Photo.objects.get(id=p)
                     photo.date = date
                     photo.save()
+                    
+            if action == 'change_album':
+                new_album = Album.objects.get(pk=form.cleaned_data.get("album"))
+                print(new_album.name)
+                for p in photo_ids:
+                    photo = Photo.objects.get(id=p)
+                    try:
+                        os.rename(os.path.join(settings.PHOTO_ROOT + photo.album.name, photo.file),
+                                  os.path.join(settings.PHOTO_ROOT + new_album.name, photo.file))
+                        photo.album = new_album
+                        photo.save()
+                    except OSError:
+                        print("file could not be moved")
+                    
+                    
 
             return HttpResponseRedirect(reverse('photo_album',
                                                 kwargs={'album_id': album_id}))

@@ -9,6 +9,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FieldWithButtons
 from crispy_forms.layout import Layout, Submit, Div
 
+from photo.models import Album
 
 class ScanFolderForm(forms.Form):
     directory = forms.CharField(
@@ -105,7 +106,8 @@ class SearchForm(forms.Form):
 class UpdateTagsForm(forms.Form):
     UPDATE_ACTIONS = (('add', _(u'Add Tag/s')),
                       ('delete', _(u'Delete Tag/s')),
-                      ('change_date', _(u'Change date'))
+                      ('change_date', _(u'Change date')),
+                      ('change_album', _(u'Move to album'))
                       )
 
     action = forms.ChoiceField(required=True,
@@ -115,6 +117,10 @@ class UpdateTagsForm(forms.Form):
                 required=False,
                 error_messages={'required': _('Please enter a valid date'),
                                 'invalid': _('Please enter a valid date')},)
+    album = forms.ChoiceField(choices=Album.objects
+                              .all()
+                              .order_by('name')
+                              .values_list('id','name'))
 
     def __init__(self, *args, **kwargs):
         super(UpdateTagsForm, self).__init__(*args, **kwargs)
@@ -126,6 +132,7 @@ class UpdateTagsForm(forms.Form):
                 'action',
                 'tags',
                 Div('date', css_class='date-picker-row-fluid'),
+                'album',
                 Div(
                    Submit('submit', _(u'Update'), css_class='btn btn-default'),
                    css_class='col-lg-offset-2 col-lg-4',

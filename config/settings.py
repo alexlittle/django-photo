@@ -165,7 +165,7 @@ LOGGING = {
 
 
 try:
-    from config.local_settings import *  # noqa
+    from .local_settings import *  # noqa
 except ImportError:
     import warnings
     warnings.warn(
