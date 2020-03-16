@@ -36,7 +36,22 @@ class Command(BaseCommand):
             photos = Photo.objects.filter(md5hash=hash['md5hash'])
             if photos.count() > 1:
                 print("--- " + str(counter) + " ---")
-                for photo in photos:
-                    print("Duplicate: http://localhost.photo/photo/edit/"
+                delete_options = []
+                for idx, photo in enumerate(photos):
+                    print("[" + str(idx+1)+"] Duplicate: http://localhost.photo/photo/edit/"
                           + str(photo.id))
+                    print( photo.album.name )
+                    delete_option = {'option': idx+1,
+                                     'photo': photo.id}
+                    delete_options.append(delete_option)
                 counter += 1
+                
+                select_input = input("Select no to delete: ")
+                for option in delete_options:
+                    if option['option'] == int(select_input):
+                        try:
+                            Photo.objects.get(pk=option['photo']).delete()
+                            print("photo deleted")
+                        except Photo.DoesNotExist:
+                            print("photo not found")
+                

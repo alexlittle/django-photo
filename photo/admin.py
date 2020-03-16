@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 
 # Register your models here.
 from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, \
@@ -6,9 +8,13 @@ from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, \
 
 
 class AlbumAdmin(admin.ModelAdmin):
-    list_display = ('name', 'title', 'date_display', 'slug')
+    list_display = ('name', 'view_url', 'title', 'date_display', 'slug')
     search_fields = ['name', 'title', 'date_display']
 
+    def view_url(self, obj):
+        return format_html("<a href="+reverse('photo_album', args={obj.id}) + ">View</a>")
+    
+    view_url.short_description = "View"
 
 class PhotoPropsInline(admin.TabularInline):
     model = PhotoProps
@@ -27,7 +33,7 @@ class TagPropsInline(admin.TabularInline):
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tagcategory', 'slug')
+    list_display = ('name', 'view_url', 'tagcategory', 'slug')
     search_fields = ['name']
     actions = ['mark_category_place',
                'mark_category_person',
@@ -41,6 +47,11 @@ class TagAdmin(admin.ModelAdmin):
     inlines = [
         TagPropsInline,
     ]
+    
+    def view_url(self, obj):
+        return format_html("<a href="+reverse('photo_tag_slug', args={obj.slug}) + ">View</a>")
+    
+    view_url.short_description = "View"
 
     def mark_category_place(self, request, queryset):
         tc = TagCategory.objects.get(name='Place')
