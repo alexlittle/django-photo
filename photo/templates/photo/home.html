@@ -11,16 +11,7 @@
 	<a href="{% url 'photo_tag_slug' y.name %}">{{ y.name }}</a>
 {% endfor %}
 
-
-
-{% if page.has_previous or page.has_next %}
-    <div>
-        {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-        |
-        {% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-    </div>
-{% endif %}
-
+{% include 'includes/pagination.html' %}
 
 <div class="table-responsive">
       <table class="table table-bordered table-hover">
@@ -46,12 +37,6 @@
 	</table>
 </div>
 
-{% if page.has_previous or page.has_next %}
-    <div>
-        {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-        |
-        {% if page.has_next %}<a href="?page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-    </div>
-{% endif %}
+{% include 'includes/pagination.html' %}
 
 {% endblock %}
