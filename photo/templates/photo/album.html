@@ -13,12 +13,17 @@
 <form method="get" action="{% url 'photo_update_tags' album.id %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
 <input type="button" value="{% trans 'Select all' %}" onclick="selectall()"/>
+
+{% include 'includes/pagination.html' %}
 <div class="row-fluid">
-{% for p in photos %}
+{% for p in page.object_list %}
 	{% include 'photo/includes/photo.html' %}
 {% endfor %}
 </div>
 
+
 </form>
+<div style="clear:both"></div>
+{% include 'includes/pagination.html' %}
 
 {% endblock %}

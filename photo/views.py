@@ -49,15 +49,27 @@ def home_view(request):
 
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
-    photos = Photo.objects.filter(album=album)
+    photos = Photo.objects.filter(album=album).order_by('date')
 
     if request.GET.get('view', '') == 'print':
         photos = photos.exclude(
             photoprops__name='exclude.album.export', photoprops__value='true')
 
+    paginator = Paginator(photos, 25)
+    
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    try:
+        photos = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        photos = paginator.page(paginator.num_pages)
+        
     return render(request, 'photo/album.html',
                   {'album': album,
-                   'photos': photos.order_by('date')})
+                   'page': photos})
 
 
 def tag_slug_view(request, slug):
