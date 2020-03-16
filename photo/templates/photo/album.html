@@ -12,7 +12,7 @@
 
 <form method="get" action="{% url 'photo_update_tags' album.id %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
-
+<input type="button" value="{% trans 'Select all' %}" onclick="selectall()"/>
 <div class="row-fluid">
 {% for p in photos %}
 	{% include 'photo/includes/photo.html' %}
