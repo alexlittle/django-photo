@@ -43,6 +43,9 @@ class Album (models.Model):
             pass
         return True
 
+    def get_count(self):
+        return  Photo.objects.filter(album=self).count()
+    
     @staticmethod
     def get_cover(album, max_size):
         try:
