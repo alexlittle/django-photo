@@ -8,7 +8,12 @@
 	<img src="{{ album|get_cover:150 }}" class="img-thumbnail album-cover"/>
 {% endif %}
 
-<h2>{{ album.title }} [ {{ album.name }} - <a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'edit' %}</a>]</h2>
+<h2>{{ album.title }} - {{ album.name }}</h2>
+
+<p>
+	<a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'Edit' %}</a> |
+	<a href="{% url 'photo_album_exif' album.id %}">{% trans 'Rewrite Exif' %}</a>
+</p>
 
 <form method="get" action="{% url 'photo_update_tags' album.id %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>

@@ -22,6 +22,7 @@ from haystack.query import SearchQuerySet
 
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, \
     UpdateTagsForm
+from photo.lib import rewrite_exif
 from photo.models import Album, Photo, PhotoTag, Tag
 
 
@@ -222,6 +223,7 @@ def photo_edit_view(request, photo_id):
             photo.title = form.cleaned_data.get("title")
             photo.date = form.cleaned_data.get("date")
             photo.save()
+            rewrite_exif(photo)
         return HttpResponseRedirect(reverse('photo_album',
                                             kwargs={'album_id':
                                                     photo.album.id}))
@@ -294,25 +296,24 @@ def photo_update_tags(request, album_id):
                         if action == "add":
                             photo_tag, created = PhotoTag.objects \
                                 .get_or_create(photo=photo, tag=tag)
+                            rewrite_exif(photo)
 
             if action == "change_date":
                 for p in photo_ids:
                     photo = Photo.objects.get(id=p)
                     photo.date = date
                     photo.save()
+                    rewrite_exif(photo)
                     
             if action == 'change_album':
                 new_album = Album.objects.get(pk=form.cleaned_data.get("album"))
                 print(new_album.name)
                 for p in photo_ids:
                     photo = Photo.objects.get(id=p)
-                    try:
-                        os.rename(os.path.join(settings.PHOTO_ROOT + photo.album.name, photo.file),
-                                  os.path.join(settings.PHOTO_ROOT + new_album.name, photo.file))
-                        photo.album = new_album
-                        photo.save()
-                    except OSError:
-                        print("file could not be moved")
+                    os.rename(os.path.join(settings.PHOTO_ROOT + photo.album.name, photo.file),
+                              os.path.join(settings.PHOTO_ROOT + new_album.name, photo.file))
+                    photo.album = new_album
+                    photo.save()
                     
                     
 
@@ -390,3 +391,10 @@ def upload_album(directory, default_tags, default_date):
             for size in settings.DEFAULT_THUMBNAIL_SIZES:
                 photo.get_thumbnail(photo, size)
     return album
+
+def album_exif(request, album_id):
+    album = Album.objects.get(id=album_id)
+    photos = Photo.objects.filter(album=album)
+    for photo in photos:
+        rewrite_exif(photo)
+    return redirect('photo_album', album_id=album_id)
