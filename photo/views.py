@@ -55,7 +55,7 @@ def album_view(request, album_id):
         photos = photos.exclude(
             photoprops__name='exclude.album.export', photoprops__value='true')
 
-    paginator = Paginator(photos, 25)
+    paginator = Paginator(photos, 200)
     
     try:
         page = int(request.GET.get('page', '1'))
@@ -176,7 +176,7 @@ def photo_favourites_view(request):
     return render(request, 'photo/favourites.html',
                   {'page': photos_page})
 
-
+    
 def scan_folder(request):
 
     if request.method == 'POST':
