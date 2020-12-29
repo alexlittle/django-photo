@@ -372,6 +372,7 @@ def upload_album(directory, default_tags, default_date):
                 try:
                     exif_date = exif_tags['DateTimeOriginal']
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
+                    print(naive)
                     photo.date = pytz.timezone(
                         "Europe/London").localize(naive, is_dst=None)
                 except KeyError:
