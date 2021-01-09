@@ -56,7 +56,7 @@ def album_view(request, album_id):
         photos = photos.exclude(
             photoprops__name='exclude.album.export', photoprops__value='true')
 
-    paginator = Paginator(photos, 200)
+    paginator = Paginator(photos, 400)
     
     try:
         page = int(request.GET.get('page', '1'))

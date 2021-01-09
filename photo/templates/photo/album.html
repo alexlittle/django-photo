@@ -2,6 +2,11 @@
 {% load admin_urls %}
 {% load i18n %}
 {% load thumbnail %}
+
+{% block extra_head_title %}
+{{ album.title }}
+{% endblock extra_head_title %}
+
 {% block content %}
 
 {% if album.has_cover %}

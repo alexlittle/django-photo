@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load thumbnail %}
+
+{% block extra_head_title %}
+{{ title }}
+{% endblock extra_head_title %}
+
+
 {% block content %}
 
 <h2>{{ title }}</h2>

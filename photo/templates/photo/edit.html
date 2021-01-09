@@ -3,6 +3,11 @@
 {% load thumbnail %}
 {% load crispy_forms_tags %}
 
+{% block extra_head_title %}
+{% trans 'Edit Photo' %}
+{% endblock extra_head_title %}
+
+
 {% block extra_scripts %}
 	<script type="text/javascript">
 		{% include "includes/init-date-picker-js.html" %}

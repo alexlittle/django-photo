@@ -3,12 +3,16 @@
 {% load thumbnail %}
 {% load admin_urls %}
 
+{% block extra_head_title %}
+{% trans 'Photo Database' %}
+{% endblock extra_head_title %}
+
 {% block content %}
 
 <h1>Photo Database Home</h1>
 
 {% for y in years %}
-	<a href="{% url 'photo_tag_slug' y.name %}">{{ y.name }}</a>
+	<a href="{% url 'photo_tag_slug' y.slug %}">{{ y.name }}</a>
 {% endfor %}
 
 {% include 'includes/pagination.html' %}

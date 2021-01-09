@@ -28,19 +28,16 @@ class Command(BaseCommand):
             dest='album',
             help='Source Album',
         )
-
-    def dict_to_binary(self, the_dict):
-        my_json = json.dumps(the_dict)
-        binary = ' '.join(format(ord(letter), 'b') for letter in my_json)
-        return binary
     
     def handle(self, *args, **options):
+        
         try:
             album = Album.objects.get(id=options['album'])
+            print(album.name)
         except Album.DoesNotExist:
-            print("No Album Specified")
+            print("Album not found")
             return
-        
+
         photos = Photo.objects.filter(album=album)
         for photo in photos:
             print(photo)

@@ -147,10 +147,10 @@ class Photo (models.Model):
             pp.save()
         return True
 
-    def get_tags(self):
+    def get_tags(self, separator):
         tags = Tag.objects.filter(
             phototag__photo=self).values_list('name', flat=True)
-        return ", ".join(tags)
+        return separator.join(tags)
     
     @staticmethod
     def get_thumbnail(photo, max_size):

@@ -3,6 +3,10 @@
 {% load thumbnail %}
 {% load crispy_forms_tags %}
 
+{% block extra_head_title %}
+{% trans 'Favourites' %}
+{% endblock extra_head_title %}
+
 {% block content %}
     <h2>{% trans 'Favourites' %}</h2>
 
