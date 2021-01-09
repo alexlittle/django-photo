@@ -23,7 +23,7 @@ from haystack.query import SearchQuerySet
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, \
     UpdateTagsForm
 from photo.lib import rewrite_exif
-from photo.models import Album, Photo, PhotoTag, Tag
+from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
 
 
 def home_view(request):
@@ -95,9 +95,11 @@ def tag_slug_view(request, slug):
 
 def cloud_view(request):
     tags = Tag.objects.all().order_by('name')
+    categories = TagCategory.objects.all().order_by('name')
     return render(request, 'photo/cloud.html',
                   {'title': _('Cloud'),
-                   'tags': tags})
+                   'tags': tags,
+                   'categories': categories})
 
 
 def map_view(request):
@@ -267,11 +269,10 @@ def photo_unstar_view(request, photo_id):
     return redirect('photo_album', album_id=photo.album.id)
 
 
-def photo_update_tags(request, album_id):
+def photo_update_tags(request):
 
-    album = Album.objects.get(id=album_id)
     photo_ids = request.GET.getlist('photo_id', [])
-
+    next = request.GET.get("next")
     print(photo_ids)
 
     if request.method == 'POST':
@@ -280,6 +281,7 @@ def photo_update_tags(request, album_id):
             action = form.cleaned_data.get("action")
             update_tags = form.cleaned_data.get("tags")
             date = form.cleaned_data.get("date")
+            next = form.cleaned_data.get("next")
             tags = [x.strip() for x in update_tags.split(',')]
 
             for t in tags:
@@ -290,7 +292,7 @@ def photo_update_tags(request, album_id):
                         photo = Photo.objects.get(id=p)
                         if action == "delete":
                             PhotoTag.objects.filter(
-                                photo__album=album, photo=photo, tag=tag) \
+                                photo=photo, tag=tag) \
                                 .delete()
 
                         if action == "add":
@@ -314,17 +316,14 @@ def photo_update_tags(request, album_id):
                               os.path.join(settings.PHOTO_ROOT + new_album.name, photo.file))
                     photo.album = new_album
                     photo.save()
-                    
-                    
 
-            return HttpResponseRedirect(reverse('photo_album',
-                                                kwargs={'album_id': album_id}))
+            return HttpResponseRedirect(next)
     else:
-        form = UpdateTagsForm()
+        form = UpdateTagsForm(initial={'next': next})
 
     return render(request, 'photo/update_tags.html',
                   {'form': form,
-                   'title': _(u'Update Tags'), 'album': album})
+                   'title': _(u'Update Tags')})
 
 
 def get_exif(fn):

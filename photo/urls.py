@@ -33,7 +33,7 @@ urlpatterns = [
 
     url(r'^photo/setcover/(?P<photo_id>\d+)$',
         photo_views.photo_set_cover, name="photo_set_cover"),
-    url(r'^album/updatetags/(?P<album_id>\d+)$',
+    url(r'^album/updatetags/$',
         photo_views.photo_update_tags, name="photo_update_tags"),
 
     url(r'^export/', include('photo.export.urls')),

@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.bootstrap import FieldWithButtons
-from crispy_forms.layout import Layout, Submit, Div
+from crispy_forms.layout import Layout, Submit, Div, Field
 
 from photo.models import Album
 
@@ -121,6 +121,7 @@ class UpdateTagsForm(forms.Form):
                               .all()
                               .order_by('name')
                               .values_list('id','name'))
+    next = forms.CharField(required=True)
 
     def __init__(self, *args, **kwargs):
         super(UpdateTagsForm, self).__init__(*args, **kwargs)
@@ -133,6 +134,7 @@ class UpdateTagsForm(forms.Form):
                 'tags',
                 Div('date', css_class='date-picker-row-fluid'),
                 'album',
+                Field('next', type="hidden"),
                 Div(
                    Submit('submit', _(u'Update'), css_class='btn btn-default'),
                    css_class='col-lg-offset-2 col-lg-4',
