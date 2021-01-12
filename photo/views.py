@@ -346,7 +346,7 @@ def upload_album(directory, default_tags, default_date):
     album, created = Album.objects.get_or_create(name=directory)
 
     # get all the image files from dir
-    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp']
+    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JPG']
 
     for img_ext in image_extensions:
         image_files = glob.glob(settings.PHOTO_ROOT + directory + img_ext)

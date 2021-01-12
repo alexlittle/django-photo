@@ -11,7 +11,7 @@ from photo.models import Photo
 from photo.views import upload_album
 
 
-class bcolors:
+class BColors:
     HEADER = '\033[95m'
     OK = '\033[92m'
     WARNING = '\033[91m'
@@ -62,9 +62,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        ignore_extensions = ['.avi', '.cr2', '.m4v', '.mp4', '.wmv',
-                             '.thm', '.mpg', '.doc', '.xcf', 'pdf',
-                             '.heic', '.mov', '.mkv']
         # Scan directory structure to find photos not uploaded to DB
         if options['files']:
 
@@ -78,7 +75,7 @@ class Command(BaseCommand):
                         continue
 
                     ignore = False
-                    for ext in ignore_extensions:
+                    for ext in settings.IGNORE_EXTENSIONS:
                         if name.lower().endswith(ext):
                             ignore = True
                     if ignore:
@@ -86,20 +83,24 @@ class Command(BaseCommand):
 
                     album = root.replace(settings.PHOTO_ROOT, '') + "/"
 
+                    dups=[]
                     try:
                         if options['verbose']:
                             print("checking..." + album + name)
                         Photo.objects.get(album__name=album, file=name)
                         if options['verbose']:
-                            print(album + name + " " + bcolors.OK +
-                                  "found" + bcolors.ENDC)
+                            print(album + name + " " + BColors.OK +
+                                  "found" + BColors.ENDC)
                     except Photo.DoesNotExist:
-                        print(bcolors.WARNING + album + name +
-                              " " + " NOT FOUND" + bcolors.ENDC)
+                        print(BColors.WARNING + album + name +
+                              " " + " NOT FOUND" + BColors.ENDC)
                         if album not in folders_to_add:
                             folders_to_add.append(album)
                         count_not_found += 1
-
+                    except Photo.MultipleObjectsReturned:
+                        dups.append(album + name)
+                        
+            print(dups)
             print(count_not_found)
 
             if options['autoadd']:
@@ -120,13 +121,13 @@ class Command(BaseCommand):
                                   + photo.file):
                     if options['verbose']:
                         print(photo.album.name + photo.file + " " +
-                              bcolors.OK + "found" + bcolors.ENDC)
+                              BColors.OK + "found" + BColors.ENDC)
                 else:
-                    print(bcolors.WARNING + photo.album.name +
-                          photo.file + " " + " NOT FOUND" + bcolors.ENDC)
+                    print(BColors.WARNING + photo.album.name +
+                          photo.file + " " + " NOT FOUND" + BColors.ENDC)
                     if options['autodelete']:
                         photo.delete()
-                        print(bcolors.WARNING + "... DELETED" + bcolors.ENDC)
+                        print(BColors.WARNING + "... DELETED" + BColors.ENDC)
                     count_not_found += 1
 
             print(count_not_found)

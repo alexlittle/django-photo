@@ -28,45 +28,6 @@ class Command(BaseCommand):
 
         # Scan directory structure to find dirs not uploaded to DB
         count_not_found = 0
-        ignore = [
-                    '/export/',
-                    '/2004/',
-                    '/2005/',
-                    '/2006/',
-                    '/2007/',
-                    '/2008/',
-                    '/2008/2008-05-ledbury/',
-                    '/2008/08/',
-                    '/2008/2008-08-leaving-ou/',
-                    '/2008/09/',
-                    '/2008/10/',
-                    '/2008/11/',
-                    '/2008/12/',
-                    '/2008/12/gheralta/',
-                    '/2009/',
-                    '/2009/01/danakil/',
-                    '/2009/01/',
-                    '/2009/02/',
-                    '/2009/02/simiens/',
-                    '/2009/02/simiens/360/',
-                    '/2009/03/',
-                    '/2009/04/',
-                    '/2009/05/',
-                    '/2010/',
-                    '/2011/',
-                    '/2012/',
-                    '/2012/2012-05-31-hew-video/',
-                    '/2013/',
-                    '/2014/',
-                    '/2015/',
-                    '/2016/',
-                    '/2017/',
-                    '/2018/',
-                    '/2019/',
-                    '/2020/',
-                    '/albums/',
-                    '/negatives/',
-                    ]
 
         for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT),
                                          topdown=True):
@@ -76,7 +37,7 @@ class Command(BaseCommand):
                 album_path = (os.path.join(root, name)).replace(
                     settings.PHOTO_ROOT, '') + "/"
 
-                if album_path in ignore:
+                if album_path in settings.IGNORE_FOLDERS:
                     continue
 
                 try:

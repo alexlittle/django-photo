@@ -163,6 +163,8 @@ LOGGING = {
 }
 #####################################################################
 
+IGNORE_EXTENSIONS = []
+IGNORE_FOLDERS = []
 
 try:
     from config.local_settings import *  # noqa

@@ -24,8 +24,8 @@ class Command(BaseCommand):
         for photo in to_hash:
             photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
             if os.path.isfile(photo_path):
-                hash = self.md5(photo_path)
-                photo.md5hash = hash
+                md5hash = self.md5(photo_path)
+                photo.md5hash = md5hash
                 photo.save()
 
         counter = 1
