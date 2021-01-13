@@ -16,7 +16,8 @@
 <h2>{{ album.title }} - {{ album.name }}</h2>
 
 <p>
-	<a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'Edit' %}</a> |
+	{{ photo_count }} {% trans 'photos' %} - 
+ 	<a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'Edit' %}</a> |
 	<a href="{% url 'photo_album_exif' album.id %}">{% trans 'Rewrite Exif' %}</a>
 </p>
 

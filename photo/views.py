@@ -50,12 +50,14 @@ def home_view(request):
 
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
-    photos = Photo.objects.filter(album=album).order_by('date')
+    photos = Photo.objects.filter(album=album).order_by('date','file')
 
     if request.GET.get('view', '') == 'print':
         photos = photos.exclude(
             photoprops__name='exclude.album.export', photoprops__value='true')
 
+    photo_count = photos.count()
+    
     paginator = Paginator(photos, 400)
     
     try:
@@ -70,7 +72,8 @@ def album_view(request, album_id):
         
     return render(request, 'photo/album.html',
                   {'album': album,
-                   'page': photos})
+                   'page': photos,
+                   'photo_count': photo_count})
 
 
 def tag_slug_view(request, slug):
@@ -289,16 +292,19 @@ def photo_update_tags(request):
                     tag, created = Tag.objects.get_or_create(name=t)
 
                     for p in photo_ids:
-                        photo = Photo.objects.get(id=p)
-                        if action == "delete":
-                            PhotoTag.objects.filter(
-                                photo=photo, tag=tag) \
-                                .delete()
-
-                        if action == "add":
-                            photo_tag, created = PhotoTag.objects \
-                                .get_or_create(photo=photo, tag=tag)
-                            rewrite_exif(photo)
+                        try:
+                            photo = Photo.objects.get(id=p)
+                            if action == "delete":
+                                PhotoTag.objects.filter(
+                                    photo=photo, tag=tag) \
+                                    .delete()
+    
+                            if action == "add":
+                                photo_tag, created = PhotoTag.objects \
+                                    .get_or_create(photo=photo, tag=tag)
+                                rewrite_exif(photo)
+                        except Photo.DoesNotExist:
+                            pass
 
             if action == "change_date":
                 for p in photo_ids:

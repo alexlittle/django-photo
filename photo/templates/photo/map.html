@@ -38,7 +38,7 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
 {% for tag in tags %}
 	{% if tag.get_lat %}
 		var marker = L.marker([{{ tag.get_lat }}, {{ tag.get_lng }}]).addTo(mymap);
-		marker.bindPopup("<b>{{ tag.name }}</b><br><a href='{% url 'photo_tag' tag.id %}' target='_blank'>{% trans 'View photos' %} ({{ tag.get_photo_count }})</a>");
+		marker.bindPopup("<b>{{ tag.name }}</b><br><a href='{% url 'photo_tag_slug' tag.slug %}' target='_blank'>{% trans 'View photos' %} ({{ tag.get_photo_count }})</a>");
 	{% endif %}
 {% endfor %}
 </script>
