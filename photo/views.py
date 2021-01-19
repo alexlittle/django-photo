@@ -31,7 +31,7 @@ def home_view(request):
         max_date=Max('photo__date')).order_by('-max_date')
     years = Tag.objects.filter(tagcategory__slug='date')
 
-    paginator = Paginator(albums, 25)
+    paginator = Paginator(albums, settings.ALBUMS_PER_PAGE)
     try:
         page = int(request.GET.get('page', '1'))
     except ValueError:
@@ -58,7 +58,7 @@ def album_view(request, album_id):
 
     photo_count = photos.count()
     
-    paginator = Paginator(photos, 400)
+    paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
     
     try:
         page = int(request.GET.get('page', '1'))
@@ -80,7 +80,7 @@ def tag_slug_view(request, slug):
     tag = Tag.objects.get(slug=slug)
     photos = Photo.objects.filter(phototag__tag=tag).order_by('date')
 
-    paginator = Paginator(photos, 25)
+    paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
     try:
         page = int(request.GET.get('page', '1'))
     except ValueError:
@@ -134,7 +134,7 @@ def search_view(request):
     data['q'] = search_query
     form = SearchForm(initial=data)
 
-    paginator = Paginator(search_results, 50)
+    paginator = Paginator(search_results, settings.PHOTOS_PER_PAGE)
     # Make sure page request is an int. If not, deliver first page.
     try:
         page = int(request.GET.get('page', '1'))
@@ -167,7 +167,7 @@ def photo_favourites_view(request):
     photos = Photo.objects.filter(
         photoprops__name='favourite', photoprops__value='true') \
         .order_by('-date')
-    paginator = Paginator(photos, 25)
+    paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
     # Make sure page request is an int. If not, deliver first page.
     try:
         page = int(request.GET.get('page', '1'))

@@ -165,11 +165,13 @@ LOGGING = {
 
 IGNORE_EXTENSIONS = []
 IGNORE_FOLDERS = []
+PHOTOS_PER_PAGE = 400
+ALBUMS_PER_PAGE = 50
 
 try:
-    from config.local_settings import *  # noqa
+    from config.local_settings import *
 except ImportError:
     import warnings
     warnings.warn(
         "Using default settings."
-        "Add `config.local_settings.py` for custom settings.")
+        "Add `config/local_settings.py` for custom settings.")
