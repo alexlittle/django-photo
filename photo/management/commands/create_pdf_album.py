@@ -17,6 +17,13 @@ class Command(BaseCommand):
             dest='album',
             help='Source Album',
         )
+        
+        parser.add_argument(
+            '-t',
+            '--tag',
+            dest='tag',
+            help='Source Tag',
+        )
 
     def handle(self, *args, **options):
-        create_album.make(options['album'])
+        create_album.make(options['album'], options['tag'])

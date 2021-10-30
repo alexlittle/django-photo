@@ -11,11 +11,26 @@ class Command(BaseCommand):
     help = "Combines tags"
 
     def add_arguments(self, parser):
-        parser.add_argument('keep_tag')
-        parser.add_argument('replace_tag')
+        parser.add_argument(
+                    '-kt',
+                    '--keep_tag',
+                    dest='keep_tag',
+                    help='Tag to keep',
+                )
+        
+        parser.add_argument(
+                    '-rt',
+                    '--replace_tag',
+                    dest='replace_tag',
+                    help='Tag to replace',
+                )
 
     def handle(self, *args, **options):
-        keep_tag = Tag.objects.get(name=options['keep_tag'])
+        try:
+            keep_tag = Tag.objects.get(name=options['keep_tag'])
+        except Tag.DoesNotExist:
+            print("Tag not found: %s" % options['keep_tag'])
+            
         replace_tag = Tag.objects.get(name=options['replace_tag'])
 
         photo_tags = PhotoTag.objects.filter(tag=replace_tag)
