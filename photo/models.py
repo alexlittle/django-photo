@@ -218,6 +218,7 @@ class TagProps(models.Model):
     value = models.CharField(max_length=100, blank=False, null=False)
 
     class Meta:
+        unique_together = ('tag', 'name')
         verbose_name = _('Tag property')
         verbose_name_plural = _('Tag properties')
 

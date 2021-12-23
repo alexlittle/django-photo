@@ -3,7 +3,6 @@
 Management command to get lat/lng for places
 """
 import urllib
-import urllib2
 import json
 
 from django.conf import settings
@@ -15,51 +14,63 @@ from photo.models import Tag, TagProps
 class Command(BaseCommand):
     help = "gets lat/lng for places"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
-        tags = Tag.objects.filter(
-            tagcategory__name='Place').exclude(tagprops__name='lat')
-        print(tags.count())
-        for tag in tags:
-            print(tag.name)
+        places = Tag.objects.filter(
+            tagcategory__name='Location')
+        
+        tags = []
+        for place in places:
             try:
-                params = {
-                    'q': urllib.quote_plus(tag.name.encode('utf-8')),
-                    'username': settings.GEONAMES_USERNAME,
-                    'maxRows': 5}
-                if tag.get_prop('country'):
-                    params['country'] = tag.get_prop('country')
+                lat = TagProps.objects.get(tag=place, name='lat')
+                if lat.value == '0':
+                    tags.append(place)
+            except TagProps.DoesNotExist:
+                tags.append(place)
+                
+        print(len(tags))
+        for tag in tags:
+            print("--------------------")
+            print(tag.name)
+            print("Edit: http://localhost.photo/admin/photo/tag/%d/change/" % tag.id)
+            print("Photos: http://localhost.photo/tag/%s" % tag.slug)
+            params = {
+                'q': urllib.parse.quote_plus(tag.name.encode('utf-8')),
+                'username': settings.GEONAMES_USERNAME,
+                'maxRows': 5}
+            if tag.get_prop('country'):
+                params['country'] = tag.get_prop('country')
 
-                url = 'http://api.geonames.org/searchJSON?' + \
-                    urllib.urlencode(params)
-                print(url)
+            url = 'http://api.geonames.org/searchJSON?' + \
+                urllib.parse.urlencode(params)
 
-                u = urllib2.urlopen(urllib2.Request(url), timeout=10)
-
-                data = u.read()
-                dataJSON = json.loads(data, "utf-8")
-
-                print(dataJSON['geonames'][0])
-                accept = input("Accept this? [Yes/Ignore/No]")
-                if accept == 'y':
-                    print('accepted')
-                    lat = dataJSON['geonames'][0]['lat']
-                    lng = dataJSON['geonames'][0]['lng']
-                    TagProps(tag=tag, name='lat', value=lat).save()
-                    TagProps(tag=tag, name='lng', value=lng).save()
+            req = urllib.request.Request(url)
+            response = urllib.request.urlopen(req)
+            data_json = json.loads(response.read())
+            
+            
+            
+            if len(data_json['geonames']) > 0:
+                for i in range(0,5):
+                    try:
+                        print("%d : %s" % (i, data_json['geonames'][i]))
+                    except (IndexError, KeyError):
+                        pass
+                accept = input("Accept this? [0-4/Ignore/No]")
+                
                 if accept == 'i':
                     print('ignoring')
-                if accept == 'n':
+                elif accept == 'n':
                     print('no')
-                    TagProps(tag=tag, name='lat', value=0).save()
-                    TagProps(tag=tag, name='lng', value=0).save()
-            except IndexError:
-                pass
-                # TagProps(tag=tag, name='lat',value=0).save()
-                # TagProps(tag=tag, name='lng',value=0).save()
-            except KeyError:
-                pass
-                # TagProps(tag=tag, name='lat',value=0).save()
-                # TagProps(tag=tag, name='lng',value=0).save()
+                else:
+                    idx = int(accept)
+                    print('accepted')
+                    lat = data_json['geonames'][idx]['lat']
+                    lng = data_json['geonames'][idx]['lng']
+                    lat_obj, created = TagProps.objects.get_or_create(tag=tag, name='lat')
+                    lat_obj.value = lat
+                    lat_obj.save()
+                    lng_obj, created = TagProps.objects.get_or_create(tag=tag, name='lng')
+                    lng_obj.value = lng
+                    lng_obj.save()
+                
+                
