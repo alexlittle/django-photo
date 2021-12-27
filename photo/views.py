@@ -106,7 +106,7 @@ def cloud_view(request):
 
 
 def map_view(request):
-    tags = Tag.objects.filter(tagcategory__name='Place') \
+    tags = Tag.objects.filter(tagcategory__name='Location') \
         .exclude(tagprops__name='lat', tagprops__value='0') \
         .exclude(tagprops__name='map.display', tagprops__value='false') \
         .distinct()
