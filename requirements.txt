@@ -1,10 +1,10 @@
 django==2.2.26
 django-crispy-forms==1.7.1
-Pillow==9.0.0
+Pillow==8.3.2
 django-haystack>=2.3.0
 pysolr>=3.3.0
 django-autoslug==1.9.4
 reportlab==3.5.55
 pytz
 piexif
-mysqlclient==2.1.0
+mysqlclient==2.0.1
