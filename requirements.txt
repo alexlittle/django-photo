@@ -1,4 +1,4 @@
-django==2.2.26
+django==2.2.27
 django-crispy-forms==1.7.1
 Pillow==8.3.2
 django-haystack>=2.3.0
