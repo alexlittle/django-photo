@@ -1,6 +1,6 @@
 django==2.2.27
 django-crispy-forms==1.7.1
-Pillow==8.3.2
+Pillow==9.0.0
 django-haystack>=2.3.0
 pysolr>=3.3.0
 django-autoslug==1.9.4
