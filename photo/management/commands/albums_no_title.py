@@ -11,9 +11,6 @@ from photo.models import Album
 class Command(BaseCommand):
     help = "find albums with no title set"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
         albums = Album.objects.filter(title=None)
         counter = 0

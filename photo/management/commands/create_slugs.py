@@ -10,9 +10,6 @@ from photo.models import Photo, Album, Tag, TagCategory
 class Command(BaseCommand):
     help = "Create slugs"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
         tag_categories = TagCategory.objects.filter(slug=None)
         for tc in tag_categories:

@@ -12,9 +12,6 @@ from photo.models import Album
 class Command(BaseCommand):
     help = "find albums with no cover set"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
         albums = Album.objects.all()
         counter = 0

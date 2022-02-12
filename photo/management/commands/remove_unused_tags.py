@@ -10,9 +10,6 @@ from photo.models import Tag
 class Command(BaseCommand):
     help = "Removes any unused tags"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
         tags = Tag.objects.filter(phototag=None)
         for t in tags:

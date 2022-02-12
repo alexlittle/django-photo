@@ -21,9 +21,6 @@ class bcolors:
 class Command(BaseCommand):
     help = "Checks for folders that aren't in the database"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
 
         # Scan directory structure to find dirs not uploaded to DB
@@ -53,8 +50,6 @@ class Command(BaseCommand):
         albums = Album.objects.all()
 
         for album in albums:
-            if os.path.isdir(settings.PHOTO_ROOT + album.name):
-                pass
-            else:
+            if not os.path.isdir(settings.PHOTO_ROOT + album.name):
                 print(bcolors.WARNING + album.name +
                       " " + " NOT FOUND" + bcolors.ENDC)

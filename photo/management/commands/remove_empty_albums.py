@@ -10,9 +10,6 @@ from photo.models import Album
 class Command(BaseCommand):
     help = "Removes any albums with no photos"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
         albums = Album.objects.filter(photo=None)
         for a in albums:

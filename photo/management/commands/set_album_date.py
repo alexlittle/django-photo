@@ -12,9 +12,6 @@ from photo.models import Album
 class Command(BaseCommand):
     help = "Add album date"
 
-    def add_arguments(self, parser):
-        pass
-
     def handle(self, *args, **options):
         albums = Album.objects.filter(date_display=None)
         for a in albums:

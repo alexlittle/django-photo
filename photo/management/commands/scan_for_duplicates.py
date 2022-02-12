@@ -27,6 +27,7 @@ class Command(BaseCommand):
                 md5hash = self.md5(photo_path)
                 photo.md5hash = md5hash
                 photo.save()
+                print("created md5 for %s" % md5hash)
 
         counter = 1
         hashes = Photo.objects.exclude(md5hash=None) \
