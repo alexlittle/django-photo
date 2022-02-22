@@ -9,3 +9,5 @@
 /src
 /media/
 /uwsgi.sock
+/static/
+/env/
