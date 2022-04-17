@@ -163,6 +163,16 @@ LOGGING = {
 }
 #####################################################################
 
+DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': ''
+        }
+    }
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+######################################################################
+
 IGNORE_EXTENSIONS = []
 IGNORE_FOLDERS = []
 PHOTOS_PER_PAGE = 400

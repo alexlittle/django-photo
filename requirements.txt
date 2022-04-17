@@ -1,10 +1,10 @@
-django==2.2.27
-django-crispy-forms==1.7.1
-Pillow==9.0.1
-django-haystack>=2.3.0
-pysolr>=3.3.0
-django-autoslug==1.9.4
-reportlab==3.5.55
+django==3.2.12
+django-crispy-forms==1.14.0
+Pillow==9.1.0
+django-haystack==3.1.1
+pysolr==3.9.0
+django-autoslug==1.9.8
+reportlab==3.6.9
 pytz
 piexif
 mysqlclient==2.1.0
