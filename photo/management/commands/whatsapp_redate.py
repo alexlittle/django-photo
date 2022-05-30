@@ -6,9 +6,14 @@ from photo.models import Photo
 
 class Command(BaseCommand):
     help = "Checks for photos where date doesn't match"
+    
+    def add_arguments(self, parser):
+        parser.add_argument('album')
 
     def handle(self, *args, **options):
-        photos = Photo.objects.filter(file__startswith='img-')
+        
+        photos = Photo.objects.filter(file__istartswith='img-',
+                                      album__pk=options['album'])
         for p in photos:
             print(p.file + " : " + str(p.date))
 

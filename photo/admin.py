@@ -101,7 +101,7 @@ class PhotoTagAdmin(admin.ModelAdmin):
 
 class ThumbnailCacheAdmin(admin.ModelAdmin):
     list_display = ('photo', 'size', 'image')
-    search_fields = ['photo', 'image']
+    readonly_fields = ['photo']
 
 
 class PhotoPropsAdmin(admin.ModelAdmin):
