@@ -1,7 +1,7 @@
 import datetime
 
 from django.core.management.base import BaseCommand
-from photo.models import Photo
+from photo.models import Photo, Tag, PhotoTag
 
 
 class Command(BaseCommand):
@@ -27,3 +27,12 @@ class Command(BaseCommand):
                 new_date = datetime.date(year, month, day)
                 p.date = new_date
                 p.save()
+                
+                # add year and month tags   
+                year = p.date.year
+                tag, created = Tag.objects.get_or_create(name=year)
+                photo_tag, created = PhotoTag.objects.get_or_create(photo=p, tag=tag)
+                
+                month = p.date.strftime("%B")
+                tag, created = Tag.objects.get_or_create(name=month)
+                photo_tag, created = PhotoTag.objects.get_or_create(photo=p, tag=tag)

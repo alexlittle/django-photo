@@ -3,6 +3,7 @@ import glob
 import os
 import pytz
 import re
+import datetime
 
 
 from PIL import Image
@@ -366,9 +367,10 @@ def upload_album(directory, default_tags, default_date):
 
             # add all the tags
             for t in tags:
-                tag, created = Tag.objects.get_or_create(name=t)
-                photo_tag, created = PhotoTag.objects.get_or_create(
-                    photo=photo, tag=tag)
+                if t.strip() != "":
+                    tag, created = Tag.objects.get_or_create(name=t)
+                    photo_tag, created = PhotoTag.objects.get_or_create(
+                        photo=photo, tag=tag)
 
             try:
                 exif_tags, result = get_exif(im)
@@ -379,19 +381,25 @@ def upload_album(directory, default_tags, default_date):
                     exif_date = exif_tags['DateTimeOriginal']
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
                     print(naive)
+                    
                     photo.date = pytz.timezone(
                         "Europe/London").localize(naive, is_dst=None)
-                except KeyError:
-                    if created:
-                        photo.date = default_date
-                except AttributeError:
-                    if created:
-                        photo.date = default_date
-                except ValueError:
+
+                    # add year and month tags   
+                    year = photo.date.year
+                    tag, created = Tag.objects.get_or_create(name=year)
+                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+                    
+                    month = photo.date.strftime("%B")
+                    tag, created = Tag.objects.get_or_create(name=month)
+                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+
+                except (KeyError, AttributeError, ValueError):
                     if created:
                         photo.date = default_date
 
             photo.save()
+
             # create thumbnails
             for size in settings.DEFAULT_THUMBNAIL_SIZES:
                 photo.get_thumbnail(photo, size)

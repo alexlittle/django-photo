@@ -19,7 +19,7 @@ class ScanFolderForm(forms.Form):
                 required=True,
                 error_messages={'required': _('Please enter a default date')},)
     default_tags = forms.CharField(
-                required=True,
+                required=False,
                 error_messages={'required':
                                 _('Please enter at least one tag')},)
 
