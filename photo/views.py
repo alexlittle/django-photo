@@ -17,7 +17,7 @@ from django.db.models import Max
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from haystack.query import SearchQuerySet
 
