@@ -72,5 +72,3 @@ class Command(BaseCommand):
                     lng_obj, created = TagProps.objects.get_or_create(tag=tag, name='lng')
                     lng_obj.value = lng
                     lng_obj.save()
-                
-                
