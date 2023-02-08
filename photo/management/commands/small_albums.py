@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Count
 
-from photo.models import Photo, Album
+from photo.models import Album
 
 
 class Command(BaseCommand):
@@ -27,5 +27,5 @@ class Command(BaseCommand):
         
         for album in Album.objects.annotate(total=Count("photo")):
             if album.total <= max_count:
-                print("http://localhost.photo/album/%d - %s [%d photos]" % (album.id, album.name, album.total))
+                print("http://localhost.photo/album/%d - %s [%d photos]" % (album.id, album.title, album.total))
         
