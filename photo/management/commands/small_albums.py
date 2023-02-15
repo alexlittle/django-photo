@@ -25,7 +25,12 @@ class Command(BaseCommand):
         max_count = int(options['max_count'])
         print("Finding albums with less than %d photos" % max_count)
         
+        counter = 0
+        
         for album in Album.objects.annotate(total=Count("photo")):
             if album.total <= max_count:
-                print("http://localhost.photo/album/%d - %s [%d photos]" % (album.id, album.title, album.total))
-        
+                print("http://localhost.photo/album/%d - %s - %s [%d photos]" % (album.id, album.title, album.name, album.total))
+                counter += 1
+                
+        print(counter)
+

@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tags = Tag.objects.filter(tagcategory=None)
         for t in tags:
-            print("http://localhost.photo%s" %
-                  reverse('admin:photo_tag_change', args=(t.id, )))
+            print("%s - http://localhost.photo%s" % (t.name,
+                  reverse('admin:photo_tag_change', args=(t.id, ))))
 
         print(tags.count())

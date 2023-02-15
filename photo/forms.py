@@ -117,14 +117,12 @@ class UpdateTagsForm(forms.Form):
                 required=False,
                 error_messages={'required': _('Please enter a valid date'),
                                 'invalid': _('Please enter a valid date')},)
-    album = forms.ChoiceField(choices=Album.objects
-                              .all()
-                              .order_by('name')
-                              .values_list('id','name'))
+    album = forms.ChoiceField(choices=Album.objects.all().order_by('name').values_list('id','name'))
     next = forms.CharField(required=True)
 
     def __init__(self, *args, **kwargs):
         super(UpdateTagsForm, self).__init__(*args, **kwargs)
+        self.fields['album'].choices = Album.objects.all().order_by('name').values_list('id','name')
         self.helper = FormHelper()
         self.helper.form_class = 'form-horizontal'
         self.helper.label_class = 'col-lg-2'
