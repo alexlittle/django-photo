@@ -42,6 +42,15 @@ class Album (models.Model):
         except Photo.MultipleObjectsReturned:
             pass
         return True
+    
+    def has_multiple_covers(self):
+        try:
+            Photo.objects.get(album=self, album_cover=True)
+        except Photo.DoesNotExist:
+            return False
+        except Photo.MultipleObjectsReturned:
+            return True
+        return False
 
     def get_count(self):
         return  Photo.objects.filter(album=self).count()
