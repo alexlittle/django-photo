@@ -2,6 +2,7 @@
 """
 Management command to find albums with no title set
 """
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
 
@@ -15,8 +16,7 @@ class Command(BaseCommand):
         albums = Album.objects.filter(title=None)
         counter = 0
         for a in albums:
-            print(a.name + " - http://localhost.photo" +
-                  reverse('photo_album', args=(a.id,)))
+            print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo_album', args=(a.id,))))
             counter += 1
 
         print(counter)

@@ -31,8 +31,8 @@ class Command(BaseCommand):
         for tag in tags:
             print("--------------------")
             print(tag.name)
-            print("Edit: http://localhost.photo/admin/photo/tag/%d/change/" % tag.id)
-            print("Photos: http://localhost.photo/tag/%s" % tag.slug)
+            print("Edit: %sadmin/photo/tag/%d/change/" % (settings.DOMAIN_NAME, tag.id))
+            print("Photos: %stag/%s" % (settings.DOMAIN_NAME, tag.slug))
             params = {
                 'q': urllib.parse.quote_plus(tag.name.encode('utf-8')),
                 'username': settings.GEONAMES_USERNAME,

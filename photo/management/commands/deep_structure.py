@@ -29,7 +29,7 @@ class Command(BaseCommand):
         for album in Album.objects.all():
             dirs = filter(None, album.name.split('/'))
             if len(list(dirs)) > max_dirs:
-                print("http://localhost.photo/album/%d - %s [%s]" % (album.id, album.title, album.name))
+                print("%salbum/%d - %s [%s]" % (settings.DOMAIN_NAME, album.id, album.title, album.name))
                 counter += 1
                 
         print(counter)

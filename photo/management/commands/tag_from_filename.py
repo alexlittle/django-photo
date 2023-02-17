@@ -38,7 +38,6 @@ class Command(BaseCommand):
             tag, created = Tag.objects.get_or_create(name=res)
             photo_tag, created = PhotoTag.objects.get_or_create(
                 photo=photo, tag=tag)
-            print('http://localhost.photo' + reverse('photo_edit', kwargs={'photo_id':
-                                                photo.id}))
+            print("%s%s" % (settings.DOMAIN_NAME, reverse('photo_edit', kwargs={'photo_id': photo.id})))
             
             

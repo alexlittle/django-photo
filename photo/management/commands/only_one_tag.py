@@ -32,8 +32,7 @@ class Command(BaseCommand):
             for photo in photos:
                 tag_count = PhotoTag.objects.filter(photo=photo).count()
                 if tag_count < 2:
-                    url = "http://localhost.photo/photo/edit/" + str(photo.id)
-                    print(album.name + photo.file + " - " + url)
+                    print("%s %s - %sphoto/edit/%d" % (album.name, photo.file, settings.DOMAIN_NAME, photo.id))
                     total_count += 1
                     
         print(total_count)
