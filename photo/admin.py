@@ -46,7 +46,8 @@ class TagAdmin(admin.ModelAdmin):
                'mark_category_food',
                'mark_category_event',
                'mark_category_activity',
-               'mark_category_organisation', ]
+               'mark_category_organisation',
+               'mark_category_label', ]
     inlines = [
         TagPropsInline,
     ]
@@ -92,6 +93,9 @@ class TagAdmin(admin.ModelAdmin):
         tc = TagCategory.objects.get(name='Organisation')
         queryset.update(tagcategory=tc)
 
+    def mark_category_label(self, request, queryset):
+        tc = TagCategory.objects.get(name='Label')
+        queryset.update(tagcategory=tc)
 
 class TagCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )
