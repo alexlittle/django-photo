@@ -26,13 +26,9 @@ class Command(BaseCommand):
         # Scan directory structure to find dirs not uploaded to DB
         count_not_found = 0
 
-        for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT),
-                                         topdown=True):
+        for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT), topdown=True):
             for name in dirs:
-                if name.endswith('-timelapse') or '-timelapse' in root:
-                    continue
-                album_path = (os.path.join(root, name)).replace(
-                    settings.PHOTO_ROOT, '') + "/"
+                album_path = (os.path.join(root, name)).replace(settings.PHOTO_ROOT, '') + "/"
 
                 if album_path in settings.IGNORE_FOLDERS:
                     continue
@@ -40,8 +36,7 @@ class Command(BaseCommand):
                 try:
                     Album.objects.get(name=album_path)
                 except Album.DoesNotExist:
-                    print(bcolors.WARNING + album_path +
-                          " " + " NOT FOUND" + bcolors.ENDC)
+                    print(bcolors.WARNING + album_path + " " + " NOT FOUND" + bcolors.ENDC)
                     count_not_found += 1
 
         print(count_not_found)
@@ -51,5 +46,4 @@ class Command(BaseCommand):
 
         for album in albums:
             if not os.path.isdir(settings.PHOTO_ROOT + album.name):
-                print(bcolors.WARNING + album.name +
-                      " " + " NOT FOUND" + bcolors.ENDC)
+                print(bcolors.WARNING + album.name + " " + " NOT FOUND" + bcolors.ENDC)
