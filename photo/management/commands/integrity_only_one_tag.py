@@ -18,7 +18,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         albums = Album.objects.all().order_by('name')
         
-        total_count = 0
+        print("Photos with only one tag")
+        print("---------------------------------------")
+        
+        counter = 0
         for album in albums:
             
             photos = Photo.objects.filter(album=album)
@@ -26,7 +29,12 @@ class Command(BaseCommand):
             for photo in photos:
                 tag_count = PhotoTag.objects.filter(photo=photo).count()
                 if tag_count < 2:
-                    print("%s %s - %sphoto/edit/%d" % (album.name, photo.file, settings.DOMAIN_NAME, photo.id))
-                    total_count += 1
+                    print("%s%s - %sphoto/edit/%d" % (album.name, photo.file, settings.DOMAIN_NAME, photo.id))
+                    counter += 1
                     
-        print(total_count)
+        if counter == 0:
+            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+        else:
+            print("---------------------------------------")
+            print("%s%d photos with only one tag%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+        print("---------------------------------------")

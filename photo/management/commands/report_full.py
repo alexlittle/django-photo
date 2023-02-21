@@ -21,25 +21,23 @@ class Command(BaseCommand):
         # Missing photos (in db but not disk)
         call_command('files_scan_photos', db=True)
         
-        # Non image files on disk
-        
         # Uncategorised tags
-        #call_command('integrity_uncategorised_tags')
+        call_command('integrity_uncategorised_tags')
         
         # Album cover issues
-        #call_command('integrity_album_covers')
+        call_command('integrity_album_covers')
         
         # Album without titles
-        #call_command('integrity_albums_no_title')
+        call_command('integrity_albums_no_title')
         
         # Photos with only 1 tag
-        #call_command('integrity_only_one_tag')
+        call_command('integrity_only_one_tag')
         
         # Small albums
-        #call_command('integrity_small_albums', count=9)
+        call_command('integrity_small_albums', count=10)
         
         # remove empty albums
-        #call_command('integrity_remove_empty_albums')
+        call_command('integrity_remove_empty_albums')
         
         # remove unused tags
-        #call_command('integrity_remove_empty_albums') 
+        call_command('integrity_remove_unused_tags') 
