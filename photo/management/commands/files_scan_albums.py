@@ -7,43 +7,56 @@ import os
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from photo.lib import ignore_folder
 from photo.models import Album
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OK = '\033[92m'
-    WARNING = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-
+from . import bcolors
 
 class Command(BaseCommand):
     help = "Checks for folders that aren't in the database"
 
     def handle(self, *args, **options):
 
+        print("Directories not in database")
+        print("---------------------------------------")
+        
         # Scan directory structure to find dirs not uploaded to DB
-        count_not_found = 0
+        counter = 0
 
         for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT), topdown=True):
             for name in dirs:
                 album_path = (os.path.join(root, name)).replace(settings.PHOTO_ROOT, '') + "/"
 
-                if album_path in settings.IGNORE_FOLDERS:
+                if ignore_folder(album_path):
                     continue
 
                 try:
                     Album.objects.get(name=album_path)
                 except Album.DoesNotExist:
-                    print(bcolors.WARNING + album_path + " " + " NOT FOUND" + bcolors.ENDC)
-                    count_not_found += 1
+                    print("%s%s not found%s" %(bcolors.WARNING, album_path, bcolors.ENDC))
+                    counter += 1
 
-        print(count_not_found)
-
+        if counter == 0:
+            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+        else:
+            print("---------------------------------------")
+            print("%s%d directories not in database%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+        print("---------------------------------------")
+        
+        
         # Scan albums in DB to ensure they all exist on file
+        print("Albums in database but not on disk")
+        print("---------------------------------------")
+        
         albums = Album.objects.all()
-
+        counter = 0
         for album in albums:
             if not os.path.isdir(settings.PHOTO_ROOT + album.name):
-                print(bcolors.WARNING + album.name + " " + " NOT FOUND" + bcolors.ENDC)
+                print("%s%s not found%s" %(bcolors.WARNING, album_path, bcolors.ENDC))
+                counter += 1
+                
+        if counter == 0:
+            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+        else:
+            print("---------------------------------------")
+            print("%s%d albums in database but not on disk%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+        print("---------------------------------------")

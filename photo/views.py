@@ -28,8 +28,7 @@ from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
 
 
 def home_view(request):
-    albums = Album.objects.all().annotate(
-        max_date=Max('photo__date')).order_by('-max_date')
+    albums = Album.objects.all().annotate(max_date=Max('photo__date')).order_by('-max_date')
     years = Tag.objects.filter(tagcategory__slug='date')
 
     paginator = Paginator(albums, settings.ALBUMS_PER_PAGE)
@@ -54,8 +53,7 @@ def album_view(request, album_id):
     photos = Photo.objects.filter(album=album).order_by('date','file')
 
     if request.GET.get('view', '') == 'print':
-        photos = photos.exclude(
-            photoprops__name='exclude.album.export', photoprops__value='true')
+        photos = photos.exclude(photoprops__name='exclude.album.export', photoprops__value='true')
 
     photo_count = photos.count()
     
@@ -119,8 +117,7 @@ def map_view(request):
 
 def cloud_category_view(request, category):
     tags = Tag.objects.filter(tagcategory__name=category).order_by('name')
-    return render(request, 'photo/cloud_category.html',
-                  {'title': _('Cloud'), 'tags': tags})
+    return render(request, 'photo/cloud_category.html', {'title': _('Cloud'), 'tags': tags})
 
 
 def search_view(request):
@@ -165,9 +162,7 @@ def photo_view(request, photo_id):
 
 
 def photo_favourites_view(request):
-    photos = Photo.objects.filter(
-        photoprops__name='favourite', photoprops__value='true') \
-        .order_by('-date')
+    photos = Photo.objects.filter(photoprops__name='favourite', photoprops__value='true').order_by('-date')
     paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
     # Make sure page request is an int. If not, deliver first page.
     try:
@@ -196,8 +191,7 @@ def scan_folder(request):
             default_date = form.cleaned_data.get("default_date")
             album = upload_album(directory, default_tags, default_date)
 
-            return HttpResponseRedirect(reverse('photo_album',
-                                                kwargs={'album_id': album.id}))
+            return HttpResponseRedirect(reverse('photo_album',kwargs={'album_id': album.id}))
     else:
         data = {}
         data['default_date'] = timezone.now()
@@ -223,9 +217,9 @@ def photo_edit_view(request, photo_id):
             new_tags = form.cleaned_data.get("tags")
             tags = [x.strip() for x in new_tags.split(',')]
             for t in tags:
-                tag, created = Tag.objects.get_or_create(name=t)
-                photo_tag, created = PhotoTag.objects.get_or_create(
-                    photo=photo, tag=tag)
+                if t.strip() is not None:
+                    tag, created = Tag.objects.get_or_create(name=t)
+                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
             photo.title = form.cleaned_data.get("title")
             photo.date = form.cleaned_data.get("date")
             photo.save()
@@ -235,8 +229,7 @@ def photo_edit_view(request, photo_id):
                                                     photo.album.id}))
 
     else:
-        tags = Tag.objects.filter(
-            phototag__photo=photo).values_list('name', flat=True)
+        tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
         data = {}
         data['tags'] = ", ".join(tags)
         data['title'] = photo.title
@@ -289,20 +282,17 @@ def photo_update_tags(request):
             tags = [x.strip() for x in update_tags.split(',')]
 
             for t in tags:
-                if t is not None:
+                if t.strip() is not None:
                     tag, created = Tag.objects.get_or_create(name=t)
 
                     for p in photo_ids:
                         try:
                             photo = Photo.objects.get(id=p)
                             if action == "delete":
-                                PhotoTag.objects.filter(
-                                    photo=photo, tag=tag) \
-                                    .delete()
+                                PhotoTag.objects.filter(photo=photo, tag=tag).delete()
     
                             if action == "add":
-                                photo_tag, created = PhotoTag.objects \
-                                    .get_or_create(photo=photo, tag=tag)
+                                photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
                                 rewrite_exif(photo)
                         except Photo.DoesNotExist:
                             pass
@@ -362,15 +352,13 @@ def upload_album(directory, default_tags, default_date):
             image_file_name = os.path.basename(im)
             print(image_file_name)
             # find if image exists
-            photo, created = Photo.objects.get_or_create(
-                album=album, file=image_file_name)
+            photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
 
             # add all the tags
             for t in tags:
-                if t.strip() != "":
+                if t.strip() is not None:
                     tag, created = Tag.objects.get_or_create(name=t)
-                    photo_tag, created = PhotoTag.objects.get_or_create(
-                        photo=photo, tag=tag)
+                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
 
             try:
                 exif_tags, result = get_exif(im)
@@ -380,10 +368,8 @@ def upload_album(directory, default_tags, default_date):
                 try:
                     exif_date = exif_tags['DateTimeOriginal']
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
-                    print(naive)
                     
-                    photo.date = pytz.timezone(
-                        "Europe/London").localize(naive, is_dst=None)
+                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
 
                     # add year and month tags   
                     year = photo.date.year
