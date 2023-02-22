@@ -21,8 +21,7 @@ from django.utils.translation import gettext_lazy as _
 
 from haystack.query import SearchQuerySet
 
-from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, \
-    UpdateTagsForm
+from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
 from photo.lib import rewrite_exif
 from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
 
@@ -217,7 +216,7 @@ def photo_edit_view(request, photo_id):
             new_tags = form.cleaned_data.get("tags")
             tags = [x.strip() for x in new_tags.split(',')]
             for t in tags:
-                if t.strip() is not None:
+                if t.strip():
                     tag, created = Tag.objects.get_or_create(name=t)
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
             photo.title = form.cleaned_data.get("title")
@@ -282,7 +281,7 @@ def photo_update_tags(request):
             tags = [x.strip() for x in update_tags.split(',')]
 
             for t in tags:
-                if t.strip() is not None:
+                if t.strip():
                     tag, created = Tag.objects.get_or_create(name=t)
 
                     for p in photo_ids:
@@ -343,7 +342,7 @@ def upload_album(directory, default_tags, default_date):
     album, created = Album.objects.get_or_create(name=directory)
 
     # get all the image files from dir
-    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JPG']
+    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JPG', '*.JPEG']
 
     for img_ext in image_extensions:
         image_files = glob.glob(settings.PHOTO_ROOT + directory + img_ext)
@@ -356,7 +355,7 @@ def upload_album(directory, default_tags, default_date):
 
             # add all the tags
             for t in tags:
-                if t.strip() is not None:
+                if t.strip():
                     tag, created = Tag.objects.get_or_create(name=t)
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
 
