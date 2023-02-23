@@ -22,7 +22,7 @@ from django.utils.translation import gettext_lazy as _
 from haystack.query import SearchQuerySet
 
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
-from photo.lib import rewrite_exif
+from photo.lib import rewrite_exif, add_tags
 from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
 
 
@@ -214,11 +214,7 @@ def photo_edit_view(request, photo_id):
             PhotoTag.objects.filter(photo=photo).delete()
 
             new_tags = form.cleaned_data.get("tags")
-            tags = [x.strip() for x in new_tags.split(',')]
-            for t in tags:
-                if t.strip():
-                    tag, created = Tag.objects.get_or_create(name=t)
-                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+            add_tags(photo, new_tags)
             photo.title = form.cleaned_data.get("title")
             photo.date = form.cleaned_data.get("date")
             photo.save()
@@ -336,7 +332,6 @@ def get_exif(fn):
 
 
 def upload_album(directory, default_tags, default_date):
-    tags = [x.strip() for x in default_tags.split(',')]
 
     # find if dir is already in locations
     album, created = Album.objects.get_or_create(name=directory)
@@ -354,10 +349,7 @@ def upload_album(directory, default_tags, default_date):
             photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
 
             # add all the tags
-            for t in tags:
-                if t.strip():
-                    tag, created = Tag.objects.get_or_create(name=t)
-                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+            add_tags(photo, default_tags)
 
             try:
                 exif_tags, result = get_exif(im)

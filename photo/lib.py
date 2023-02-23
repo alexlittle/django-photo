@@ -6,6 +6,7 @@ from PIL.ExifTags import TAGS
 
 from django.conf import settings
 
+from photo.models import Tag, PhotoTag
 
 def ignore_folder(dir): 
     for f in settings.IGNORE_FOLDERS:
@@ -14,12 +15,23 @@ def ignore_folder(dir):
             return True
     return False
 
+
 def ignore_file(filename):
     for ext in settings.IGNORE_EXTENSIONS:
         if filename.lower().endswith(ext):
             return True
     return False
 
+
+def add_tags(photo, tags_str):
+    tags = [x.strip() for x in tags_str.split(',')]
+    for t in tags:
+        if t.strip():
+            tag, created = Tag.objects.get_or_create(name=t)
+            photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+    return created
+
+   
 def rewrite_exif(photo):
     
     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
