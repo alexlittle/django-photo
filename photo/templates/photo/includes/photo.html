@@ -26,5 +26,11 @@
 	{% endif %}
 	| <a href="{% url 'admin:photo_photo_delete' p.id %}" target="_blank">{% trans 'delete' %}</a> <br/>
 	<a href="{% url 'photo_album' p.album.id %}">{{ p.album.name }}</a>
-	<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}"/>
+	{% if p|is_photo_selected:photos_checked %}
+		<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}" checked="checked"/>
+	{% else %}
+		<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}"/>	
+	{% endif %}
+	
+	
 </div>

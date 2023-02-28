@@ -50,6 +50,7 @@ def home_view(request):
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
     photos = Photo.objects.filter(album=album).order_by('date','file')
+    photos_checked = request.GET.getlist('photo_id', [])
 
     if request.GET.get('view', '') == 'print':
         photos = photos.exclude(photoprops__name='exclude.album.export', photoprops__value='true')
@@ -71,7 +72,8 @@ def album_view(request, album_id):
     return render(request, 'photo/album.html',
                   {'album': album,
                    'page': photos,
-                   'photo_count': photo_count})
+                   'photo_count': photo_count,
+                   'photos_checked': photos_checked })
 
 
 def tag_slug_view(request, slug):
@@ -265,7 +267,6 @@ def photo_update_tags(request):
 
     photo_ids = request.GET.getlist('photo_id', [])
     next = request.GET.get("next")
-    print(photo_ids)
 
     if request.method == 'POST':
         form = UpdateTagsForm(request.POST)
@@ -301,15 +302,14 @@ def photo_update_tags(request):
                     
             if action == 'change_album':
                 new_album = Album.objects.get(pk=form.cleaned_data.get("album"))
-                print(new_album.name)
                 for p in photo_ids:
                     photo = Photo.objects.get(id=p)
                     os.rename(os.path.join(settings.PHOTO_ROOT + photo.album.name, photo.file),
                               os.path.join(settings.PHOTO_ROOT + new_album.name, photo.file))
                     photo.album = new_album
                     photo.save()
-
-            return HttpResponseRedirect(next)
+            url_params = '&'.join(['photo_id={}'.format(x) for x in photo_ids])
+            return HttpResponseRedirect(next + "?" + url_params)
     else:
         form = UpdateTagsForm(initial={'next': next})
 
