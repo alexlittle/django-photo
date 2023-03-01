@@ -57,7 +57,7 @@ class EditPhotoForm(forms.Form):
                 required=True,
                 error_messages={'required':
                                 _('Please enter at least one tag')},)
-    date = forms.DateField(
+    date = forms.DateTimeField(
                 required=True,
                 error_messages={'required': _('Please enter a valid date'),
                                 'invalid': _('Please enter a valid date')},)
