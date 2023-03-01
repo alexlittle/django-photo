@@ -1,7 +1,7 @@
 function setUpDatePicker(){
 
     photoDate = $( "#id_date" );
-    if (photoDate.length) //Check if not empty jQuery object
+    if (photoDate.length) // Check if not empty jQuery object
         photoDate.datepicker({dateFormat: "yy-mm-dd", defaultDate: "-1m"})
                  .datepicker('setDate', photoDate.val());
 

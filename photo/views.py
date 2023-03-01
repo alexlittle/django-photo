@@ -218,7 +218,7 @@ def photo_edit_view(request, photo_id):
             new_tags = form.cleaned_data.get("tags")
             add_tags(photo, new_tags)
             photo.title = form.cleaned_data.get("title")
-            photo.date = form.cleaned_data.get("date")
+            photo.date = form.cleaned_data.get("date").replace(hour=photo.date.hour, minute=photo.date.minute)
             photo.save()
             rewrite_exif(photo)
         return HttpResponseRedirect(reverse('photo_album',
