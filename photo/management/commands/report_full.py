@@ -21,6 +21,9 @@ class Command(BaseCommand):
         # Missing photos (in db but not disk)
         call_command('files_scan_photos', db=True)
         
+        # duplicate photo filenames
+        call_command('files_duplicate_filenames') 
+        
         # Uncategorised tags
         call_command('integrity_uncategorised_tags')
         
