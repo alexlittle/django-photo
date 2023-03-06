@@ -23,9 +23,9 @@
 	<tr>
 		<td>
 		{% if a.has_cover %}
-			<img src="{{ a|get_cover:150 }}" class="img-thumbnail"/>
+			<img src="{{ a|get_cover:250 }}" class="img-thumbnail"/>
 		{% else %}
-			<img src="{{ a|get_cover:150 }}" class="img-thumbnail faded"/>
+			<img src="{{ a|get_cover:250 }}" class="img-thumbnail faded"/>
 		{% endif %}
 		<br/>
 			<small>{{ a.max_date }}</small>
