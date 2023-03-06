@@ -74,9 +74,7 @@ def make(album_id=None, tag_id=None):
 
     for photo in photos:
         print(photo)
-        image = os.path.join(settings.MEDIA_ROOT,
-                             '..',
-                             photo.get_thumbnail(photo, 700)[1:])
+        image = os.path.join(settings.MEDIA_ROOT, '..', photo.get_thumbnail(700)[1:])
         im = Image(image)
         photo_page.append(im)
         photo_page.append(Spacer(1, 12))

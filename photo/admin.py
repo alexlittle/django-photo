@@ -24,8 +24,15 @@ class PhotoPropsInline(admin.TabularInline):
 
 
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ('file', 'date', 'title', 'album')
+    list_display = ('file', 'thumbnail', 'date', 'edit_photo', 'title', 'album')
     search_fields = ['file', 'title']
+    
+    def edit_photo(self, obj):
+        return format_html("<a target='_blank' href="+reverse('photo_edit', args={obj.id}) + ">Edit</a>")
+    
+    def thumbnail(self, obj):
+        return format_html("<a target='_blank' href='{}'><img src='{}'/></a>".format(reverse('photo_view', args={obj.id}), obj.get_thumbnail(150)))
+    
     inlines = [
         PhotoPropsInline,
     ]

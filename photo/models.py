@@ -67,7 +67,7 @@ class Album (models.Model):
         except Photo.MultipleObjectsReturned:
             p = Photo.objects.filter(album=album, album_cover=True).first()
 
-        return p.get_thumbnail(p, max_size)
+        return p.get_thumbnail(max_size)
 
 
 class TagCategory(models.Model):
@@ -160,15 +160,13 @@ class Photo (models.Model):
         tags = Tag.objects.filter(
             phototag__photo=self).values_list('name', flat=True)
         return separator.join(tags)
-    
-    @staticmethod
-    def get_thumbnail(photo, max_size):
+
+    def get_thumbnail(self, max_size):
         try:
-            thumb = ThumbnailCache.objects.filter(
-                photo=photo, size=max_size)[:1].get()
+            thumb = ThumbnailCache.objects.filter(photo=self, size=max_size)[:1].get()
         except ThumbnailCache.DoesNotExist:
             try:
-                image = settings.PHOTO_ROOT + photo.album.name + photo.file
+                image = settings.PHOTO_ROOT + self.album.name + self.file
                 im = Image.open(image)
                 im = image_transpose_exif(im)
                 im.thumbnail((int(max_size), int(max_size)), Image.ANTIALIAS)
@@ -177,7 +175,7 @@ class Photo (models.Model):
                 pillow_image = ContentFile(buffer.getvalue())
                 file_name = hashlib.md5(buffer.getvalue()).hexdigest()
                 thumb = ThumbnailCache(size=max_size,
-                                       photo=photo,
+                                       photo=self,
                                        image=InMemoryUploadedFile(
                                             pillow_image, None, file_name,
                                             'image/jpeg', pillow_image.tell,
@@ -185,7 +183,7 @@ class Photo (models.Model):
                                        )
                 thumb.save()
             except IOError as ioe:
-                print(photo.id)
+                print(self.id)
                 print(ioe)
                 return None
 

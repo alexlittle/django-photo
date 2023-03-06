@@ -45,8 +45,8 @@ class Command(BaseCommand):
 
             for p in photos:
                 print("processing: " + p.album.name + p.file)
-                thumb_cache = p.get_thumbnail(p, size)
+                thumb_cache = p.get_thumbnail(size)
                 if thumb_cache:
-                    print(p.get_thumbnail(p, size))
+                    print(p.get_thumbnail(size))
                 else:
                     return

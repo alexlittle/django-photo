@@ -379,7 +379,7 @@ def upload_album(directory, default_tags, default_date):
 
             # create thumbnails
             for size in settings.DEFAULT_THUMBNAIL_SIZES:
-                photo.get_thumbnail(photo, size)
+                photo.get_thumbnail(size)
     return album
 
 def album_exif(request, album_id):

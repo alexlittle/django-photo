@@ -5,7 +5,7 @@ register = template.Library()
 
 @register.filter(name='get_thumbnail')
 def get_thumbnail(photo, max_size):
-    return photo.get_thumbnail(photo, max_size)
+    return photo.get_thumbnail(max_size)
 
 
 @register.filter(name='get_cover')
