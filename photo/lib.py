@@ -39,11 +39,15 @@ def rename_photo_file(photo):
     new_full_path = settings.PHOTO_ROOT + photo.album.name + new_name
     
     # rename photo file
-    os.rename(current_full_path, new_full_path)
+    try:
+        os.rename(current_full_path, new_full_path)
+        # update photo object
+        photo.file = new_name
+        photo.save()
+    except FileNotFoundError:
+        print("File not found: %s" % photo.file)
     
-    # update photo object
-    photo.file = new_name
-    photo.save()
+    
     
     return True
 

@@ -24,12 +24,15 @@ class PhotoPropsInline(admin.TabularInline):
 
 
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ('file', 'thumbnail', 'date', 'edit_photo', 'title', 'album')
+    list_display = ('file', 'thumbnail', 'date', 'edit_photo', 'title', 'album', 'albumid')
     search_fields = ['file', 'title']
     actions = ['rename_file']
     
     def edit_photo(self, obj):
         return format_html("<a target='_blank' href="+reverse('photo_edit', args={obj.id}) + ">Edit</a>")
+    
+    def albumid(self, obj):
+        return obj.album.id
     
     def thumbnail(self, obj):
         return format_html("<a target='_blank' href='{}'><img src='{}'/></a>".format(reverse('photo_view', args={obj.id}), obj.get_thumbnail(150)))

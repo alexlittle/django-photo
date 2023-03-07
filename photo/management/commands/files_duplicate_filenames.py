@@ -20,18 +20,20 @@ class Command(BaseCommand):
         print("Photos with same filename")
         print("---------------------------------------")
         
-        results = Photo.objects.values('file').annotate(count=Count('file'))
+        results = Photo.objects.values('file').annotate(count=Count('file')).order_by('count')
         
         counter = 0
+        total_duplicates = 0
         for result in results:
             if result['count'] > 1:
                 url = "{}admin/photo/photo/?q={}".format(settings.DOMAIN_NAME, result['file'])
                 print("%d duplicates of %s - %s" % (result['count'], result['file'], url))
                 counter += 1
+                total_duplicates += result['count']
         
         if counter == 0:
             print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
         else:
             print("---------------------------------------")
-            print("%s%d photos with duplicate filenames%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+            print("%s%d photos with duplicate filenames (total %d duplicates)%s" % (bcolors.WARNING, counter, total_duplicates, bcolors.ENDC))
         print("---------------------------------------")
