@@ -1,5 +1,6 @@
 import piexif
 import re
+import os
 
 from PIL import Image
 from PIL.ExifTags import TAGS
@@ -31,7 +32,21 @@ def add_tags(photo, tags_str):
             photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
     return created
 
-   
+def rename_photo_file(photo):
+    current_full_path = settings.PHOTO_ROOT + photo.album.name + photo.file
+
+    new_name = photo.file.replace(".", "-" + str(photo.id) + ".", 1)
+    new_full_path = settings.PHOTO_ROOT + photo.album.name + new_name
+    
+    # rename photo file
+    os.rename(current_full_path, new_full_path)
+    
+    # update photo object
+    photo.file = new_name
+    photo.save()
+    
+    return True
+
 def rewrite_exif(photo):
     
     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file

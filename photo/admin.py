@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
-# Register your models here.
+from photo.lib import rename_photo_file
 from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, \
     ThumbnailCache, PhotoProps, TagProps
 
@@ -26,6 +26,7 @@ class PhotoPropsInline(admin.TabularInline):
 class PhotoAdmin(admin.ModelAdmin):
     list_display = ('file', 'thumbnail', 'date', 'edit_photo', 'title', 'album')
     search_fields = ['file', 'title']
+    actions = ['rename_file']
     
     def edit_photo(self, obj):
         return format_html("<a target='_blank' href="+reverse('photo_edit', args={obj.id}) + ">Edit</a>")
@@ -33,6 +34,10 @@ class PhotoAdmin(admin.ModelAdmin):
     def thumbnail(self, obj):
         return format_html("<a target='_blank' href='{}'><img src='{}'/></a>".format(reverse('photo_view', args={obj.id}), obj.get_thumbnail(150)))
     
+    def rename_file(self, request, queryset):
+        for photo in queryset:
+            rename_photo_file(photo)
+
     inlines = [
         PhotoPropsInline,
     ]
