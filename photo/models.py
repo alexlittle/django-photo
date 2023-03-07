@@ -120,7 +120,7 @@ class Tag (models.Model):
 
 
 class Photo (models.Model):
-    file = models.TextField(blank=False, null=False)
+    file = models.CharField(max_length=250, blank=False, null=False, unique=True)
     slug = AutoSlugField(populate_from='file',
                          max_length=100, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
