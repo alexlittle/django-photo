@@ -9,12 +9,12 @@
 
 <h2>{{ title }}</h2>
 
-<ul>
+<ol>
 {% for t in tags %}
 	<li><a href="{% url 'photo_tag_slug' t.slug %}">{{ t.name }}</a> ({{ t.count }})
 		- <a href="{% url 'admin:photo_tag_change' t.id %}">[{% trans 'edit' %}]</a>
 	</li>
 {% endfor %}
-</ul>
+</ol>
 
 {% endblock %}
