@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.db.models import Max
+from django.db.models import Max, Count
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -117,7 +117,7 @@ def map_view(request):
 
 
 def cloud_category_view(request, category):
-    tags = Tag.objects.filter(tagcategory__name=category).order_by('name')
+    tags = Tag.objects.filter(tagcategory__name=category).values('id', 'name', 'slug').annotate(count=Count('phototag')).order_by('name')
     return render(request, 'photo/cloud_category.html', {'title': _('Cloud'), 'tags': tags})
 
 
