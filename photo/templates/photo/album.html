@@ -7,6 +7,15 @@
 {{ album.title }}
 {% endblock extra_head_title %}
 
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.min.js"></script>
+{% endblock extra_js %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.css">
+{% endblock extra_css %}
+
 {% block content %}
 
 {% if album.has_cover %}
