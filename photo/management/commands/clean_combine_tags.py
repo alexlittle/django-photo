@@ -27,11 +27,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            keep_tag = Tag.objects.get(name=options['keep_tag'])
+            keep_tag = Tag.objects.get(id=options['keep_tag'])
         except Tag.DoesNotExist:
             print("Tag not found: %s" % options['keep_tag'])
             
-        replace_tag = Tag.objects.get(name=options['replace_tag'])
+        replace_tag = Tag.objects.get(id=options['replace_tag'])
 
         photo_tags = PhotoTag.objects.filter(tag=replace_tag)
         for pt in photo_tags:

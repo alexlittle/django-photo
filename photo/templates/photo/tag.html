@@ -14,6 +14,7 @@
 <form method="get" action="{% url 'photo_update_tags' %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
 <input type="button" value="{% trans 'Select all' %}" onclick="selectall()"/>
+<input type="button" value="{% trans 'Select none' %}" onclick="selectnone()"/>
 <input type="hidden" value="{{ request.path }}" name="next"/>
 
 {% include 'includes/pagination.html' %}
