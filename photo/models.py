@@ -161,6 +161,9 @@ class Photo (models.Model):
             phototag__photo=self).values_list('name', flat=True)
         return separator.join(tags)
 
+    def get_full_url(self):
+        return settings.PHOTO_ROOT + self.album.name + self.file
+    
     def get_thumbnail(self, max_size):
         try:
             thumb = ThumbnailCache.objects.filter(photo=self, size=max_size)[:1].get()
