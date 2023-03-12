@@ -3,8 +3,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from photo.lib import rename_photo_file
-from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, \
-    ThumbnailCache, PhotoProps, TagProps
+from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCache, PhotoProps, TagProps
 
 
 class AlbumAdmin(admin.ModelAdmin):

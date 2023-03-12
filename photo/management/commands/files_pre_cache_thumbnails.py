@@ -32,6 +32,7 @@ class Command(BaseCommand):
             sizes = [settings.ALBUM_COVER_THUMBNAIL_SIZE,
                      settings.PHOTO_DEFAULT_THUMBNAIL_SIZE,
                      settings.PHOTO_DEFAULT_PDF_SIZE]
+            sizes.extend(settings.DEFAULT_THUMBNAIL_SIZES)
 
         for size in sizes:
             if options['tag']:
