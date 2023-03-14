@@ -1,6 +1,7 @@
 import functools
 import hashlib
 import os
+import piexif
 
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -171,10 +172,20 @@ class Photo (models.Model):
             try:
                 image = settings.PHOTO_ROOT + self.album.name + self.file
                 im = Image.open(image)
-                im = image_transpose_exif(im)
+                # preserve exif data
+                try:
+                    exif_dict = piexif.load(im.info["exif"])
+                    exif_bytes = piexif.dump(exif_dict)
+                except (KeyError, ValueError):
+                    exif_bytes = None
+                    print("No exif data for %s" % image)
+
                 im.thumbnail((int(max_size), int(max_size)), Image.ANTIALIAS)
                 buffer = BytesIO()
-                im.save(fp=buffer, format='JPEG', dpi=(600, 600))
+                if exif_bytes:
+                    im.save(fp=buffer, format='JPEG', dpi=(600, 600), exif=exif_bytes)
+                else:
+                    im.save(fp=buffer, format='JPEG', dpi=(600, 600))
                 pillow_image = ContentFile(buffer.getvalue())
                 file_name = hashlib.md5(buffer.getvalue()).hexdigest()
                 thumb = ThumbnailCache(size=max_size,
@@ -185,7 +196,8 @@ class Photo (models.Model):
                                             None)
                                        )
                 thumb.save()
-            except IOError as ioe:
+                print("Thumbnail created (%d) - %s" % (max_size, thumb.image.name))
+            except (TypeError, IOError) as ioe:
                 print(self.id)
                 print(ioe)
                 return None
@@ -235,8 +247,7 @@ class TagProps(models.Model):
 
 def image_file_name(instance, filename):
     basename, ext = os.path.splitext(filename)
-    return os.path.join('cache', filename[0:2], filename[2:4],
-                        filename + ext.lower())
+    return os.path.join('cache', filename[0:2], filename[2:4], filename + ext.lower())
 
 
 class ThumbnailCache(models.Model):
@@ -244,30 +255,17 @@ class ThumbnailCache(models.Model):
     size = models.IntegerField(blank=False, null=False)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
-    image = models.ImageField(
-        upload_to=image_file_name,  blank=True, null=True)
+    image = models.ImageField(upload_to=image_file_name, blank=True, null=True)
 
     class Meta:
         verbose_name = _('Thumbnail Cache')
         verbose_name_plural = _('Thumbnail Caches')
-
-
-def image_transpose_exif(im):
-    exif_orientation_tag = 0x0112
-    exif_transpose_sequences = [
-        [],
-        [Image.FLIP_LEFT_RIGHT],
-        [Image.ROTATE_180],
-        [Image.FLIP_TOP_BOTTOM],
-        [Image.FLIP_LEFT_RIGHT, Image.ROTATE_90],
-        [Image.ROTATE_270],
-        [Image.FLIP_TOP_BOTTOM, Image.ROTATE_90],
-        [Image.ROTATE_90],
-    ]
-
+        
+@receiver(post_delete, sender=ThumbnailCache)
+def thumbnail_delete_file(sender, instance, **kwargs):
+    file_to_delete = settings.MEDIA_ROOT + instance.image.name
+    print("deleting ...." + file_to_delete)
     try:
-        seq = exif_transpose_sequences[im._getexif()[exif_orientation_tag] - 1]
-    except (AttributeError, TypeError, KeyError, IndexError):
-        return im
-    else:
-        return functools.reduce(lambda im, op: im.transpose(op), seq, im)
+        os.remove(file_to_delete)
+    except OSError:
+        print("File not removed")

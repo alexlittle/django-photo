@@ -9,7 +9,6 @@ import json
 from PIL import Image
 from PIL.ExifTags import TAGS
 import io
-import piexif
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -26,7 +25,7 @@ class Command(BaseCommand):
             '-a',
             '--album',
             dest='album',
-            help='Source Album',
+            help='Source Album ID',
         )
     
     def handle(self, *args, **options):

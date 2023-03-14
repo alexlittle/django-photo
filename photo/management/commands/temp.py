@@ -1,22 +1,26 @@
 
+from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from photo.models import Photo, Album, Tag, TagCategory
+from photo.models import Photo, Album, Tag, TagCategory, ThumbnailCache
 from . import bcolors
+
 
 class Command(BaseCommand):
     help = ""
 
-
     def handle(self, *args, **options):
-        albums = Album.objects.filter(id__in=[1155,1202]).order_by('name')
+        photos = Photo.objects.filter(album__id=1436)
         
-        for a in albums:
-            print("%s%s/album/%d - %s%s" % (bcolors.OK, settings.DOMAIN_NAME, a.id, a.name, bcolors.ENDC))
-            photos = Photo.objects.filter(album=a).order_by('id')
-            for idx, p in enumerate(photos):
-                if idx % 10 == 0:
-                    print("----------------------------------------------")
-                print("%d %s%s - %sphoto/edit/%d" % (idx, a.name, p.file, settings.DOMAIN_NAME, p.id))
-                print("-")
+        #remove existing thumbs
+        ThumbnailCache.objects.filter(photo__in=photos).delete()
+        call_command('files_pre_cache_thumbnails')
+        
+        for p in photos:
+            print("----------------------------------------------")
+            print("%s%s - %sphoto/edit/%d" % (p.album.name, p.file, settings.DOMAIN_NAME, p.id))
+            cache = ThumbnailCache.objects.filter(photo=p)
+            for c in cache:
+                print("%s%s" % (settings.DOMAIN_NAME, c.image.url))
+            print("-")
