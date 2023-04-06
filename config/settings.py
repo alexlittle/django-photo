@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'crispy_forms',
     'haystack',
-    'photo'
+    'photo',
+    'crispy_bootstrap4'
 ]
 
 
@@ -173,6 +174,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 ######################################################################
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 IGNORE_EXTENSIONS = []
 IGNORE_FOLDERS = []
 PHOTOS_PER_PAGE = 400
