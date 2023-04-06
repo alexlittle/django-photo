@@ -16,10 +16,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         albums = Album.objects.filter(title=None)
-        
+
         print("Albums with no title")
         print("---------------------------------------")
-        
+
         counter = 0
         for a in albums:
             print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo_album', args=(a.id,))))
@@ -31,4 +31,3 @@ class Command(BaseCommand):
             print("---------------------------------------")
             print("%s%d albums without a title%s" % (bcolors.WARNING, counter, bcolors.ENDC))
         print("---------------------------------------")
-        

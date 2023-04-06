@@ -12,11 +12,12 @@ class AlbumAdmin(admin.ModelAdmin):
 
     def view_url(self, obj):
         return format_html("<a href="+reverse('photo_album', args={obj.id}) + ">View</a>")
-    
+
     def count(self, obj):
         return Photo.objects.filter(album=obj).count()
 
     view_url.short_description = "View"
+
 
 class PhotoPropsInline(admin.TabularInline):
     model = PhotoProps
@@ -26,16 +27,17 @@ class PhotoAdmin(admin.ModelAdmin):
     list_display = ('file', 'thumbnail', 'date', 'edit_photo', 'title', 'album', 'albumid')
     search_fields = ['file', 'title']
     actions = ['rename_file']
-    
+
     def edit_photo(self, obj):
         return format_html("<a target='_blank' href="+reverse('photo_edit', args={obj.id}) + ">Edit</a>")
-    
+
     def albumid(self, obj):
         return obj.album.id
-    
+
     def thumbnail(self, obj):
-        return format_html("<a target='_blank' href='{}'><img src='{}'/></a>".format(reverse('photo_view', args={obj.id}), obj.get_thumbnail(150)))
-    
+        return format_html("<a target='_blank' href='{}'><img src='{}'/></a>"
+                           .format(reverse('photo_view', args={obj.id}), obj.get_thumbnail(150)))
+
     def rename_file(self, request, queryset):
         for photo in queryset:
             rename_photo_file(photo)
@@ -65,10 +67,10 @@ class TagAdmin(admin.ModelAdmin):
     inlines = [
         TagPropsInline,
     ]
-    
+
     def view_url(self, obj):
         return format_html("<a href="+reverse('photo_tag_slug', args={obj.slug}) + ">View</a>")
-    
+
     view_url.short_description = "View"
 
     def mark_category_place(self, request, queryset):
@@ -110,6 +112,7 @@ class TagAdmin(admin.ModelAdmin):
     def mark_category_label(self, request, queryset):
         tc = TagCategory.objects.get(name='Label')
         queryset.update(tagcategory=tc)
+
 
 class TagCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', )

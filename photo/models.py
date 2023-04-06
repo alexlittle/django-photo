@@ -1,4 +1,3 @@
-import functools
 import hashlib
 import os
 import piexif
@@ -43,7 +42,7 @@ class Album (models.Model):
         except Photo.MultipleObjectsReturned:
             pass
         return True
-    
+
     def has_multiple_covers(self):
         try:
             Photo.objects.get(album=self, album_cover=True)
@@ -54,8 +53,8 @@ class Album (models.Model):
         return False
 
     def get_count(self):
-        return  Photo.objects.filter(album=self).count()
-    
+        return Photo.objects.filter(album=self).count()
+
     @staticmethod
     def get_cover(album, max_size):
         try:
@@ -164,7 +163,7 @@ class Photo (models.Model):
 
     def get_full_url(self):
         return settings.PHOTO_ROOT + self.album.name + self.file
-    
+
     def get_thumbnail(self, max_size):
         try:
             thumb = ThumbnailCache.objects.filter(photo=self, size=max_size)[:1].get()
@@ -260,7 +259,8 @@ class ThumbnailCache(models.Model):
     class Meta:
         verbose_name = _('Thumbnail Cache')
         verbose_name_plural = _('Thumbnail Caches')
-        
+
+
 @receiver(post_delete, sender=ThumbnailCache)
 def thumbnail_delete_file(sender, instance, **kwargs):
     file_to_delete = settings.MEDIA_ROOT + instance.image.name

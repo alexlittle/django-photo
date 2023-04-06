@@ -30,9 +30,7 @@ class Command(BaseCommand):
                 print("created md5 for %s" % md5hash)
 
         counter = 1
-        hashes = Photo.objects.exclude(md5hash=None) \
-            .values('md5hash') \
-            .distinct()
+        hashes = Photo.objects.exclude(md5hash=None) .values('md5hash').distinct()
         for hash in hashes:
             photos = Photo.objects.filter(md5hash=hash['md5hash'])
             if photos.count() > 1:
@@ -41,12 +39,11 @@ class Command(BaseCommand):
                 for idx, photo in enumerate(photos):
                     print("[" + str(idx+1)+"] Duplicate: http://localhost.photo/photo/edit/"
                           + str(photo.id))
-                    print( photo.album.name )
-                    delete_option = {'option': idx+1,
-                                     'photo': photo.id}
+                    print(photo.album.name)
+                    delete_option = {'option': idx+1, 'photo': photo.id}
                     delete_options.append(delete_option)
                 counter += 1
-                
+
                 select_input = input("Select no to delete: ")
                 for option in delete_options:
                     if option['option'] == int(select_input):
@@ -55,4 +52,3 @@ class Command(BaseCommand):
                             print("photo deleted")
                         except Photo.DoesNotExist:
                             print("photo not found")
-                

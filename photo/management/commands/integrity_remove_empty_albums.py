@@ -14,11 +14,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         albums = Album.objects.filter(photo=None)
-        
+
         print("Albums with no photos")
         print("---------------------------------------")
         counter = albums.count()
-        
+
         for a in albums:
             print("Removing: " + a.name)
             a.delete()

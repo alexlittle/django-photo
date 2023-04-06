@@ -5,10 +5,10 @@ Management command to find albums with deep directory structure
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models import Count
 
 from photo.models import Album
 from . import bcolors
+
 
 class Command(BaseCommand):
     help = "Finds albums with deep directory structure"
@@ -31,7 +31,7 @@ class Command(BaseCommand):
             if len(list(dirs)) > max_dirs:
                 print("%salbum/%d - %s [%s]" % (settings.DOMAIN_NAME, album.id, album.title, album.name))
                 counter += 1
-        
+
         if counter == 0:
             print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
         else:

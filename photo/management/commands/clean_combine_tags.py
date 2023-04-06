@@ -17,7 +17,6 @@ class Command(BaseCommand):
                     dest='keep_tag',
                     help='Tag to keep',
                 )
-        
         parser.add_argument(
                     '-rt',
                     '--replace_tag',
@@ -30,7 +29,7 @@ class Command(BaseCommand):
             keep_tag = Tag.objects.get(id=options['keep_tag'])
         except Tag.DoesNotExist:
             print("Tag not found: %s" % options['keep_tag'])
-            
+
         replace_tag = Tag.objects.get(id=options['replace_tag'])
 
         photo_tags = PhotoTag.objects.filter(tag=replace_tag)

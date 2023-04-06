@@ -9,6 +9,7 @@ from photo.models import Photo, ThumbnailCache
 
 from . import bcolors
 
+
 class Command(BaseCommand):
     help = "Pre-caches thumbnail images"
 
@@ -28,7 +29,7 @@ class Command(BaseCommand):
             sizes.extend(settings.DEFAULT_THUMBNAIL_SIZES)
             # remove duplicates
             sizes = list(set(sizes))
-            
+
         for i, size in enumerate(sizes):
             if options['tag']:
                 photos = Photo.objects.filter(phototag__tag__name=options['tag'])
@@ -36,15 +37,22 @@ class Command(BaseCommand):
                 photos = Photo.objects.filter(album__id=options['album'])
             else:
                 photos = Photo.objects.all()
-            
+
             if not options['overwrite']:
-                # exclude existing thumbnail cache files 
-                photos = photos.exclude(thumbnailcache__size=size) 
-                
+                # exclude existing thumbnail cache files
+                photos = photos.exclude(thumbnailcache__size=size)
+
             print(str(photos.count()) + " to process")
-            
+
             for j, p in enumerate(photos):
-                print("%s(size %d/%d) %d/%d Processing: %s%s%s" % (bcolors.OK, i+1, len(sizes), j+1, photos.count(), p.album.name, p.file, bcolors.ENDC))
+                print("%s(size %d/%d) %d/%d Processing: %s%s%s" % (bcolors.OK,
+                                                                   i+1,
+                                                                   len(sizes),
+                                                                   j+1,
+                                                                   photos.count(),
+                                                                   p.album.name,
+                                                                   p.file,
+                                                                   bcolors.ENDC))
                 if options['overwrite']:
                     # remove existing thumbnail cache object first
                     ThumbnailCache.objects.filter(size=size, photo=p).delete()

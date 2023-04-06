@@ -11,6 +11,7 @@ from photo.lib import ignore_folder
 from photo.models import Album
 from . import bcolors
 
+
 class Command(BaseCommand):
     help = "Checks for folders that aren't in the database"
 
@@ -18,7 +19,7 @@ class Command(BaseCommand):
 
         print("Directories not in database")
         print("---------------------------------------")
-        
+
         # Scan directory structure to find dirs not uploaded to DB
         counter = 0
 
@@ -32,7 +33,7 @@ class Command(BaseCommand):
                 try:
                     Album.objects.get(name=album_path)
                 except Album.DoesNotExist:
-                    print("%s%s not found%s" %(bcolors.WARNING, album_path, bcolors.ENDC))
+                    print("%s%s not found%s" % (bcolors.WARNING, album_path, bcolors.ENDC))
                     counter += 1
 
         if counter == 0:
@@ -41,19 +42,18 @@ class Command(BaseCommand):
             print("---------------------------------------")
             print("%s%d directories not in database%s" % (bcolors.WARNING, counter, bcolors.ENDC))
         print("---------------------------------------")
-        
-        
+
         # Scan albums in DB to ensure they all exist on file
         print("Albums in database but not on disk")
         print("---------------------------------------")
-        
+
         albums = Album.objects.all()
         counter = 0
         for album in albums:
             if not os.path.isdir(settings.PHOTO_ROOT + album.name):
-                print("%s%s not found%s" %(bcolors.WARNING, album_path, bcolors.ENDC))
+                print("%s%s not found%s" % (bcolors.WARNING, album_path, bcolors.ENDC))
                 counter += 1
-                
+
         if counter == 0:
             print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
         else:

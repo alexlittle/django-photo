@@ -17,7 +17,6 @@ class Command(BaseCommand):
             dest='album',
             help='Source Album',
         )
-        
         parser.add_argument(
             '-t',
             '--tag',

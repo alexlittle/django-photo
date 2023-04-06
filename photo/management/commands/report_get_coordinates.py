@@ -15,9 +15,8 @@ class Command(BaseCommand):
     help = "gets lat/lng for places"
 
     def handle(self, *args, **options):
-        places = Tag.objects.filter(
-            tagcategory__name='Location')
-        
+        places = Tag.objects.filter(tagcategory__name='Location')
+
         tags = []
         for place in places:
             try:
@@ -26,7 +25,7 @@ class Command(BaseCommand):
                     tags.append(place)
             except TagProps.DoesNotExist:
                 tags.append(place)
-                
+
         print(len(tags))
         for tag in tags:
             print("--------------------")
@@ -46,17 +45,15 @@ class Command(BaseCommand):
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req)
             data_json = json.loads(response.read())
-            
-            
-            
+
             if len(data_json['geonames']) > 0:
-                for i in range(0,5):
+                for i in range(0, 5):
                     try:
                         print("%d : %s" % (i, data_json['geonames'][i]))
                     except (IndexError, KeyError):
                         pass
                 accept = input("Accept this? [0-4/Ignore/No]")
-                
+
                 if accept == 'i':
                     print('ignoring')
                 elif accept == 'n':

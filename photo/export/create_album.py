@@ -13,7 +13,7 @@ from reportlab.lib.styles import ParagraphStyle, TA_CENTER
 def make(album_id=None, tag_id=None):
     photos = None
     filename = None
-    
+
     try:
         album = Album.objects.get(id=album_id)
         photos = Photo.objects.filter(album=album) \
@@ -26,7 +26,7 @@ def make(album_id=None, tag_id=None):
             filename = str(album.id)
     except Album.DoesNotExist:
         print("No Album Specified")
-        
+
     try:
         photos = Photo.objects.filter(phototag__tag_id=tag_id) \
             .exclude(photoprops__name='exclude.album.export',
@@ -38,7 +38,6 @@ def make(album_id=None, tag_id=None):
         print("No Tag Specified")
 
     print("Creating album for... " + filename)
-
 
     album_url = 'albums/' + filename + ".pdf"
     album_filename = os.path.join(settings.PHOTO_ROOT, album_url)
@@ -65,7 +64,7 @@ def make(album_id=None, tag_id=None):
         if album.date_display:
             ptext = '<font size=25>' + album.date_display + '</font>'
             photo_page.append(Paragraph(ptext, style_centered))
-            
+
     if tag_id:
         photo_page.append(Spacer(1, 12))
         ptext = '<font size=40>' + tag.name + '</font>'

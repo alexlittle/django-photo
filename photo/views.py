@@ -3,7 +3,6 @@ import glob
 import os
 import pytz
 import re
-import datetime
 
 
 from PIL import Image
@@ -49,16 +48,16 @@ def home_view(request):
 
 def album_view(request, album_id):
     album = Album.objects.get(pk=album_id)
-    photos = Photo.objects.filter(album=album).order_by('date','file')
+    photos = Photo.objects.filter(album=album).order_by('date', 'file')
     photos_checked = request.GET.getlist('photo_id', [])
 
     if request.GET.get('view', '') == 'print':
         photos = photos.exclude(photoprops__name='exclude.album.export', photoprops__value='true')
 
     photo_count = photos.count()
-    
+
     paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
-    
+
     try:
         page = int(request.GET.get('page', '1'))
     except ValueError:
@@ -68,12 +67,12 @@ def album_view(request, album_id):
         photos = paginator.page(page)
     except (EmptyPage, InvalidPage):
         photos = paginator.page(paginator.num_pages)
-        
+
     return render(request, 'photo/album.html',
                   {'album': album,
                    'page': photos,
                    'photo_count': photo_count,
-                   'photos_checked': photos_checked })
+                   'photos_checked': photos_checked})
 
 
 def tag_slug_view(request, slug):
@@ -95,7 +94,7 @@ def tag_slug_view(request, slug):
     return render(request, 'photo/tag.html',
                   {'title': tag.name,
                    'page': photos,
-                   'photos_checked': photos_checked })
+                   'photos_checked': photos_checked})
 
 
 def cloud_view(request):
@@ -119,7 +118,9 @@ def map_view(request):
 
 
 def cloud_category_view(request, category):
-    tags = Tag.objects.filter(tagcategory__name=category).values('id', 'name', 'slug').annotate(count=Count('phototag')).order_by('name')
+    tags = Tag.objects.filter(tagcategory__name=category) \
+        .values('id', 'name', 'slug') \
+        .annotate(count=Count('phototag')).order_by('name')
     return render(request, 'photo/cloud_category.html', {'title': _('Cloud'), 'tags': tags})
 
 
@@ -181,7 +182,7 @@ def photo_favourites_view(request):
     return render(request, 'photo/favourites.html',
                   {'page': photos_page})
 
-    
+
 def scan_folder(request):
 
     if request.method == 'POST':
@@ -194,7 +195,7 @@ def scan_folder(request):
             default_date = form.cleaned_data.get("default_date")
             album = upload_album(directory, default_tags, default_date)
 
-            return HttpResponseRedirect(reverse('photo_album',kwargs={'album_id': album.id}))
+            return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id}))
     else:
         data = {}
         data['default_date'] = timezone.now()
@@ -288,7 +289,7 @@ def photo_update_tags(request):
                             photo = Photo.objects.get(id=p)
                             if action == "delete":
                                 PhotoTag.objects.filter(photo=photo, tag=tag).delete()
-    
+
                             if action == "add":
                                 photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
                                 rewrite_exif(photo)
@@ -301,7 +302,7 @@ def photo_update_tags(request):
                     photo.date = date
                     photo.save()
                     rewrite_exif(photo)
-                    
+
             if action == 'change_album':
                 new_album = Album.objects.get(pk=form.cleaned_data.get("album"))
                 for p in photo_ids:
@@ -361,14 +362,14 @@ def upload_album(directory, default_tags, default_date):
                 try:
                     exif_date = exif_tags['DateTimeOriginal']
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
-                    
+
                     photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
 
-                    # add year and month tags   
+                    # add year and month tags
                     year = photo.date.year
                     tag, created = Tag.objects.get_or_create(name=year)
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
-                    
+
                     month = photo.date.strftime("%B")
                     tag, created = Tag.objects.get_or_create(name=month)
                     photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
@@ -383,6 +384,7 @@ def upload_album(directory, default_tags, default_date):
             for size in settings.DEFAULT_THUMBNAIL_SIZES:
                 photo.get_thumbnail(size)
     return album
+
 
 def album_exif(request, album_id):
     album = Album.objects.get(id=album_id)

@@ -10,12 +10,13 @@ from photo.models import Album
 
 from . import bcolors
 
+
 class Command(BaseCommand):
     help = "find albums with no or multiple covers"
 
     def handle(self, *args, **options):
         albums = Album.objects.all()
-        
+
         print("No cover:")
         print("---------------------------------------")
         counter = 0
@@ -30,7 +31,7 @@ class Command(BaseCommand):
             print("---------------------------------------")
             print("%s%d albums without covers%s" % (bcolors.WARNING, counter, bcolors.ENDC))
         print("---------------------------------------")
-        
+
         print("Multiple covers:")
         print("---------------------------------------")
         counter = 0
@@ -38,7 +39,7 @@ class Command(BaseCommand):
             if a.has_multiple_covers():
                 print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo_album', args=(a.id,))))
                 counter += 1
-        
+
         if counter == 0:
             print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
         else:

@@ -14,15 +14,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         tags = Tag.objects.filter(phototag=None)
-        
+
         print("Unused tags")
         print("---------------------------------------")
         counter = tags.count()
-        
+
         for t in tags:
             print("Removing: " + t.name)
             t.delete()
-            
+
         if counter == 0:
             print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
         else:

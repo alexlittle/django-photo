@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         # Scan directory structure to find photos not uploaded to DB
         if options['files']:
-            print("Photos not uploaded to database" )
+            print("Photos not uploaded to database")
             print("---------------------------------------")
             counter = 0
             folders_to_add = []
@@ -72,7 +72,7 @@ class Command(BaseCommand):
 
                     album = root.replace(settings.PHOTO_ROOT, '') + "/"
 
-                    dups=[]
+                    dups = []
                     try:
                         Photo.objects.get(album__name=album, file=name)
                         if options['verbose']:
@@ -84,15 +84,15 @@ class Command(BaseCommand):
                         counter += 1
                     except Photo.MultipleObjectsReturned:
                         dups.append(album + name)
-                        
+
             if counter == 0:
                 print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
             else:
                 print("---------------------------------------")
                 print("%s%d photos not in database%s" % (bcolors.WARNING, counter, bcolors.ENDC))
             print("---------------------------------------")
-            
-            print("Multiple copies of photo in database" )
+
+            print("Multiple copies of photo in database")
             print("---------------------------------------")
             if len(dups) == 0:
                 print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
@@ -113,10 +113,10 @@ class Command(BaseCommand):
         if options['db']:
             counter = 0
             photos = Photo.objects.all()
-            
-            print("Photos in database but not on file" )
+
+            print("Photos in database but not on file")
             print("---------------------------------------")
-            
+
             for photo in photos:
                 if os.path.isfile(settings.PHOTO_ROOT + photo.album.name + photo.file):
                     if options['verbose']:
