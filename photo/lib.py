@@ -26,6 +26,7 @@ def ignore_file(filename):
 
 def add_tags(photo, tags_str):
     tags = [x.strip() for x in tags_str.split(',')]
+    created = False
     for t in tags:
         if t.strip():
             tag, created = Tag.objects.get_or_create(name=t)

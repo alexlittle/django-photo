@@ -188,13 +188,12 @@ def scan_folder(request):
     if request.method == 'POST':
         form = ScanFolderForm(request.POST)
         if form.is_valid():
-            directory = form.cleaned_data.get("directory")
-            if not directory.endswith('/'):
-                directory = directory + '/'
             default_tags = form.cleaned_data.get("default_tags")
             default_date = form.cleaned_data.get("default_date")
+            directory = form.cleaned_data.get("directory")
+            if not directory.endswith('/'):
+                directory = directory + '/'    
             album = upload_album(directory, default_tags, default_date)
-
             return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id}))
     else:
         data = {}
