@@ -12,19 +12,15 @@ from photo.models import Tag, TagProps
 
 
 class Command(BaseCommand):
-    help = "gets lat/lng for places"
+    help = "gets lat/lng for locations"
 
     def handle(self, *args, **options):
-        places = Tag.objects.filter(tagcategory__name='Location')
+        locations = Tag.objects.filter(tagcategory__name='Location')
 
         tags = []
-        for place in places:
-            try:
-                lat = TagProps.objects.get(tag=place, name='lat')
-                if lat.value == '0':
-                    tags.append(place)
-            except TagProps.DoesNotExist:
-                tags.append(place)
+        for location in locations:
+            if location.get_lat() is None or location.get_lat() == 0:
+                tags.append(location)
 
         print(len(tags))
         for tag in tags:
@@ -35,24 +31,23 @@ class Command(BaseCommand):
             params = {
                 'q': urllib.parse.quote_plus(tag.name.encode('utf-8')),
                 'username': settings.GEONAMES_USERNAME,
-                'maxRows': 5}
+                'maxRows': 20}
             if tag.get_prop('country'):
                 params['country'] = tag.get_prop('country')
 
-            url = 'http://api.geonames.org/searchJSON?' + \
-                urllib.parse.urlencode(params)
+            url = 'http://api.geonames.org/searchJSON?' + urllib.parse.urlencode(params)
 
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req)
             data_json = json.loads(response.read())
 
             if len(data_json['geonames']) > 0:
-                for i in range(0, 5):
+                for i in range(0, 20):
                     try:
                         print("%d : %s" % (i, data_json['geonames'][i]))
                     except (IndexError, KeyError):
                         pass
-                accept = input("Accept this? [0-4/Ignore/No]")
+                accept = input("Accept this? [0-19/Ignore/No]")
 
                 if accept == 'i':
                     print('ignoring')
