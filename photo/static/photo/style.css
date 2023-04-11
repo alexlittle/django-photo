@@ -227,3 +227,10 @@ div.photo {
 	color: #04689a;
 	font-size: 25pt;
 }
+
+.clearfix {
+	clear:both; 
+	float: none;
+	content: "";
+  	display: table;
+}

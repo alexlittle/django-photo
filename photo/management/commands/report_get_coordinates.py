@@ -19,15 +19,15 @@ class Command(BaseCommand):
 
         tags = []
         for location in locations:
-            if location.get_lat() is None or location.get_lat() == 0:
+            if location.get_lat() is None or location.get_lat() == "0":
                 tags.append(location)
 
         print(len(tags))
         for tag in tags:
             print("--------------------")
             print(tag.name)
-            print("Edit: %sadmin/photo/tag/%d/change/" % (settings.DOMAIN_NAME, tag.id))
-            print("Photos: %stag/%s" % (settings.DOMAIN_NAME, tag.slug))
+            print("Edit: %s/admin/photo/tag/%d/change/" % (settings.DOMAIN_NAME, tag.id))
+            print("Photos: %s/tag/%s" % (settings.DOMAIN_NAME, tag.slug))
             params = {
                 'q': urllib.parse.quote_plus(tag.name.encode('utf-8')),
                 'username': settings.GEONAMES_USERNAME,
@@ -44,7 +44,10 @@ class Command(BaseCommand):
             if len(data_json['geonames']) > 0:
                 for i in range(0, 20):
                     try:
-                        print("%d : %s" % (i, data_json['geonames'][i]))
+                        print("%d : %s, %s, %s, %s" % (i, data_json['geonames'][i]['toponymName'],
+                                                   data_json['geonames'][i]['name'],
+                                                   data_json['geonames'][i]['adminName1'],
+                                                   data_json['geonames'][i]['countryCode']))
                     except (IndexError, KeyError):
                         pass
                 accept = input("Accept this? [0-19/Ignore/No]")
@@ -58,6 +61,10 @@ class Command(BaseCommand):
                     print('accepted')
                     lat = data_json['geonames'][idx]['lat']
                     lng = data_json['geonames'][idx]['lng']
+                    country_code = data_json['geonames'][idx]['countryCode']
+                    cc_obj, created = TagProps.objects.get_or_create(tag=tag, name='country')
+                    cc_obj.value = country_code
+                    cc_obj.save()
                     lat_obj, created = TagProps.objects.get_or_create(tag=tag, name='lat')
                     lat_obj.value = lat
                     lat_obj.save()

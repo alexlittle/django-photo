@@ -43,3 +43,9 @@ class Command(BaseCommand):
 
         # remove unused tags
         call_command('integrity_remove_unused_tags')
+        
+        # locations without coordinates
+        call_command('report_missing_coordinates')
+        
+        # locations without country
+        call_command('report_missing_country')

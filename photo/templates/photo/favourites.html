@@ -10,27 +10,14 @@
 {% block content %}
     <h2>{% trans 'Favourites' %}</h2>
 
-
-	{% if page.has_previous or page.has_next %}
-           <div>
-               {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-               |
-               {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-           </div>
-       {% endif %}
+	{% include 'includes/pagination.html' %}
        
-       {% for p in page.object_list %}
-       		{% include 'photo/includes/photo.html' %}
-       {% empty %}
-           <p>No results found.</p>
-       {% endfor %}
+    {% for p in page.object_list %}
+    		{% include 'photo/includes/photo.html' %}
+    {% empty %}
+        <p>No results found.</p>
+    {% endfor %}
 
-       {% if page.has_previous or page.has_next %}
-           <div style="clear:both;">
-               {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
-               |
-               {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next &raquo;{% if page.has_next %}</a>{% endif %}
-           </div>
-       {% endif %}
+    {% include 'includes/pagination.html' %}
 
 {% endblock %}
