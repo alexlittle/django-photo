@@ -14,14 +14,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         
-        tags = Tag.objects.filter(tagcategory__name="Location")       
+        tags = Tag.objects.filter(tagcategory__name="Location")
         
-        print("Missing coordinates")
+        print("Missing sources")
         print("---------------------------------------")
         
         counter = 0
         for t in tags:
-            if t.get_lat() is None or t.get_lat() == "0":
+            if t.get_prop("source") is None or t.get_prop("source") == "":
                 counter += 1
                 print("%d %s - %s%s" % (counter,
                                         t.name,
@@ -30,11 +30,10 @@ class Command(BaseCommand):
                                                 args=(t.id, ))))
                 print("     %s%s" % (settings.DOMAIN_NAME, reverse('photo_tag_slug',
                                                 args=(t.slug,))))
-         
-        if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
-        else:
-            print("---------------------------------------")
-            print("%s%d missing coordinates%s" % (bcolors.WARNING, counter, bcolors.ENDC))
-        print("---------------------------------------")       
-        
+                
+                accept = input("Enter source [0 to ignore]")
+                
+                if accept != '0':
+                    cc_obj, created = TagProps.objects.get_or_create(tag=t, name='source')
+                    cc_obj.value = accept
+                    cc_obj.save()

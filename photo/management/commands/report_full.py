@@ -49,3 +49,6 @@ class Command(BaseCommand):
         
         # locations without country
         call_command('report_missing_country')
+        
+        # locations without source
+        call_command('report_missing_source')

@@ -6,13 +6,19 @@ from django.urls import reverse
 
 from photo.models import Tag, TagCategory, TagProps
 
+from . import bcolors
+
+
 class Command(BaseCommand):
     help = ""
 
     def handle(self, *args, **options):
         
         tags = Tag.objects.filter(tagcategory__name="Location")
-              
+        
+        print("Missing countries")
+        print("---------------------------------------")
+        
         counter = 0
         for t in tags:
             if t.get_prop("country") is None or t.get_prop("country") == "":
