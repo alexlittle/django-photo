@@ -92,7 +92,7 @@ def tag_slug_view(request, slug):
         photos = paginator.page(paginator.num_pages)
 
     return render(request, 'photo/tag.html',
-                  {'title': tag.name,
+                  {'tag': tag,
                    'page': photos,
                    'photos_checked': photos_checked})
 
