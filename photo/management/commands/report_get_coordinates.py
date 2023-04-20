@@ -45,9 +45,9 @@ class Command(BaseCommand):
                 for i in range(0, 20):
                     try:
                         print("%d : %s, %s, %s, %s" % (i, data_json['geonames'][i]['toponymName'],
-                                                   data_json['geonames'][i]['name'],
-                                                   data_json['geonames'][i]['adminName1'],
-                                                   data_json['geonames'][i]['countryCode']))
+                                                       data_json['geonames'][i]['name'],
+                                                       data_json['geonames'][i]['adminName1'],
+                                                       data_json['geonames'][i]['countryCode']))
                     except (IndexError, KeyError):
                         pass
                 accept = input("Accept this? [0-19/Ignore/No]")

@@ -192,7 +192,7 @@ def scan_folder(request):
             default_date = form.cleaned_data.get("default_date")
             directory = form.cleaned_data.get("directory")
             if not directory.endswith('/'):
-                directory = directory + '/'    
+                directory = directory + '/'
             album = upload_album(directory, default_tags, default_date)
             return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id}))
     else:
