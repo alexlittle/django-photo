@@ -109,6 +109,9 @@ class Tag (models.Model):
         except TagProps.DoesNotExist:
             return None
 
+    def get_props(self):
+        return TagProps.objects.filter(tag=self)
+        
     def get_lat(self):
         return self.get_prop('lat')
 
@@ -156,6 +159,9 @@ class Photo (models.Model):
             pp.save()
         return True
 
+    def get_props(self):
+        return PhotoProps.objects.filter(photo=self)
+    
     def get_tags(self, separator):
         tags = Tag.objects.filter(
             phototag__photo=self).values_list('name', flat=True)

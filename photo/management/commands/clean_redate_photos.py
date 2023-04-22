@@ -47,8 +47,7 @@ class Command(BaseCommand):
                     elif 'DateTime' in exif_tags:
                         exif_date = exif_tags['DateTime']
                     naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
-                    photo.date = pytz.timezone("Europe/London") \
-                        .localize(naive, is_dst=None)
+                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
                     photo.save()
                     print("updated: " + photo.file)
                 except KeyError:

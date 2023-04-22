@@ -4,4 +4,13 @@
 
 {% for tag in object.tags.all %}
 	{{ tag.name }}
+	
+	{% for tp in tag.get_props %}
+		{{ tp.name }} {{ tp.value }}
+	{% endfor %}
 {% endfor %}
+
+{% for pp in object.get_props %}
+	{{ pp.value }}
+{% endfor %}
+
