@@ -7,7 +7,7 @@ from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCach
 
 
 class AlbumAdmin(admin.ModelAdmin):
-    list_display = ('name', 'view_url', 'count', 'title', 'date_display', 'slug')
+    list_display = ('name', 'view_url', 'count', 'title', 'date_display')
     search_fields = ['name', 'title', 'date_display']
 
     def view_url(self, obj):
@@ -115,7 +115,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class TagCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name', 'slug')
     search_fields = ['name']
 
 

@@ -3,7 +3,6 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import photo.fields
 import photo.models
 
 
@@ -21,12 +20,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('slug', photo.fields.AutoSlugField(blank=True,
-                                                    editable=False,
-                                                    max_length=200,
-                                                    null=True,
-                                                    populate_from='name',
-                                                    unique=True)),
+                ('slug', models.SlugField(default=django.utils.timezone.now)),
                 ('title', models.TextField(blank=True, null=True)),
                 ('date_display', models.TextField(blank=True, null=True)),
                 ('created_date', models.DateTimeField(
@@ -44,12 +38,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('file', models.TextField()),
-                ('slug', photo.fields.AutoSlugField(blank=True,
-                                                    editable=False,
-                                                    max_length=100,
-                                                    null=True,
-                                                    populate_from='file',
-                                                    unique=True)),
+                ('slug', models.SlugField(default=django.utils.timezone.now)),
                 ('date', models.DateTimeField(
                     default=django.utils.timezone.now)),
                 ('title', models.TextField(blank=True, null=True)),
@@ -102,12 +91,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
-                ('slug', photo.fields.AutoSlugField(blank=True,
-                                                    editable=False,
-                                                    max_length=100,
-                                                    null=True,
-                                                    populate_from='name',
-                                                    unique=True)),
+                ('slug', models.SlugField(default=django.utils.timezone.now)),
                 ('created_date', models.DateTimeField(
                     default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),
@@ -124,9 +108,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=20)),
-                ('slug', photo.fields.AutoSlugField(blank=True, editable=False,
-                 max_length=100, null=True, populate_from='name',
-                 unique=True)),
+                ('slug', models.SlugField(default=django.utils.timezone.now)),
                 ('created_date', models.DateTimeField(
                     default=django.utils.timezone.now)),
                 ('updated_date', models.DateTimeField(auto_now=True)),

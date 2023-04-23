@@ -9,19 +9,16 @@ from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from io import BytesIO
 
 from PIL import Image
 
-from photo.fields import AutoSlugField
-
 
 class Album (models.Model):
     name = models.TextField(blank=False, null=False)
-    slug = AutoSlugField(populate_from='name',
-                         max_length=200, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     date_display = models.TextField(blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
@@ -72,8 +69,7 @@ class Album (models.Model):
 
 class TagCategory(models.Model):
     name = models.CharField(max_length=20, blank=False, null=False)
-    slug = AutoSlugField(populate_from='name',
-                         max_length=100, blank=True, null=True)
+    slug = models.SlugField()
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
 
@@ -83,12 +79,16 @@ class TagCategory(models.Model):
     class Meta:
         verbose_name = _('Tag Category')
         verbose_name_plural = _('Tag Categories')
+        
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify(self.name)
+        super(TagCategory, self).save(*args, **kwargs)
 
 
 class Tag (models.Model):
     name = models.TextField(blank=False, null=False)
-    slug = AutoSlugField(populate_from='name',
-                         max_length=100, blank=True, null=True)
+    slug = models.SlugField()
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
     tagcategory = models.ForeignKey(
@@ -101,6 +101,11 @@ class Tag (models.Model):
         verbose_name = _('Tag')
         verbose_name_plural = _('Tags')
         ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify(self.name)
+        super(Tag, self).save(*args, **kwargs)
 
     def get_prop(self, property):
         try:
@@ -124,8 +129,6 @@ class Tag (models.Model):
 
 class Photo (models.Model):
     file = models.CharField(max_length=250, blank=False, null=False, unique=True)
-    slug = AutoSlugField(populate_from='file',
-                         max_length=100, blank=True, null=True)
     date = models.DateTimeField(default=timezone.now)
     title = models.TextField(blank=True, null=True)
     album = models.ForeignKey(Album, on_delete=models.CASCADE)

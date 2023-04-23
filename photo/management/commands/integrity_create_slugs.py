@@ -20,13 +20,3 @@ class Command(BaseCommand):
         for t in tags:
             print(t.name)
             t.save()
-
-        albums = Album.objects.filter(slug=None)
-        for a in albums:
-            print(a.name)
-            a.save()
-
-        photos = Photo.objects.filter(slug=None)
-        for p in photos:
-            print(p.file)
-            p.save()
