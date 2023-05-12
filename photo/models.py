@@ -79,7 +79,7 @@ class TagCategory(models.Model):
     class Meta:
         verbose_name = _('Tag Category')
         verbose_name_plural = _('Tag Categories')
-        
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify(self.name)
@@ -116,7 +116,7 @@ class Tag (models.Model):
 
     def get_props(self):
         return TagProps.objects.filter(tag=self)
-        
+
     def get_lat(self):
         return self.get_prop('lat')
 
@@ -164,7 +164,7 @@ class Photo (models.Model):
 
     def get_props(self):
         return PhotoProps.objects.filter(photo=self)
-    
+
     def get_tags(self, separator):
         tags = Tag.objects.filter(
             phototag__photo=self).values_list('name', flat=True)
