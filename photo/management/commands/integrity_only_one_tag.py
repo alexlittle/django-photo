@@ -25,7 +25,7 @@ class Command(BaseCommand):
             for photo in photos:
                 tag_count = PhotoTag.objects.filter(photo=photo).count()
                 if tag_count < 2:
-                    print("%s%s - %sphoto/edit/%d" % (album.name, photo.file, settings.DOMAIN_NAME, photo.id))
+                    print("%s%s - %s/photo/edit/%d" % (album.name, photo.file, settings.DOMAIN_NAME, photo.id))
                     counter += 1
 
         if counter == 0:
