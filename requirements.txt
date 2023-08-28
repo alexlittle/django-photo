@@ -5,7 +5,7 @@ Pillow==9.5.0
 django-haystack==3.2.1
 pysolr==3.9.0
 django-autoslug==1.9.9
-reportlab==3.6.12
+reportlab==3.6.13
 pytz
 piexif
 mysqlclient==2.2.0
