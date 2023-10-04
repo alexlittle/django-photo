@@ -160,8 +160,12 @@ def photo_view(request, photo_id):
     photo = Photo.objects.get(pk=photo_id)
     image = settings.PHOTO_ROOT + photo.album.name + photo.file
     im = Image.open(image)
-    response = HttpResponse(content_type="image/jpg")
-    im.save(response, "JPEG")
+    try:
+        response = HttpResponse(content_type="image/jpg")
+        im.save(response, "JPEG")
+    except OSError:
+        response = HttpResponse(content_type="image/png")
+        im.save(response, "PNG")
     return response
 
 
