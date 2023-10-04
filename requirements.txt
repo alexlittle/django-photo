@@ -1,11 +1,11 @@
-django==4.2.3
+django==4.2.5
 django-crispy-forms==2.0
 crispy-bootstrap4
-Pillow==9.5.0
+Pillow==10.0.1
 django-haystack==3.2.1
 pysolr==3.9.0
 django-autoslug==1.9.9
-reportlab==3.6.13
+reportlab==4.0.5
 pytz
 piexif
 mysqlclient==2.2.0

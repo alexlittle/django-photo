@@ -188,7 +188,7 @@ class Photo (models.Model):
                     exif_bytes = None
                     print("No exif data for %s" % image)
 
-                im.thumbnail((int(max_size), int(max_size)), Image.ANTIALIAS)
+                im.thumbnail((int(max_size), int(max_size)), Image.LANCZOS)
                 buffer = BytesIO()
                 if exif_bytes:
                     im.save(fp=buffer, format='JPEG', dpi=(600, 600), exif=exif_bytes)
