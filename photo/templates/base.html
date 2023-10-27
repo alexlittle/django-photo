@@ -10,18 +10,16 @@
 	<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
 
-    <link rel="stylesheet" href="{% static 'includes/bootstrap-4.6.2.min.css' %}"/>
-    <link rel="shortcut icon" href="{% static 'photo/images/favicon.ico' %}"/>	
+    <link rel="stylesheet" href="{% static 'includes/bootstrap-5.3.2-dist/css/bootstrap.min.css' %}"/>
+    <script src="{% static 'includes/bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
 
-	<script src="{% static 'includes/jquery-3.5.1.slim.min.js' %}"></script>
-	<script src="{% static 'includes/bootstrap-4.6.2.bundle.min.js' %}"></script>
+    <script src="{% static 'includes/jquery-3.7.1.min.js' %}"></script>
 
     <script src="{% static 'photo/functions.js' %}"></script>
     <link href="{% static 'photo/style.css' %}" rel="stylesheet"/>
-    
-    <script src="{% static 'includes/ekko-lightbox-5.3.0.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'includes/ekko-lightbox-5.3.0.css' %}"/>
+
     
     {% block extra_styles %}
     {% endblock extra_styles %}
@@ -41,6 +39,7 @@
 	{% endblock content %}
 </div>
 
+<script src="{% static 'includes/bs5-lightbox-1.8.3/index.bundle.min.js' %}"></script>
 </body>
 </html>
 

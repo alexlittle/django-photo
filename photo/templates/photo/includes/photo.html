@@ -13,9 +13,9 @@
 	<small><a href="{% url 'photo_view' p.id %}" target="_blank">{{ p.file }}</a></small><br/>
 	<small>{{ p.date }}</small><br/>
 	{% if p|get_photo_prop:'favourite' == 'true' %} 
-		<a href="{% url 'photo_unstar' p.id %}" class="fav-star" >&#x2B51;</a>
+		<a href="{% url 'photo_unstar' p.id %}" class="fav-star-selected">*</a>
 	{% else %}
-		<a href="{% url 'photo_star' p.id %}" class="fav-star" >&#x2B50;</a>
+		<a href="{% url 'photo_star' p.id %}" class="fav-star-unselected">*</a>
 	{% endif %}
 	{% for pt in p.tags.all %}
 		<a href="{% url 'photo_tag_slug' pt.slug %}" class="tag">{{ pt.name }}</a>

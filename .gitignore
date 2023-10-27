@@ -11,3 +11,4 @@
 /uwsgi.sock
 /static/
 /env/
+/.idea/
