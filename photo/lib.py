@@ -72,5 +72,3 @@ def rewrite_exif(photo):
         with Image.open(photo_path, 'r') as image:
             if image.format == "JPEG":
                 image.save(photo_path, "jpeg", quality=100, exif=exif_bytes)
-            else:
-                print("Image is not a jpeg file")

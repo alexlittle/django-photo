@@ -188,19 +188,26 @@ class Photo (models.Model):
                     exif_bytes = None
                     print("No exif data for %s" % image)
 
+                if self.file.lower().endswith(".png"):
+                    format = "PNG"
+                    content_type = "image/png"
+                else:
+                    format = "JPEG"
+                    content_type = "image/jpeg"
+
                 im.thumbnail((int(max_size), int(max_size)), Image.LANCZOS)
                 buffer = BytesIO()
                 if exif_bytes:
-                    im.save(fp=buffer, format='JPEG', dpi=(600, 600), exif=exif_bytes)
+                    im.save(fp=buffer, format=format, dpi=(600, 600), exif=exif_bytes)
                 else:
-                    im.save(fp=buffer, format='JPEG', dpi=(600, 600))
+                    im.save(fp=buffer, format=format, dpi=(600, 600))
                 pillow_image = ContentFile(buffer.getvalue())
                 file_name = hashlib.md5(buffer.getvalue()).hexdigest()
                 thumb = ThumbnailCache(size=max_size,
                                        photo=self,
                                        image=InMemoryUploadedFile(
                                             pillow_image, None, file_name,
-                                            'image/jpeg', pillow_image.tell,
+                                            content_type, pillow_image.tell,
                                             None)
                                        )
                 thumb.save()
