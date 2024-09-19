@@ -76,8 +76,12 @@ def album_view(request, album_id):
 
 
 def tag_slug_view(request, slug):
-    tag = Tag.objects.get(slug=slug)
-    photos = Photo.objects.filter(phototag__tag=tag).order_by('date')
+    slug_list = slug.split('+')
+    tags = Tag.objects.filter(slug__in=slug_list)
+    photos = Photo.objects.filter(phototag__tag__slug__in=slug_list) \
+                .annotate(count=Count('id')) \
+                .filter(count=len(slug_list)) \
+                .order_by('date')
     photos_checked = request.GET.getlist('photo_id', [])
 
     paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
@@ -92,7 +96,7 @@ def tag_slug_view(request, slug):
         photos = paginator.page(paginator.num_pages)
 
     return render(request, 'photo/tag.html',
-                  {'tag': tag,
+                  {'tags': tags,
                    'page': photos,
                    'photos_checked': photos_checked})
 
@@ -137,7 +141,6 @@ def search_view(request):
     form = SearchForm(initial=data)
 
     paginator = Paginator(search_results, settings.PHOTOS_PER_PAGE)
-    # Make sure page request is an int. If not, deliver first page.
     try:
         page = int(request.GET.get('page', '1'))
     except ValueError:
@@ -172,7 +175,6 @@ def photo_view(request, photo_id):
 def photo_favourites_view(request):
     photos = Photo.objects.filter(photoprops__name='favourite', photoprops__value='true').order_by('-date')
     paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
-    # Make sure page request is an int. If not, deliver first page.
     try:
         page = int(request.GET.get('page', '1'))
     except ValueError:

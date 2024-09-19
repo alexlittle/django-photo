@@ -3,15 +3,19 @@
 {% load thumbnail %}
 
 {% block extra_head_title %}
-{{ tag.name }}
+{% for t in tags %}
+{{ t.name }}
+{% endfor %}
 {% endblock extra_head_title %}
 
 
 {% block content %}
 
-<h2>{{ tag.name }}</h2>
+<h2>{% for t in tags %}{{ t.name }}&nbsp;{% endfor %}</h2>
 
-[<a href="{% url 'admin:photo_tag_change' tag.id %}">{% trans 'Edit tag' %}</a>]
+[{% for t in tags %}
+<a href="{% url 'admin:photo_tag_change' t.id %}">{% trans 'Edit' %} {{t.name}}</a>
+{% endfor %}]
 
 <form method="get" action="{% url 'photo_update_tags' %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
