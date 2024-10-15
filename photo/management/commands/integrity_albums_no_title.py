@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
         counter = 0
         for a in albums:
-            print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo_album', args=(a.id,))))
+            print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo:album', args=(a.id,))))
             counter += 1
 
         if counter == 0:

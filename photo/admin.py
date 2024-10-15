@@ -11,7 +11,7 @@ class AlbumAdmin(admin.ModelAdmin):
     search_fields = ['name', 'title', 'date_display']
 
     def view_url(self, obj):
-        return format_html("<a href="+reverse('photo_album', args={obj.id}) + ">View</a>")
+        return format_html("<a href="+reverse('photo:album', args={obj.id}) + ">View</a>")
 
     def count(self, obj):
         return Photo.objects.filter(album=obj).count()
@@ -36,7 +36,7 @@ class PhotoAdmin(admin.ModelAdmin):
 
     def thumbnail(self, obj):
         return format_html("<a target='_blank' href='{}'><img src='{}'/></a>"
-                           .format(reverse('photo_view', args={obj.id}), obj.get_thumbnail(150)))
+                           .format(reverse('photo:view', args={obj.id}), obj.get_thumbnail(150)))
 
     def rename_file(self, request, queryset):
         for photo in queryset:

@@ -1,0 +1,2 @@
+from photo.asynctasks.upload_album import UploadAlbum
+from photo.asynctasks.face_detection import FaceDetection

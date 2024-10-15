@@ -7,15 +7,16 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   
-  <a class="navbar-brand" href="{% url 'photo_home' %}">{% trans 'Photo Database' %}</a>
+  <a class="navbar-brand" href="{% url 'photo:home' %}">{% trans 'Photo Database' %}</a>
   <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
     <ul class="navbar-nav nav-pills nav-fill btn-group">
-		<li><a href="{% url 'photo_favourites' %}" class="nav-link">{% trans 'Favourites' %}</a></li>
-		<li><a href="{% url 'photo_search' %}" class="nav-link">{% trans 'Search' %}</a></li>
-		<li><a href="{% url 'photo_cloud' %}" class="nav-link">{% trans 'Cloud' %}</a></li>
-		<li><a href="{% url 'photo_map' %}" class="nav-link">{% trans 'Map' %}</a></li>
+		<li><a href="{% url 'photo:favourites' %}" class="nav-link">{% trans 'Favourites' %}</a></li>
+		<li><a href="{% url 'photo:search' %}" class="nav-link">{% trans 'Search' %}</a></li>
+		<li><a href="{% url 'photo:cloud' %}" class="nav-link">{% trans 'Cloud' %}</a></li>
+		<li><a href="{% url 'photo:map' %}" class="nav-link">{% trans 'Map' %}</a></li>
 		<li><a href="{% url 'admin:index' %}" class="nav-link">{% trans 'Admin' %}</a></li>
-	    <li><a href="{% url 'photo_scan' %}" class="nav-link">{% trans 'Scan Folder' %}</a></li>
+	    <li><a href="{% url 'photo:scan' %}" class="nav-link">{% trans 'Scan Folder' %}</a></li>
+        <li><a href="{% url 'photo:scan_folder_async' %}" class="nav-link">{% trans 'Async' %}</a></li>
     </ul>
   </div>
   </div>

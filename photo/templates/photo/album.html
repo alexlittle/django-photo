@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load admin_urls %}
 {% load i18n %}
 {% load thumbnail %}
@@ -8,9 +9,12 @@
 {% endblock extra_head_title %}
 
 
-{% block extra_scripts %}
-
-{% endblock extra_scripts %} 
+ {% block extra_scripts %}
+	<!-- Celery Progress -->
+	<script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+	<script type="text/javascript">
+	</script>
+{% endblock extra_scripts %}
 
 {% block extra_styles %}
 {% endblock extra_styles %}
@@ -26,13 +30,39 @@
 <p>
 	{{ photo_count }} {% trans 'photos' %} - 
  	<a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'Edit' %}</a> |
-	<a href="{% url 'photo_album_exif' album.id %}">{% trans 'Rewrite Exif' %}</a>
+	<a href="{% url 'photo:album_exif' album.id %}">{% trans 'Rewrite Exif' %}</a> |
+	<a href="?detect=true">{% trans 'Detect faces' %}</a>
 </p>
 
-<form method="get" action="{% url 'photo_update_tags' %}">
+{% if task_id %}
+<div id="face-detect-progress" class="container" style="padding-top: 20px;">
+	<div class="card" style="height: 120px;">
+        <div class="text-center" style="font-size: 14px">
+            <div id="progress-bar-message">
+            Waiting for upload
+            </div>
+        </div>
+        <div class='progress-wrapper' style="padding-top: 10px;">
+          <div id='progress-bar' class='progress-bar progress-bar-striped' role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
+        </div>
+        <div id="celery-result">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+	// Progress Bar (JQuery)
+	$(function () {
+		var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+		CeleryProgressBar.initProgressBar(progressUrl, {})
+	});
+</script>
+{% endif %}
+
+<form method="get" action="{% url 'photo:update_tags' %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
 <input type="button" value="{% trans 'Select all' %}" onclick="selectall()"/>
 <input type="button" value="{% trans 'Select none' %}" onclick="selectnone()"/>
+
 <input type="hidden" value="{{ request.path }}" name="next"/>
 
 {% include 'includes/pagination.html' %}

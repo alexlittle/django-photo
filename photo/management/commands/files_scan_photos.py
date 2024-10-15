@@ -10,7 +10,6 @@ from django.conf import settings
 
 from photo.lib import ignore_file
 from photo.models import Photo
-from photo.views import upload_album
 
 from . import bcolors
 
@@ -101,13 +100,6 @@ class Command(BaseCommand):
                 print("%s%d photos with multiple database entries%s" % (bcolors.WARNING, len(dups), bcolors.ENDC))
                 print(dups)
             print("---------------------------------------")
-
-            if options['autoadd']:
-                for folder in folders_to_add:
-                    print(folder)
-                    default_tags = input("Enter the default tags...")
-                    print(default_tags)
-                    upload_album(folder, default_tags, timezone.now())
 
         # Scan albums in DB to ensure they all exist on file
         if options['db']:

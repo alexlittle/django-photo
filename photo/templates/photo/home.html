@@ -12,7 +12,7 @@
 <h1>Photo Database Home</h1>
 
 {% for y in years %}
-	<a href="{% url 'photo_tag_slug' y.slug %}">{{ y.name }}</a>
+	<a href="{% url 'photo:tag_slug' y.slug %}">{{ y.name }}</a>
 {% endfor %}
 
 {% include 'includes/pagination.html' %}
@@ -33,10 +33,10 @@
 		<td><b>{{ a.title }}</b><br/>
 			{{ a.date_display }} <br/>
 			<a href="{% url 'admin:photo_album_change' a.id %}" target="_blank">{% trans 'Edit' %}</a>
-			| <a href="{% url 'photo_export_pdf' a.id %}" target="_blank">{% trans 'Export PDF' %}</a><br/>
+			| <a href="{% url 'photo:export_pdf' a.id %}" target="_blank">{% trans 'Export PDF' %}</a><br/>
 			{{ a.get_count }} photos
 		</td>
-		<td><a href="{% url 'photo_album' a.id %}">{{ a.name }}</a></td>
+		<td><a href="{% url 'photo:album' a.id %}">{{ a.name }}</a></td>
 	</tr>
 {% endfor %}
 	</table>

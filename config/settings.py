@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'crispy_forms',
     'haystack',
+    'celery',
+    'celery_progress',
     'photo',
     'crispy_bootstrap4'
 ]
@@ -173,6 +175,11 @@ DATABASES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 ######################################################################
+
+
+# Celery Settings
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 SESSION_COOKIE_NAME = "photo"
 

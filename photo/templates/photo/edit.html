@@ -21,7 +21,7 @@
 {% block content %}
 <h1>{{ title }}</h1>
 
-<a href="{% url 'photo_album' photo.album.id %}">{{ photo.album.name }}</a><br/>
+<a href="{% url 'photo:album' photo.album.id %}">{{ photo.album.name }}</a><br/>
 <img src="{{ photo|get_thumbnail:500 }}" class="img-thumbnail" alt="{{ photo.file }}" title="{{ photo.file }}"/>
 <br/>{{ photo.file }}
 

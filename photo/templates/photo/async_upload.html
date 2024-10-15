@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+ {% block extra_scripts %}
+		<!-- Celery Progress -->
+		<script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+{% endblock extra_scripts %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+{% crispy form %}
+
+<div class="container" style="padding-top: 20px;">
+	<div class="card" style="height: 120px;">
+        <div class="text-center" style="font-size: 14px">
+            <div id="progress-bar-message">
+            Waiting for upload
+            </div>
+        </div>
+        <div class='progress-wrapper' style="padding-top: 10px;">
+          <div id='progress-bar' class='progress-bar progress-bar-striped' role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
+        </div>
+        <div id="celery-result">
+        </div>
+    </div>
+</div>
+
+{% if task_id %}
+<script type="text/javascript">
+	// Progress Bar (JQuery)
+	$(function () {
+		var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+		CeleryProgressBar.initProgressBar(progressUrl, {})
+	});
+</script>
+{% endif %}
+{% endblock content %}
+

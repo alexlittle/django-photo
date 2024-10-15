@@ -27,7 +27,7 @@ class Command(BaseCommand):
                                         settings.DOMAIN_NAME,
                                         reverse('admin:photo_tag_change',
                                                 args=(t.id, ))))
-                print("     %s%s" % (settings.DOMAIN_NAME, reverse('photo_tag_slug', args=(t.slug,))))
+                print("     %s%s" % (settings.DOMAIN_NAME, reverse('photo:tag_slug', args=(t.slug,))))
 
         if counter == 0:
             print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
