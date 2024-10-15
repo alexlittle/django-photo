@@ -1,21 +1,21 @@
 
-import glob
 import os
-import pytz
-import re
 import json
+from io import StringIO
 
 from PIL import Image, ImageDraw
-from PIL.ExifTags import TAGS
+
 
 from django.conf import settings
+from django.core import management
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse
 from django.db.models import Max, Count
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from django.utils.dateparse import parse_datetime
+
+
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
@@ -24,7 +24,7 @@ from haystack.query import SearchQuerySet
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
 from photo.lib import rewrite_exif, add_tags
 from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
-
+from photo.management.commands import upload_album
 
 def home_view(request):
     albums = Album.objects.all().annotate(max_date=Max('photo__date')).order_by('-max_date')
@@ -215,8 +215,16 @@ def scan_folder(request):
             directory = form.cleaned_data.get("directory")
             if not directory.endswith('/'):
                 directory = directory + '/'
-            album = upload_album(directory, default_tags, default_date)
-            return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album.id}))
+            out = StringIO()
+            management.call_command('upload_album',
+                                    directory=directory,
+                                    defaulttags=default_tags,
+                                    defaultdate=default_date,
+                                    stdout=out)
+            album_id = int(out.getvalue())
+            management.call_command('face_detection',
+                                    album=album_id)
+            return HttpResponseRedirect(reverse('photo_album', kwargs={'album_id': album_id}))
     else:
         data = {}
         data['default_date'] = timezone.now()
@@ -341,70 +349,6 @@ def photo_update_tags(request):
                   {'form': form,
                    'title': _(u'Update Tags')})
 
-
-def get_exif(fn):
-    ret = {}
-    i = Image.open(fn)
-    info = i._getexif()
-    if info:
-        for tag, value in info.items():
-            decoded = TAGS.get(tag, tag)
-            ret[decoded] = value
-        return ret, True
-    else:
-        return None, False
-
-
-def upload_album(directory, default_tags, default_date):
-
-    # find if dir is already in locations
-    album, created = Album.objects.get_or_create(name=directory)
-
-    # get all the image files from dir
-    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JPG', '*.JPEG']
-
-    for img_ext in image_extensions:
-        image_files = glob.glob(settings.PHOTO_ROOT + directory + img_ext)
-        for im in image_files:
-
-            image_file_name = os.path.basename(im)
-            print(image_file_name)
-            # find if image exists
-            photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
-
-            # add all the tags
-            add_tags(photo, default_tags)
-
-            try:
-                exif_tags, result = get_exif(im)
-            except AttributeError:  # png files don't generally have exif data
-                result = False
-            if result:
-                try:
-                    exif_date = exif_tags['DateTimeOriginal']
-                    naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
-
-                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
-
-                    # add year and month tags
-                    year = photo.date.year
-                    tag, created = Tag.objects.get_or_create(name=year)
-                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
-
-                    month = photo.date.strftime("%B")
-                    tag, created = Tag.objects.get_or_create(name=month)
-                    photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
-
-                except (KeyError, AttributeError, ValueError):
-                    if created:
-                        photo.date = default_date
-
-            photo.save()
-
-            # create thumbnails
-            for size in settings.DEFAULT_THUMBNAIL_SIZES:
-                photo.get_thumbnail(size)
-    return album
 
 
 def album_exif(request, album_id):

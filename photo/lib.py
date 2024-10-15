@@ -3,10 +3,23 @@ import re
 import os
 
 from PIL import Image
-
+from PIL.ExifTags import TAGS
 from django.conf import settings
 
 from photo.models import Tag, PhotoTag
+
+
+def get_exif(fn):
+    ret = {}
+    i = Image.open(fn)
+    info = i._getexif()
+    if info:
+        for tag, value in info.items():
+            decoded = TAGS.get(tag, tag)
+            ret[decoded] = value
+        return ret, True
+    else:
+        return None, False
 
 
 def ignore_folder(dir):

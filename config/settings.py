@@ -182,6 +182,8 @@ IGNORE_FOLDERS = []
 PHOTOS_PER_PAGE = 400
 ALBUMS_PER_PAGE = 50
 
+IMAGE_EXTENSIONS = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JPG', '*.JPEG']
+
 try:
     from config.local_settings import *
 except ImportError:

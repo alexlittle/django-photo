@@ -14,7 +14,7 @@ from photo.models import Album, Photo
 
 
 class Command(BaseCommand):
-    help = "Exports album"
+    help = "Performs face detection on album"
 
     def collate_fn(self, x):
         return x[0]
