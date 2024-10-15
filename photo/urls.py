@@ -20,6 +20,8 @@ urlpatterns = [
     path('photo/unstar/<int:photo_id>', photo_views.photo_unstar_view, name="photo_unstar"),
     path('photo/favourites/', photo_views.photo_favourites_view, name="photo_favourites"),
 
+    path('photo/view/annotated/<int:photo_id>.jpg', photo_views.PhotoViewAnnotated.as_view(), name="photo_view_annotated"),
+
     path('photo/setcover/<int:photo_id>', photo_views.photo_set_cover, name="photo_set_cover"),
     path('album/updatetags/', photo_views.photo_update_tags, name="photo_update_tags"),
 

@@ -3,9 +3,9 @@ import glob
 import os
 import pytz
 import re
+import json
 
-
-from PIL import Image
+from PIL import Image, ImageDraw
 from PIL.ExifTags import TAGS
 
 from django.conf import settings
@@ -17,6 +17,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import TemplateView
 
 from haystack.query import SearchQuerySet
 
@@ -170,6 +171,21 @@ def photo_view(request, photo_id):
         response = HttpResponse(content_type="image/png")
         im.save(response, "PNG")
     return response
+
+
+class PhotoViewAnnotated(TemplateView):
+
+    def get(self, request, photo_id):
+        photo = Photo.objects.get(pk=photo_id)
+        image = settings.PHOTO_ROOT + photo.album.name + photo.file
+        im = Image.open(image)
+        draw = ImageDraw.Draw(im)
+        boxes = json.loads(photo.get_prop('face_annotate'))
+        for box in boxes:
+            draw.rectangle(box, width=5)
+        response = HttpResponse(content_type="image/jpg")
+        im.save(response, "JPEG")
+        return response
 
 
 def photo_favourites_view(request):

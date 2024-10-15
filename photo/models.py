@@ -219,6 +219,10 @@ class Photo (models.Model):
 
         return thumb.image.url
 
+    def get_face_count(self):
+        count = self.get_prop('face_count')
+        print(count)
+        return count
 
 @receiver(post_delete, sender=Photo)
 def photo_delete_file(sender, instance, **kwargs):
@@ -233,7 +237,7 @@ def photo_delete_file(sender, instance, **kwargs):
 class PhotoProps(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False, null=False)
-    value = models.CharField(max_length=100, blank=False, null=False)
+    value = models.TextField(blank=False, null=False)
 
     class Meta:
         verbose_name = _('Photo property')

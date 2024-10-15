@@ -33,6 +33,8 @@
 	{% else %}
 		<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}"/>	
 	{% endif %}
-	
-	
+
+	{% if p.get_face_count %}
+		<a target="_blank" href="{% url 'photo_view_annotated' p.id %}">faces: {{ p.get_face_count }}</a>
+	{% endif %}
 </div>
