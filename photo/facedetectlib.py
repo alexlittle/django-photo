@@ -6,7 +6,7 @@ from PIL import Image
 class ImageFolderCustom(Dataset):
 
     def __init__(self, targ_dir, transform=None):
-        self.paths = list(Path(targ_dir).glob("*.jpg"))
+        self.paths = list(Path(targ_dir).glob("*.[jJ][pP][gG]"))
         self.transform = transform
         self.classes = sorted(list(set(map(self.get_label, self.paths))))
 
