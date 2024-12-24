@@ -11,7 +11,7 @@
 
 <ol>
 {% for t in tags %}
-	<li><a href="{% url 'photo_tag_slug' t.slug %}">{{ t.name }}</a> ({{ t.count }})
+	<li><a href="{% url 'photo:tag_slug' t.slug %}">{{ t.name }}</a> ({{ t.count }})
 		- <a href="{% url 'admin:photo_tag_change' t.id %}">[{% trans 'edit' %}]</a>
 	</li>
 {% endfor %}

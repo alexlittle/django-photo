@@ -17,7 +17,7 @@
 <a href="{% url 'admin:photo_tag_change' t.id %}">{% trans 'Edit' %} {{t.name}}</a>
 {% endfor %}]
 
-<form method="get" action="{% url 'photo_update_tags' %}">
+<form method="get" action="{% url 'photo:update_tags' %}">
 <input type="submit" value="{% trans 'Update selected' %}"/>
 <input type="button" value="{% trans 'Select all' %}" onclick="selectall()"/>
 <input type="button" value="{% trans 'Select none' %}" onclick="selectnone()"/>

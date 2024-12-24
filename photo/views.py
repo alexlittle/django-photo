@@ -19,7 +19,7 @@ from django.utils import timezone
 
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 
 from haystack.query import SearchQuerySet
 
@@ -31,26 +31,20 @@ from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
 # Celery Task
 from photo.tasks import UploadAlbum
 
-def home_view(request):
-    albums = Album.objects.all().annotate(max_date=Max('photo__date')).order_by('-max_date')
-    years = Tag.objects.filter(tagcategory__slug='date')
 
-    paginator = Paginator(albums, settings.ALBUMS_PER_PAGE)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
+class HomeView(ListView):
 
-    try:
-        albums = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        albums = paginator.page(paginator.num_pages)
+    template_name = 'photo/home.html'
+    paginate_by = settings.ALBUMS_PER_PAGE
+    context_object_name = 'albums'
 
-    return render(request, 'photo/home.html',
-                  {'page': albums,
-                   'years': years,
-                   'total_albums': paginator.count, })
+    def get_queryset(self):
+        return Album.objects.all().annotate(max_date=Max('photo__date')).order_by('-max_date')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['years'] = Tag.objects.filter(tagcategory__slug='date')
+        return context
 
 class AlbumView(TemplateView):
 
@@ -237,8 +231,8 @@ def scan_folder(request):
                                     defaultdate=default_date,
                                     stdout=out)
             album_id = int(out.getvalue())
-            management.call_command('face_detection',
-                                    album=album_id)
+            #management.call_command('face_detection',
+            #                       album=album_id)
             return HttpResponseRedirect(reverse('photo:album', kwargs={'album_id': album_id}))
     else:
         data = {}

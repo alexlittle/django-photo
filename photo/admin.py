@@ -69,7 +69,7 @@ class TagAdmin(admin.ModelAdmin):
     ]
 
     def view_url(self, obj):
-        return format_html("<a href="+reverse('photo_tag_slug', args={obj.slug}) + ">View</a>")
+        return format_html("<a href="+reverse('photo:tag_slug', args={obj.slug}) + ">View</a>")
 
     view_url.short_description = "View"
 

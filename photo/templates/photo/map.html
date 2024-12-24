@@ -32,10 +32,10 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(photoMap);
 
 {% for tag in tags %}
-	{% if tag.get_lat %}
-		var marker = L.marker([{{ tag.get_lat }}, {{ tag.get_lng }}]).addTo(photoMap);
-		marker.bindPopup("<b>{{ tag.name }}</b><br><a href='{% url 'photo_tag_slug' tag.slug %}' target='_blank'>{% trans 'View photos' %} ({{ tag.get_photo_count }})</a><br><a href='{% url 'admin:photo_tag_change' tag.id %}' target='_blank'>{% trans 'Edit tag' %}</a>");
-	{% endif %}
+    {% if tag.get_lat %}
+        var marker = L.marker([{{ tag.get_lat }}, {{ tag.get_lng }}]).addTo(photoMap);
+        marker.bindPopup("<b>{{ tag.name }}</b><br><a href='{% url 'photo:tag_slug' tag.slug %}' target='_blank'>{% trans 'View photos' %} ({{ tag.get_photo_count }})</a><br><a href='{% url 'admin:photo_tag_change' tag.id %}' target='_blank'>{% trans 'Edit tag' %}</a>");
+    {% endif %}
 {% endfor %}
 </script>
 

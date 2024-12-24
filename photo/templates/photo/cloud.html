@@ -17,7 +17,7 @@
 </p>
 
 {% for t in tags %}
-	<a href="{% url 'photo_tag_slug' t.slug %}" class="tag">{{ t.name }}</a>
+	<a href="{% url 'photo:tag_slug' t.slug %}" class="tag">{{ t.name }}</a>
 {% endfor %}
 
 

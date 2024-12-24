@@ -29,7 +29,7 @@ class Command(BaseCommand):
             print("Edit: %s/admin/photo/tag/%d/change/" % (settings.DOMAIN_NAME, tag.id))
             print("Photos: %s/tag/%s" % (settings.DOMAIN_NAME, tag.slug))
             params = {
-                'q': urllib.parse.quote_plus(tag.name.encode('utf-8')),
+                'q': tag.name.encode('utf-8'),
                 'username': settings.GEONAMES_USERNAME,
                 'maxRows': 20}
             if tag.get_prop('country'):
@@ -37,6 +37,7 @@ class Command(BaseCommand):
 
             url = 'http://api.geonames.org/searchJSON?' + urllib.parse.urlencode(params)
 
+            print(url)
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req)
             data_json = json.loads(response.read())

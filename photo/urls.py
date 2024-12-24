@@ -6,7 +6,7 @@ from photo import views as p_views
 app_name = 'photo'
 
 urlpatterns = [
-    path('', p_views.home_view, name="home"),
+    path('', p_views.HomeView.as_view(), name="home"),
     path('map/', p_views.map_view, name="map"),
     path('scan/', p_views.scan_folder, name="scan"),
     path('cloud/', p_views.cloud_view, name="cloud"),

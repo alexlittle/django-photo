@@ -23,5 +23,5 @@ def tag_to_folder(request, slug):
     photos = Photo.objects.filter(phototag__tag=tag)
     for photo in photos:
         copy2(settings.PHOTO_ROOT + photo.album.name + photo.file, dest)
-    return HttpResponseRedirect(reverse('photo_tag_slug',
+    return HttpResponseRedirect(reverse('photo:tag_slug',
                                         kwargs={'slug': slug}))
