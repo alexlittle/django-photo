@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'crispy_forms',
-    'haystack',
     'celery',
     'celery_progress',
     'photo',

@@ -5,7 +5,7 @@ import piexif
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
-from django.db import models
+from django.db import models, connection
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
@@ -15,6 +15,34 @@ from django.utils.translation import gettext_lazy as _
 from io import BytesIO
 
 from PIL import Image
+
+
+class CombinedSearchManager(models.Manager):
+    def combined_search(self, query):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                   DISTINCT p.id
+                FROM
+                    photo_photo p
+                INNER JOIN photo_phototag pt ON p.id = pt.photo_id
+                INNER JOIN photo_tag t ON t.id = pt.tag_id
+                INNER JOIN photo_album a ON a.id = p.album_id
+                WHERE
+                    MATCH(p.file, p.title) AGAINST(%s IN NATURAL LANGUAGE MODE)
+                OR
+                    MATCH (t.name, t.slug) AGAINST (%s IN NATURAL LANGUAGE MODE)
+                OR
+                    MATCH (a.name, a.title, a.date_display) AGAINST (%s IN NATURAL LANGUAGE MODE)
+
+                ;
+            """, [query, query, query])
+
+            results = [{'id': row[0]} for row in cursor.fetchall()]
+        return results
+
+class CombinedSearch(models.Model):
+    objects = CombinedSearchManager()
 
 
 class Album (models.Model):
@@ -221,7 +249,6 @@ class Photo (models.Model):
 
     def get_face_count(self):
         count = self.get_prop('face_count')
-        print(count)
         return count
 
 @receiver(post_delete, sender=Photo)

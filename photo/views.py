@@ -21,12 +21,11 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, ListView
 
-from haystack.query import SearchQuerySet
 
 from photo.asynctasks.face_detection import FaceDetection
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
 from photo.lib import rewrite_exif, add_tags
-from photo.models import Album, Photo, PhotoTag, Tag, TagCategory
+from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch
 
 # Celery Task
 from photo.tasks import UploadAlbum
@@ -142,12 +141,14 @@ def search_view(request):
     search_query = request.GET.get('q', '')
 
     if search_query:
-        search_results = SearchQuerySet().filter(content=search_query)
+        search_id_results = CombinedSearch.objects.combined_search(search_query)
+        search_ids = [result['id'] for result in search_id_results]
     else:
-        search_results = []
+        search_ids = []
 
-    data = {}
-    data['q'] = search_query
+    search_results = Photo.objects.filter(pk__in=search_ids)
+
+    data = {'q': search_query}
     form = SearchForm(initial=data)
 
     paginator = Paginator(search_results, settings.PHOTOS_PER_PAGE)
