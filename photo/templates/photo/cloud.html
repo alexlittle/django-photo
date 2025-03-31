@@ -12,7 +12,7 @@
 
 <p>
 {% for c in categories %}
-	<a href="{% url 'photo_cloud_category' c.name %}" class="tag">{{ c.name }}</a>
+	<a href="{% url 'photo:cloud_category' c.name %}" class="tag">{{ c.name }}</a>
 {% endfor %}
 </p>
 

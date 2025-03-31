@@ -11,6 +11,9 @@ class Command(BaseCommand):
         # deep structure
         call_command('files_deep_structure', count=2)
 
+        # remove unused tags
+        call_command('integrity_remove_unused_tags')
+
         # Missing albums (not in db but on disk)
         call_command('files_scan_albums')
 
@@ -41,8 +44,6 @@ class Command(BaseCommand):
         # remove empty albums
         call_command('integrity_remove_empty_albums')
 
-        # remove unused tags
-        call_command('integrity_remove_unused_tags')
 
         # locations without coordinates
         call_command('report_missing_coordinates')
