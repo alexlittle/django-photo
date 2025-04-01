@@ -12,7 +12,7 @@
 
 	{% include 'includes/pagination.html' %}
        
-    {% for p in page.object_list %}
+    {% for p in photos %}
     		{% include 'photo/includes/photo.html' %}
     {% empty %}
         <p>No results found.</p>

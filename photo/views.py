@@ -10,7 +10,6 @@ from PIL import Image, ImageDraw
 
 from django.conf import settings
 from django.core import management
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.db.models import Max, Count
@@ -19,7 +18,7 @@ from django.utils import timezone
 
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, ListView, View
+from django.views.generic import TemplateView, ListView, View,FormView
 
 
 from photo.asynctasks.face_detection import FaceDetection
@@ -44,6 +43,7 @@ class HomeView(ListView):
         context = super().get_context_data(**kwargs)
         context['years'] = Tag.objects.filter(tagcategory__slug='date')
         return context
+
 
 class AlbumView(ListView):
     template_name = 'photo/album.html'
@@ -125,6 +125,7 @@ class MapView(TemplateView):
             'tags': tags
         })
         return context
+
 
 class CloudCategoryView(TemplateView):
     template_name = 'photo/cloud_category.html'
@@ -208,199 +209,231 @@ class PhotoViewAnnotated(View):
         return response
 
 
-def photo_favourites_view(request):
-    photos = Photo.objects.filter(photoprops__name='favourite', photoprops__value='true').order_by('-date')
-    paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
+class PhotoFavouritesView(ListView):
+    model = Photo
+    template_name = 'photo/favourites.html'
+    context_object_name = 'photos'
+    paginate_by = settings.PHOTOS_PER_PAGE
 
-    try:
-        photos_page = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        photos_page = paginator.page(paginator.num_pages)
-
-    return render(request, 'photo/favourites.html',
-                  {'page': photos_page})
+    def get_queryset(self):
+        return Photo.objects.filter(photoprops__name='favourite', photoprops__value='true').order_by('-date')
 
 
-def scan_folder(request):
+class ScanFolderView(FormView):
+    template_name = 'photo/scan.html'
+    form_class = ScanFolderForm
+    success_url = '/'  # Placeholder, to be updated dynamically
 
-    if request.method == 'POST':
-        form = ScanFolderForm(request.POST)
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['default_date'] = timezone.now()
+        initial['directory'] = '/' + str(timezone.now().year) + '/'
+        initial['default_tags'] = ''
+        return initial
+
+    def form_valid(self, form):
+        default_tags = form.cleaned_data.get("default_tags")
+        default_date = form.cleaned_data.get("default_date")
+        directory = form.cleaned_data.get("directory")
+        if not directory.endswith('/'):
+            directory = directory + '/'
+
+        out = StringIO()
+        management.call_command('upload_album',
+                                directory=directory,
+                                defaulttags=default_tags,
+                                defaultdate=default_date,
+                                stdout=out)
+        album_id = int(out.getvalue())
+
+        self.success_url = reverse('photo:album', kwargs={'album_id': album_id})
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form, title=_('Scan Folder')))
+
+
+class PhotoEditView(View):
+    template_name = 'photo/edit.html'
+    form_class = EditPhotoForm
+
+    def get(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
+        data = {
+            'tags': ", ".join(tags),
+            'title': photo.title,
+            'date': photo.date,
+        }
+        form = self.form_class(initial=data)
+        context = {
+            'form': form,
+            'title': _(u'Edit Photo'),
+            'photo': photo,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        form = self.form_class(request.POST)
+
         if form.is_valid():
-            default_tags = form.cleaned_data.get("default_tags")
-            default_date = form.cleaned_data.get("default_date")
-            directory = form.cleaned_data.get("directory")
-            if not directory.endswith('/'):
-                directory = directory + '/'
-            out = StringIO()
-            management.call_command('upload_album',
-                                    directory=directory,
-                                    defaulttags=default_tags,
-                                    defaultdate=default_date,
-                                    stdout=out)
-            album_id = int(out.getvalue())
-            #management.call_command('face_detection',
-            #                       album=album_id)
-            return HttpResponseRedirect(reverse('photo:album', kwargs={'album_id': album_id}))
-    else:
-        data = {}
-        data['default_date'] = timezone.now()
-        data['directory'] = '/' + str(timezone.now().year) + '/'
-        data['default_tags'] = ''
-        form = ScanFolderForm(initial=data)
-
-    return render(request, 'photo/scan.html', {'form': form,
-                                               'title': _(u'Scan Folder')})
-
-
-def photo_edit_view(request, photo_id):
-
-    photo = Photo.objects.get(pk=photo_id)
-
-    if request.method == 'POST':
-        form = EditPhotoForm(request.POST)
-        if form.is_valid():
-
-            # delete any existing tags
             PhotoTag.objects.filter(photo=photo).delete()
-
             new_tags = form.cleaned_data.get("tags")
             add_tags(photo, new_tags)
             photo.title = form.cleaned_data.get("title")
             photo.date = form.cleaned_data.get("date").replace(hour=photo.date.hour, minute=photo.date.minute)
             photo.save()
             rewrite_exif(photo)
-        return HttpResponseRedirect(reverse('photo:album',
-                                            kwargs={'album_id':
-                                                    photo.album.id}))
+            return redirect('photo:album', album_id=photo.album.id)
 
-    else:
-        tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
-        data = {}
-        data['tags'] = ", ".join(tags)
-        data['title'] = photo.title
-        data['date'] = photo.date
-        form = EditPhotoForm(initial=data)
-
-    return render(request, 'photo/edit.html', {'form': form,
-                                               'title': _(u'Edit Photo'),
-                                               'photo': photo})
+        context = {
+            'form': form,
+            'title': _(u'Edit Photo'),
+            'photo': photo,
+        }
+        return render(request, self.template_name, context)
 
 
-def photo_set_cover(request, photo_id):
-    photo = Photo.objects.get(pk=photo_id)
-    photos = Photo.objects.filter(album=photo.album, album_cover=True)
-    for p in photos:
-        p.album_cover = False
-        p.save()
+class PhotoSetCoverView(View):
+    def get(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        photos = Photo.objects.filter(album=photo.album, album_cover=True)
 
-    photo.album_cover = True
-    photo.save()
+        for p in photos:
+            p.album_cover = False
+            p.save()
 
-    return redirect('photo:album', album_id=photo.album.id)
+        photo.album_cover = True
+        photo.save()
 
-
-def photo_star_view(request, photo_id):
-    photo = Photo.objects.get(pk=photo_id)
-    photo.set_prop('favourite', 'true')
-    return redirect('photo:album', album_id=photo.album.id)
+        return redirect('photo:album', album_id=photo.album.id)
 
 
-def photo_unstar_view(request, photo_id):
-    photo = Photo.objects.get(pk=photo_id)
-    photo.set_prop('favourite', 'false')
-    return redirect('photo:album', album_id=photo.album.id)
+class PhotoStarView(View):
+    def get(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        photo.set_prop('favourite', 'true')
+        return redirect('photo:album', album_id=photo.album.id)
 
 
-def photo_update_tags(request):
+class PhotoUnstarView(View):
+    def get(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        photo.set_prop('favourite', 'false')
+        return redirect('photo:album', album_id=photo.album.id)
 
-    photo_ids = request.GET.getlist('photo_id', [])
-    next = request.GET.get("next")
 
-    if request.method == 'POST':
-        form = UpdateTagsForm(request.POST)
-        if form.is_valid():
-            action = form.cleaned_data.get("action")
-            update_tags = form.cleaned_data.get("tags")
-            date = form.cleaned_data.get("date")
-            next = form.cleaned_data.get("next")
-            tags = [x.strip() for x in update_tags.split(',')]
+class PhotoUpdateTagsView(FormView):
+    template_name = 'photo/update_tags.html'
+    form_class = UpdateTagsForm
 
-            for t in tags:
-                if t.strip():
-                    tag, created = Tag.objects.get_or_create(name=t)
+    def get_initial(self):
+        """Pre-fill the form with query parameters."""
+        initial = super().get_initial()
+        initial['next'] = self.request.GET.get("next", "/")
+        return initial
 
-                    for p in photo_ids:
-                        try:
-                            photo = Photo.objects.get(id=p)
-                            if action == "delete":
-                                PhotoTag.objects.filter(photo=photo, tag=tag).delete()
+    def get_photo_ids(self):
+        """Retrieve photo IDs from request."""
+        return self.request.GET.getlist('photo_id', [])
 
-                            if action == "add":
-                                photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
-                                rewrite_exif(photo)
-                        except Photo.DoesNotExist:
-                            pass
+    def form_valid(self, form):
+        """Process the form when submitted."""
+        photo_ids = self.get_photo_ids()
+        action = form.cleaned_data.get("action")
+        update_tags = form.cleaned_data.get("tags", "")
+        date = form.cleaned_data.get("date")
+        next_url = form.cleaned_data.get("next")
+        tags = [x.strip() for x in update_tags.split(',') if x.strip()]
 
-            if action == "change_date":
-                for p in photo_ids:
-                    photo = Photo.objects.get(id=p)
+        for tag_name in tags:
+            tag, _ = Tag.objects.get_or_create(name=tag_name)
+            for photo_id in photo_ids:
+                try:
+                    photo = Photo.objects.get(id=photo_id)
+                    if action == "delete":
+                        PhotoTag.objects.filter(photo=photo, tag=tag).delete()
+                    elif action == "add":
+                        PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+                        rewrite_exif(photo)
+                except Photo.DoesNotExist:
+                    continue
+
+        if action == "change_date":
+            for photo_id in photo_ids:
+                try:
+                    photo = Photo.objects.get(id=photo_id)
                     photo.date = date
                     photo.save()
                     rewrite_exif(photo)
+                except Photo.DoesNotExist:
+                    continue
 
-            if action == 'change_album':
-                new_album = Album.objects.get(pk=form.cleaned_data.get("album"))
-                for p in photo_ids:
-                    photo = Photo.objects.get(id=p)
-                    os.rename(os.path.join(settings.PHOTO_ROOT + photo.album.name, photo.file),
-                              os.path.join(settings.PHOTO_ROOT + new_album.name, photo.file))
+        if action == "change_album":
+            new_album = get_object_or_404(Album, pk=form.cleaned_data.get("album"))
+            for photo_id in photo_ids:
+                try:
+                    photo = Photo.objects.get(id=photo_id)
+                    old_path = os.path.join(settings.PHOTO_ROOT, photo.album.name, photo.file)
+                    new_path = os.path.join(settings.PHOTO_ROOT, new_album.name, photo.file)
+                    os.rename(old_path, new_path)
                     photo.album = new_album
                     photo.save()
-            url_params = '&'.join(['photo_id={}'.format(x) for x in photo_ids])
-            return HttpResponseRedirect(next + "?" + url_params)
-    else:
-        form = UpdateTagsForm(initial={'next': next})
+                except (Photo.DoesNotExist, FileNotFoundError):
+                    continue
 
-    return render(request, 'photo/update_tags.html',
-                  {'form': form,
-                   'title': _(u'Update Tags')})
+        # Redirect to the next page with updated photo IDs
+        url_params = '&'.join([f'photo_id={x}' for x in photo_ids])
+        return HttpResponseRedirect(f"{next_url}?{url_params}")
 
-
-
-def album_exif(request, album_id):
-    album = Album.objects.get(id=album_id)
-    photos = Photo.objects.filter(album=album)
-    for photo in photos:
-        rewrite_exif(photo)
-    return redirect('photo:album', album_id=album_id)
+    def form_invalid(self, form):
+        """Handle form errors."""
+        return self.render_to_response(self.get_context_data(form=form, title=_('Update Tags')))
 
 
 
-def scan_folder_async(request):
-    if request.method == 'POST':
-        form = ScanFolderForm(request.POST)
-        if form.is_valid():
-            default_tags = form.cleaned_data.get("default_tags")
-            default_date = form.cleaned_data.get("default_date")
-            directory = form.cleaned_data.get("directory")
-            if not directory.endswith('/'):
-                directory = directory + '/'
-            # Create Task
-            upload_task = UploadAlbum.delay(directory, default_tags, default_date)
-            # Get ID
-            task_id = upload_task.task_id
-            return render(request, 'photo/async_upload.html',
-                          {'task_id': task_id, 'form': form, 'title': _(u'Scan Folder - Async')})
-    else:
-        data = {}
-        data['default_date'] = timezone.now()
-        data['directory'] = '/' + str(timezone.now().year) + '/'
-        data['default_tags'] = ''
-        form = ScanFolderForm(initial=data)
+class AlbumExifUpdateView(View):
+    def post(self, request, album_id):
+        album = get_object_or_404(Album, id=album_id)
+        photos = Photo.objects.filter(album=album)
 
-    return render(request, 'photo/async_upload.html',
-                  {'form': form, 'title': _(u'Scan Folder - Async')})
+        for photo in photos:
+            rewrite_exif(photo)
+
+        return redirect('photo:album', album_id=album_id)
+
+
+
+class ScanFolderAsyncView(FormView):
+    template_name = 'photo/async_upload.html'
+    form_class = ScanFolderForm
+
+    def get_initial(self):
+        """Pre-fill the form with default values."""
+        initial = super().get_initial()
+        initial['default_date'] = timezone.now()
+        initial['directory'] = '/' + str(timezone.now().year) + '/'
+        initial['default_tags'] = ''
+        return initial
+
+    def form_valid(self, form):
+        """Handle form submission and start the async task."""
+        default_tags = form.cleaned_data.get("default_tags")
+        default_date = form.cleaned_data.get("default_date")
+        directory = form.cleaned_data.get("directory")
+
+        if not directory.endswith('/'):
+            directory += '/'
+
+        # Start Celery async task
+        upload_task = UploadAlbum.delay(directory, default_tags, default_date)
+
+        # Get task ID for tracking
+        task_id = upload_task.task_id
+
+        return self.render_to_response(self.get_context_data(form=form, task_id=task_id, title=_('Scan Folder - Async')))
+
+    def form_invalid(self, form):
+        """Render form again with errors."""
+        return self.render_to_response(self.get_context_data(form=form, title=_('Scan Folder - Async')))
