@@ -12,14 +12,14 @@ from django.conf import settings
 from django.core import management
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.urls import reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.db.models import Max, Count
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, View
 
 
 from photo.asynctasks.face_detection import FaceDetection
@@ -45,156 +45,166 @@ class HomeView(ListView):
         context['years'] = Tag.objects.filter(tagcategory__slug='date')
         return context
 
-class AlbumView(TemplateView):
+class AlbumView(ListView):
+    template_name = 'photo/album.html'
+    context_object_name = 'photos'
+    paginate_by = settings.PHOTOS_PER_PAGE
 
-    def get(self, request, album_id):
-        album = Album.objects.get(pk=album_id)
-        photos = Photo.objects.filter(album=album).order_by('date', 'file')
-        photos_checked = request.GET.getlist('photo_id', [])
+    def dispatch(self, request, *args, **kwargs):
+        self.album = get_object_or_404(Album, pk=kwargs['album_id'])
+        return super().dispatch(request, *args, **kwargs)
 
-        if request.GET.get('view', '') == 'print':
+    def get_queryset(self):
+        photos = Photo.objects.filter(album=self.album).order_by('date', 'file')
+
+        if self.request.GET.get('view', '') == 'print':
             photos = photos.exclude(photoprops__name='exclude.album.export', photoprops__value='true')
 
-        photo_count = photos.count()
+        return photos
 
-        paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['album'] = self.album
+        context['photo_count'] = self.get_queryset().count()
+        context['photos_checked'] = self.request.GET.getlist('photo_id', [])
 
-        try:
-            page = int(request.GET.get('page', '1'))
-        except ValueError:
-            page = 1
-
-        try:
-            photos = paginator.page(page)
-        except (EmptyPage, InvalidPage):
-            photos = paginator.page(paginator.num_pages)
-
-        context = {'album': album,
-                       'page': photos,
-                       'photo_count': photo_count,
-                       'photos_checked': photos_checked,
-                     }
-        if request.GET.get('detect', None) is not None:
-            # Create Task
-            upload_task = FaceDetection.delay(album_id)
-            # Get ID
+        if self.request.GET.get('detect', None) is not None:
+            upload_task = FaceDetection.delay(self.album.id)
             context['task_id'] = upload_task.task_id
 
-        return render(request, 'photo/album.html',
-                      context)
+        return context
 
 
-def tag_slug_view(request, slug):
-    slug_list = slug.split('+')
-    tags = Tag.objects.filter(slug__in=slug_list)
-    photos = Photo.objects.filter(phototag__tag__slug__in=slug_list) \
-                .annotate(count=Count('id')) \
-                .filter(count=len(slug_list)) \
-                .order_by('date')
-    photos_checked = request.GET.getlist('photo_id', [])
+class TagSlugView(ListView):
+    template_name = 'photo/tag.html'
+    context_object_name = 'photos'
+    paginate_by = settings.PHOTOS_PER_PAGE  # Enables built-in pagination
 
-    paginator = Paginator(photos, settings.PHOTOS_PER_PAGE)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
+    def get_queryset(self):
+        slug_list = self.kwargs['slug'].split('+')
+        return (
+            Photo.objects.filter(phototag__tag__slug__in=slug_list)
+            .annotate(count=Count('id'))
+            .filter(count=len(slug_list))
+            .order_by('date')
+        )
 
-    try:
-        photos = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        photos = paginator.page(paginator.num_pages)
-
-    return render(request, 'photo/tag.html',
-                  {'tags': tags,
-                   'page': photos,
-                   'photos_checked': photos_checked})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        slug_list = self.kwargs['slug'].split('+')
+        context['tags'] = Tag.objects.filter(slug__in=slug_list)
+        context['photos_checked'] = self.request.GET.getlist('photo_id', [])
+        return context
 
 
-def cloud_view(request):
-    tags = Tag.objects.all().order_by('name')
-    categories = TagCategory.objects.all().order_by('name')
-    return render(request, 'photo/cloud.html',
-                  {'title': _('Cloud'),
-                   'tags': tags,
-                   'categories': categories})
+class CloudView(TemplateView):
+    template_name = 'photo/cloud.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'title': _('Cloud'),
+            'tags': Tag.objects.all().order_by('name'),
+            'categories': TagCategory.objects.all().order_by('name'),
+        })
+        return context
 
 
-def map_view(request):
-    tags = Tag.objects.filter(tagcategory__name='Location', tagprops__name='source', tagprops__value='me') \
-        .exclude(tagprops__name='lat', tagprops__value='0') \
-        .exclude(tagprops__name='map.display', tagprops__value='false') \
-        .distinct()
+class MapView(TemplateView):
+    template_name = 'photo/map.html'
 
-    return render(request, 'photo/map.html',
-                  {'title': _('Map'),
-                   'tags': tags})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tags = Tag.objects.filter(tagcategory__name='Location', tagprops__name='source', tagprops__value='me') \
+            .exclude(tagprops__name='lat', tagprops__value='0') \
+            .exclude(tagprops__name='map.display', tagprops__value='false') \
+            .distinct()
 
+        context.update({
+            'title': _('Map'),
+            'tags': tags
+        })
+        return context
 
-def cloud_category_view(request, category):
-    tags = Tag.objects.filter(tagcategory__name=category) \
-        .values('id', 'name', 'slug') \
-        .annotate(count=Count('phototag')).order_by('name')
-    return render(request, 'photo/cloud_category.html', {'title': _('Cloud'), 'tags': tags})
+class CloudCategoryView(TemplateView):
+    template_name = 'photo/cloud_category.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = kwargs['category']
+        tags = Tag.objects.filter(tagcategory__name=category) \
+            .values('id', 'name', 'slug') \
+            .annotate(count=Count('phototag')).order_by('name')
 
-def search_view(request):
-    search_query = request.GET.get('q', '')
-
-    if search_query:
-        search_id_results = CombinedSearch.objects.combined_search(search_query)
-        search_ids = [result['id'] for result in search_id_results]
-    else:
-        search_ids = []
-
-    search_results = Photo.objects.filter(pk__in=search_ids)
-
-    data = {'q': search_query}
-    form = SearchForm(initial=data)
-
-    paginator = Paginator(search_results, settings.PHOTOS_PER_PAGE)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-
-    try:
-        results = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        results = paginator.page(paginator.num_pages)
-
-    return render(request, 'photo/search.html', {
-        'form': form,
-        'query': search_query,
-        'page': results,
-        'total_results': paginator.count,
-    })
+        context.update({
+            'title': _('Cloud'),
+            'tags': tags
+        })
+        return context
 
 
-def photo_view(request, photo_id):
-    photo = Photo.objects.get(pk=photo_id)
-    image = settings.PHOTO_ROOT + photo.album.name + photo.file
-    im = Image.open(image)
-    try:
-        response = HttpResponse(content_type="image/jpg")
-        im.save(response, "JPEG")
-    except OSError:
-        response = HttpResponse(content_type="image/png")
-        im.save(response, "PNG")
-    return response
+class SearchView(ListView):
+    template_name = 'photo/search.html'
+    context_object_name = 'results'
+    paginate_by = settings.PHOTOS_PER_PAGE  # Enables automatic pagination
+
+    def get_queryset(self):
+        search_query = self.request.GET.get('q', '').strip()
+
+        if search_query:
+            search_id_results = CombinedSearch.objects.combined_search(search_query)
+            search_ids = [result['id'] for result in search_id_results]
+        else:
+            search_ids = []
+
+        return Photo.objects.filter(pk__in=search_ids)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        search_query = self.request.GET.get('q', '').strip()
+        form = SearchForm(initial={'q': search_query})
+
+        context.update({
+            'form': form,
+            'query': search_query,
+            'total_results': self.get_queryset().count(),
+        })
+        return context
 
 
-class PhotoViewAnnotated(TemplateView):
-
+class PhotoView(View):
     def get(self, request, photo_id):
-        photo = Photo.objects.get(pk=photo_id)
-        image = settings.PHOTO_ROOT + photo.album.name + photo.file
-        im = Image.open(image)
-        draw = ImageDraw.Draw(im)
-        boxes = json.loads(photo.get_prop('face_annotate'))
-        for box in boxes:
-            draw.rectangle(box, width=5)
-        response = HttpResponse(content_type="image/jpg")
-        im.save(response, "JPEG")
+        photo = get_object_or_404(Photo, pk=photo_id)
+        image_path = os.path.join(settings.PHOTO_ROOT, photo.album.name.lstrip("/"), photo.file)
+
+        if not os.path.exists(image_path):
+            raise Http404("Image not found")
+
+        im = Image.open(image_path)
+        response = HttpResponse(content_type="image/jpeg")
+
+        try:
+            im.save(response, "JPEG")
+        except OSError:
+            response = HttpResponse(content_type="image/png")
+            im.save(response, "PNG")
+
+        return response
+
+class PhotoViewAnnotated(View):
+    def get(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        image_path = os.path.join(settings.PHOTO_ROOT, photo.album.name.lstrip("/"), photo.file)
+
+        with Image.open(image_path) as im:
+            draw = ImageDraw.Draw(im)
+            boxes = json.loads(photo.get_prop('face_annotate'))
+            for box in boxes:
+                draw.rectangle(box, width=5)
+
+            response = HttpResponse(content_type="image/jpeg")
+            im.save(response, "JPEG")
+
         return response
 
 

@@ -17,7 +17,7 @@
 
 		{% include 'includes/pagination.html' %}
         
-        {% for result in page.object_list %}
+        {% for result in results %}
         	{% with p=result %}
         		{% include 'photo/includes/photo.html' %}
         	{% endwith %}
