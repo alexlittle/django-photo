@@ -24,10 +24,16 @@ class ImageFolderCustom(Dataset):
 
     def __getitem__(self, index):
         img = self.load_image(index)
+        if img.mode == 'L':
+            print(f"Image in grayscale, converting {img}")
+            img = img.convert('RGB')
         class_name = self.get_label(self.paths[index])
         class_idx = self.classes.index(class_name)
+        path = str(self.paths[index]) # get the path as string.
 
         if self.transform:
-            return self.transform(img), class_idx
+            print("returning transformed image")
+            return self.transform(img), class_idx, path # return path too.
         else:
-            return img, class_idx
+            print("returning img only, not transformed")
+            return img, class_idx, path # return path too.

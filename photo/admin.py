@@ -29,7 +29,7 @@ class PhotoAdmin(admin.ModelAdmin):
     actions = ['rename_file']
 
     def edit_photo(self, obj):
-        return format_html("<a target='_blank' href="+reverse('photo_edit', args={obj.id}) + ">Edit</a>")
+        return format_html("<a target='_blank' href="+reverse('photo:edit', args={obj.id}) + ">Edit</a>")
 
     def albumid(self, obj):
         return obj.album.id
