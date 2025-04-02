@@ -41,7 +41,7 @@ def FaceDetection(self, album_id):
     loader = DataLoader(dataset, collate_fn=collate_fn, num_workers=workers)
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     mtcnn = MTCNN(
-        image_size=3600, margin=0, min_face_size=150,
+        image_size=2000, margin=0, min_face_size=150,
         thresholds=[0.7, 0.8, 0.8], factor=0.709, post_process=True,
         device=device, keep_all=True
     )

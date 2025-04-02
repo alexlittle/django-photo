@@ -26,6 +26,17 @@ class ImageFolderCustom(Dataset):
         img = self.load_image(index)
         class_name = self.get_label(self.paths[index])
         class_idx = self.classes.index(class_name)
+        path = str(self.paths[index])
+
+        if hasattr(img, "filename"):
+            original_filename = img.filename
+        else:
+            original_filename = path
+
+        if img.mode == 'L':
+            print(f"Image in grayscale, converting {img}")
+            img = img.convert('RGB')
+            img.filename = original_filename
 
         if self.transform:
             return self.transform(img), class_idx
