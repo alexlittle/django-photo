@@ -210,3 +210,28 @@ div.photo {
 .img-thumbnail {
     max-width: none;
 }
+
+.photo-thumbnail-container {
+    border: 1px solid #cccccc;
+    padding: 10px;
+}
+.photo-thumbnail-container.selected {
+  background-color: lightblue;
+}
+
+.photo-image {
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.photo-data input[type="checkbox"] {
+  display: none;
+}
+
+.photo-actions {
+    margin-top: 20px;
+}
+
+

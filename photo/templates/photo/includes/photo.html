@@ -1,45 +1,65 @@
 {% load i18n %}
 {% load thumbnail %}
+{% load static %}
 {% load props %}
 {% load admin_urls %}
 {% load custom_thumbnail %}
 
-<div class="photo col project-image-thumbnail-container">
-	<a href="{% url 'photo:view' p.id %}" data-toggle="lightbox" data-gallery="album-gallery">
-		{% thumbnail p.get_full_url "200" as thumb %}
-		<img src="{{ thumb.url }}" alt="{% if p.caption %}{{ p.caption }}{% endif %}" class="img-thumbnail">
-		{% endthumbnail %}
-	</a><br/>
-	{% if p.title %}
-		{{ p.title }}<br/>
-	{% endif %}
-	<small><a href="{% url 'photo:view' p.id %}" target="_blank">{{ p.file }}</a></small><br/>
-	<small>{{ p.date }}</small><br/>
-	{% if p|get_photo_prop:'favourite' == 'true' %} 
-		<a href="{% url 'photo:unstar' p.id %}" class="fav-star-selected">*</a>
-	{% else %}
-		<a href="{% url 'photo:star' p.id %}" class="fav-star-unselected">*</a>
-	{% endif %}
-	{% for pt in p.tags.all %}
-		<a href="{% url 'photo:tag_slug' pt.slug %}" class="tag">{{ pt.name }}</a>
-	{% endfor %}
-	<br/>
-	<a href="{% url 'photo:edit' p.id %}">{% trans 'edit' %}</a>
-	(<a href="{% url 'admin:photo_photo_change' p.id %}" target="_blank">+</a>)
-	{% if p.album_cover is False %}
-	| <a href="{% url 'photo:set_cover' p.id %}">{% trans 'set cover' %}</a>
-	{% endif %}
-	| <a href="{% url 'admin:photo_photo_delete' p.id %}" target="_blank">{% trans 'delete' %}</a> <br/>
-	<a href="{% url 'photo:album' p.album.id %}">{{ p.album.name }}</a>
+<div class="photo col photo-thumbnail-container" data-photo-id="{{ p.id }}">
+	<div class="photo-image">
+		<a href="{% url 'photo:view' p.id %}" data-toggle="lightbox" data-gallery="album-gallery">
+			{% thumbnail p.get_full_url "200" as thumb %}
+			<img src="{{ thumb.url }}" alt="{% if p.caption %}{{ p.caption }}{% endif %}">
+			{% endthumbnail %}
+		</a>
+	</div>
+	<div class="photo-data">
+		<small>{{ p.date }}</small><br/>
+		{% if p.title %}
+			{{ p.title }}<br/>
+		{% endif %}
 
-	<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}"
-		   {% if p|is_photo_selected:photos_checked %}
-		   checked="checked"
-		   {% endif %}
-	/>
+		{% for pt in p.tags.all %}
+			<a href="{% url 'photo:tag_slug' pt.slug %}">{{ pt.name }}</a>
+		{% endfor %}
+		<br/>
 
+		<input type="checkbox" id="photo_id_{{ p.id }}" name="photo_id" value="{{ p.id }}"
+			   {% if p|is_photo_selected:photos_checked %}
+			   checked="checked"
+			   {% endif %} />
 
-	{% if p.get_face_count %}
-		<a target="_blank" href="{% url 'photo:view_annotated' p.id %}">faces: {{ p.get_face_count }}</a>
-	{% endif %}
+	</div>
+	<div class="photo-actions">
+		<a href="{% url 'photo:view' p.id %}" target="_blank" title="{{ p.file }}">
+			<img src="{% static 'includes/icons/preview.png' %}" alt="{{ p.file }}"></a>
+
+		<a href="{% url 'photo:edit' p.id %}" title="{% trans 'Edit' %}">
+			<img src="{% static 'includes/icons/edit_square.png' %}" alt="{% trans 'Edit' %}"></a>
+
+		<a href="{% url 'photo:album' p.album.id %}" title="{{ p.album.name }}">
+				<img src="{% static 'includes/icons/photo_library.png' %}" alt="{{ p.album.name }}"></a>
+
+		{% if p|get_photo_prop:'favourite' == 'true' %}
+			<a href="{% url 'photo:unstar' p.id %}" title="{% trans 'Unstar' %}">
+				<img src="{% static 'includes/icons/star_filled.png' %}" alt="{% trans 'Unstar' %}"></a>
+		{% else %}
+			<a href="{% url 'photo:star' p.id %}" title="{% trans 'Star' %}">
+				<img src="{% static 'includes/icons/star.png' %}" alt="{% trans 'Star' %}"></a>
+		{% endif %}
+
+		{% if p.album_cover is False %}
+			<a href="{% url 'photo:set_cover' p.id %}" title="{% trans 'Set cover' %}">
+				<img src="{% static 'includes/icons/photo_album.png' %}" alt="{% trans 'Set cover' %}"></a>
+		{% endif %}
+
+		<a href="{% url 'admin:photo_photo_delete' p.id %}" target="_blank" title="{% trans 'Delete' %}">
+			<img src="{% static 'includes/icons/delete.png' %}" alt="{% trans 'Delete' %}"></a>
+
+		{% if p.get_face_count %}
+			<a target="_blank" href="{% url 'photo:view_annotated' p.id %}" title="Faces: {{ p.get_face_count }}">
+				<img src="{% static 'includes/icons/face.png' %}" alt="Faces: {{ p.get_face_count }}"></a>
+		{% endif %}
+	</div>
+
 </div>
