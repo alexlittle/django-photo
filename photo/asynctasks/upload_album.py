@@ -59,8 +59,5 @@ def UploadAlbum(self, directory, default_tags, default_date):
 
 			photo.save()
 
-			# create thumbnails
-			for size in settings.DEFAULT_THUMBNAIL_SIZES:
-				photo.get_thumbnail(size)
 			progress_recorder.set_progress(idx + 1, len(image_files), description="Processing album")
 	return album.id

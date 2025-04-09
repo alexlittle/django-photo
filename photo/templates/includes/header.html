@@ -2,14 +2,17 @@
 {% block content %}
 
 <nav class="navbar navbar-expand-lg navbar-light">
- <div class="container">  
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  
-  <a class="navbar-brand" href="{% url 'photo:home' %}">{% trans 'Photo Database' %}</a>
-  <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-    <ul class="navbar-nav nav-pills nav-fill btn-group">
+    <div class="container-fluid">
+
+
+  <a class="navbar-brand" href="{% url 'photo:home' %}">
+    {% trans 'Photo database' %}
+  </a>
+   <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon text-dark"></span>
+    </button>
+  <div class="collapse navbar-collapse justify-content-end" id="navbarScroll">
+      <ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll" >
 		<li><a href="{% url 'photo:favourites' %}" class="nav-link">{% trans 'Favourites' %}</a></li>
 		<li><a href="{% url 'photo:search' %}" class="nav-link">{% trans 'Search' %}</a></li>
 		<li><a href="{% url 'photo:cloud' %}" class="nav-link">{% trans 'Cloud' %}</a></li>
@@ -18,8 +21,9 @@
 	    <li><a href="{% url 'photo:scan' %}" class="nav-link">{% trans 'Scan Folder' %}</a></li>
         <li><a href="{% url 'photo:scan_folder_async' %}" class="nav-link">{% trans 'Async' %}</a></li>
     </ul>
+
   </div>
-  </div>
+    </div>
 </nav>
 
 {% endblock content %}

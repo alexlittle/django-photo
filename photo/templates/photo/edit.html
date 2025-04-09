@@ -22,7 +22,11 @@
 <h1>{{ title }}</h1>
 
 <a href="{% url 'photo:album' photo.album.id %}">{{ photo.album.name }}</a><br/>
-<img src="{{ photo|get_thumbnail:500 }}" class="img-thumbnail" alt="{{ photo.file }}" title="{{ photo.file }}"/>
+
+{% thumbnail photo.get_full_url "300" as thumb %}
+	<img src="{{ thumb.url }}" alt="{% if photo.caption %}{{ photo.caption }}{% endif %}" class="img-thumbnail">
+{% endthumbnail %}
+
 <br/>{{ photo.file }}
 
 {% crispy form %}

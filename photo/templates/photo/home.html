@@ -23,9 +23,13 @@
 	<tr>
 		<td>
 		{% if a.has_cover %}
-			<img src="{{ a|get_cover:250 }}" class="img-thumbnail"/>
+			{% thumbnail a.get_cover.get_full_url  "250" as thumb %}
+			<img src="{{ thumb.url }}" alt="{% if a.get_cover.caption %}{{ a.get_cover.caption }}{% endif %}" class="img-thumbnail">
+			{% endthumbnail %}
 		{% else %}
-			<img src="{{ a|get_cover:250 }}" class="img-thumbnail faded"/>
+			{% thumbnail a.get_cover.get_full_url "250" as thumb %}
+			<img src="{{ thumb.url }}" alt="{% if a.get_cover.caption %}{{ a.get_cover.caption }}{% endif %}" class="img-thumbnail faded">
+			{% endthumbnail %}
 		{% endif %}
 		<br/>
 			<small>{{ a.max_date }}</small>

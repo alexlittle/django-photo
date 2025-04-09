@@ -18,10 +18,8 @@ from torch.utils.data import DataLoader
 from facenet_pytorch import MTCNN
 
 from photo.facedetectlib import ImageFolderCustom
-from photo.models import Album, Photo
 
-from photo.models import Album, Photo, Tag, PhotoTag
-from photo.lib import get_exif, add_tags
+from photo.models import Album, Photo
 
 
 def collate_fn(x):

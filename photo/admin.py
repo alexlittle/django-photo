@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from photo.lib import rename_photo_file
-from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, ThumbnailCache, PhotoProps, TagProps
+from photo.models import Album, Photo, Tag, PhotoTag, TagCategory, PhotoProps, TagProps
 
 
 class AlbumAdmin(admin.ModelAdmin):
@@ -24,7 +24,7 @@ class PhotoPropsInline(admin.TabularInline):
 
 
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ('file', 'thumbnail', 'date', 'edit_photo', 'title', 'album', 'albumid')
+    list_display = ('file', 'date', 'edit_photo', 'title', 'album', 'albumid')
     search_fields = ['file', 'title']
     actions = ['rename_file']
 
@@ -33,10 +33,6 @@ class PhotoAdmin(admin.ModelAdmin):
 
     def albumid(self, obj):
         return obj.album.id
-
-    def thumbnail(self, obj):
-        return format_html("<a target='_blank' href='{}'><img src='{}'/></a>"
-                           .format(reverse('photo:view', args={obj.id}), obj.get_thumbnail(150)))
 
     def rename_file(self, request, queryset):
         for photo in queryset:
@@ -123,11 +119,6 @@ class PhotoTagAdmin(admin.ModelAdmin):
     list_display = ('photo', 'tag')
 
 
-class ThumbnailCacheAdmin(admin.ModelAdmin):
-    list_display = ('photo', 'size', 'image')
-    readonly_fields = ['photo']
-
-
 class PhotoPropsAdmin(admin.ModelAdmin):
     list_display = ('photo', 'name', 'value')
 
@@ -141,6 +132,5 @@ admin.site.register(Photo, PhotoAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(PhotoTag, PhotoTagAdmin)
 admin.site.register(TagCategory, TagCategoryAdmin)
-admin.site.register(ThumbnailCache, ThumbnailCacheAdmin)
 admin.site.register(PhotoProps, PhotoPropsAdmin)
 admin.site.register(TagProps, TagPropsAdmin)

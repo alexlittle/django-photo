@@ -2,10 +2,13 @@
 {% load thumbnail %}
 {% load props %}
 {% load admin_urls %}
+{% load custom_thumbnail %}
 
-<div class="photo">
+<div class="photo col project-image-thumbnail-container">
 	<a href="{% url 'photo:view' p.id %}" data-toggle="lightbox" data-gallery="album-gallery">
-		<img src="{{ p|get_thumbnail:250 }}" class="img-thumbnail" alt="{{ p.file }}" title="{{ p.file }}"/>
+		{% thumbnail p.get_full_url "200" as thumb %}
+		<img src="{{ thumb.url }}" alt="{% if p.caption %}{{ p.caption }}{% endif %}" class="img-thumbnail">
+		{% endthumbnail %}
 	</a><br/>
 	{% if p.title %}
 		{{ p.title }}<br/>
@@ -28,11 +31,13 @@
 	{% endif %}
 	| <a href="{% url 'admin:photo_photo_delete' p.id %}" target="_blank">{% trans 'delete' %}</a> <br/>
 	<a href="{% url 'photo:album' p.album.id %}">{{ p.album.name }}</a>
-	{% if p|is_photo_selected:photos_checked %}
-		<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}" checked="checked"/>
-	{% else %}
-		<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}"/>	
-	{% endif %}
+
+	<input type="checkbox" id="photo_id" name="photo_id" value="{{ p.id }}"
+		   {% if p|is_photo_selected:photos_checked %}
+		   checked="checked"
+		   {% endif %}
+	/>
+
 
 	{% if p.get_face_count %}
 		<a target="_blank" href="{% url 'photo:view_annotated' p.id %}">faces: {{ p.get_face_count }}</a>

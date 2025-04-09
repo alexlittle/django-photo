@@ -19,11 +19,49 @@ html {
 body {
   padding-bottom: 40px;
   color: #5a5a5a;
-  padding-top: 50px;
   margin-bottom: 60px;
   font-family: 'Ubuntu', sans-serif;
 }
 
+
+/* Customise the navbar */
+
+.navbar-light {
+  	border-bottom: 1px solid #04689a;
+    background-repeat: repeat-x;
+}
+
+.navbar-light .navbar-brand {
+	color: #111111;
+	font-weight: bold;
+}
+
+.navbar-brand {
+	padding: 5px 20px 3px 10px;
+}
+
+.strapline {
+	color: #04689a;
+	font-size: 80%;
+	font-weight: normal;
+}
+
+.navbar-light .navbar-nav > .nav-item > a
+{
+	color: #010101;
+}
+
+.navbar-light .navbar-nav > .nav-item > a:focus,
+.navbar-light .navbar-nav > .nav-item > a:hover
+{
+	color: #04689a;
+}
+
+.navbar-light .navbar-nav > .active  a.nav-link,
+.navbar-light .navbar-nav > .nav-item .active > a.nav-link:focus,
+.navbar-light .navbar-nav > .nav-item .active > a.nav-link:hover {
+    color: #04689a;
+}
 
 
 /* Mapping
@@ -167,4 +205,8 @@ div.photo {
 	float: none;
 	content: "";
   	display: table;
+}
+
+.img-thumbnail {
+    max-width: none;
 }

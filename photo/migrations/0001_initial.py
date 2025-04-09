@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Album',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
                 ('slug', models.SlugField(default=django.utils.timezone.now)),
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Photo',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('file', models.TextField()),
                 ('slug', models.SlugField(default=django.utils.timezone.now)),
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PhotoProps',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
                 ('value', models.CharField(max_length=100)),
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PhotoTag',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('photo', models.ForeignKey(
                     on_delete=django.db.models.deletion.CASCADE,
@@ -88,7 +88,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Tag',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.TextField()),
                 ('slug', models.SlugField(default=django.utils.timezone.now)),
@@ -105,7 +105,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TagCategory',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=20)),
                 ('slug', models.SlugField(default=django.utils.timezone.now)),
@@ -121,7 +121,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TagProps',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
                 ('value', models.CharField(max_length=100)),
@@ -137,7 +137,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ThumbnailCache',
             fields=[
-                ('id', models.AutoField(auto_created=True,
+                ('id', models.BigAutoField(auto_created=True,
                  primary_key=True, serialize=False, verbose_name='ID')),
                 ('size', models.IntegerField()),
                 ('created_date', models.DateTimeField(

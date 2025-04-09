@@ -81,7 +81,4 @@ class Command(BaseCommand):
 
                 photo.save()
 
-                # create thumbnails
-                for size in settings.DEFAULT_THUMBNAIL_SIZES:
-                    photo.get_thumbnail(size)
         return str(album.id)
