@@ -5,10 +5,9 @@ Management command to find any photos that haven't been uploaded
 import os
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from django.conf import settings
 
-from photo.lib import ignore_file
+from photo.lib import ignore_file, ignore_folder
 from photo.models import Photo
 
 from . import bcolors
@@ -65,6 +64,9 @@ class Command(BaseCommand):
             folders_to_add = []
 
             for root, dirs, files in os.walk(settings.PHOTO_ROOT, topdown=True):
+                if ignore_folder(root):
+                    dirs[:] = []
+                    continue
                 for name in files:
                     if ignore_file(name):
                         continue

@@ -26,7 +26,6 @@ class Command(BaseCommand):
         for root, dirs, files in os.walk(os.path.join(settings.PHOTO_ROOT), topdown=True):
             for name in dirs:
                 album_path = (os.path.join(root, name)).replace(settings.PHOTO_ROOT, '') + "/"
-
                 if ignore_folder(album_path):
                     continue
 
