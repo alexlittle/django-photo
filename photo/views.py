@@ -23,7 +23,7 @@ from django.views.generic import TemplateView, ListView, View,FormView
 
 from photo.asynctasks.face_detection import FaceDetection
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
-from photo.lib import rewrite_exif, add_tags
+from photo.lib import add_tags, add_or_update_xmp_metadata
 from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch
 
 # Celery Task
@@ -284,7 +284,7 @@ class PhotoEditView(View):
             photo.title = form.cleaned_data.get("title")
             photo.date = form.cleaned_data.get("date").replace(hour=photo.date.hour, minute=photo.date.minute)
             photo.save()
-            rewrite_exif(photo)
+            add_or_update_xmp_metadata(photo)
             return redirect('photo:album', album_id=photo.album.id)
 
         context = {
@@ -356,7 +356,7 @@ class PhotoUpdateTagsView(FormView):
                         PhotoTag.objects.filter(photo=photo, tag=tag).delete()
                     elif action == "add":
                         PhotoTag.objects.get_or_create(photo=photo, tag=tag)
-                        rewrite_exif(photo)
+                        add_or_update_xmp_metadata(photo)
                 except Photo.DoesNotExist:
                     continue
 
@@ -366,7 +366,7 @@ class PhotoUpdateTagsView(FormView):
                     photo = Photo.objects.get(id=photo_id)
                     photo.date = date
                     photo.save()
-                    rewrite_exif(photo)
+                    add_or_update_xmp_metadata(photo)
                 except Photo.DoesNotExist:
                     continue
 
@@ -394,12 +394,12 @@ class PhotoUpdateTagsView(FormView):
 
 
 class AlbumExifUpdateView(View):
-    def post(self, request, album_id):
+    def get(self, request, album_id):
         album = get_object_or_404(Album, id=album_id)
         photos = Photo.objects.filter(album=album)
 
         for photo in photos:
-            rewrite_exif(photo)
+            add_or_update_xmp_metadata(photo)
 
         return redirect('photo:album', album_id=album_id)
 

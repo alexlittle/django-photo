@@ -74,6 +74,7 @@ Pygments==2.18.0
 pyOpenSSL==24.2.1
 pysolr==3.9.0
 python-dateutil==2.9.0.post0
+python-xmp-toolkit==2.0.2
 pytz==2024.2
 PyYAML==6.0.2
 redis==5.1.1

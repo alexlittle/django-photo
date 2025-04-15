@@ -5,6 +5,7 @@ import os
 from PIL import Image
 from PIL.ExifTags import TAGS
 from django.conf import settings
+from libxmp import XMPFiles, XMPMeta, consts
 
 from photo.models import Tag, PhotoTag
 
@@ -64,24 +65,55 @@ def rename_photo_file(photo):
 
     return True
 
+def add_or_update_xmp_metadata(photo): #image_path, namespace_uri, property_name, property_value):
+    """Adds or updates an XMP property in an image file.
 
-def rewrite_exif(photo):
+    Args:
+        image_path (str): Path to the image file.
+        namespace_uri (str): The URI of the XMP namespace (e.g., consts.XMP_NS_DC for Dublin Core).
+        property_name (str): The name of the property to add or update (e.g., 'subject').
+        property_value (str or list): The value of the property. Use a list for array properties.
+    """
 
     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
+    namespace_uri = consts.XMP_NS_DC
+    property_name = 'subject'
 
     if photo.title:
         desc = photo.title + " - " + photo.get_tags(", ")
     else:
         desc = photo.get_tags(", ")
 
-    zeroth_ifd = {piexif.ImageIFD.Software: desc,
-                  piexif.ImageIFD.ImageDescription: desc,
-                  piexif.ImageIFD.ImageHistory: desc}
-    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: photo.date.strftime('%Y:%m:%d %H:%M:%S')}
-    exif_dict = {"0th": zeroth_ifd, "Exif": exif_ifd}
-    exif_bytes = piexif.dump(exif_dict)
+    # get location if exists
+    lat, lng = photo.get_location()
+    if lat != 0 and lng != 0:
+        desc = f"({lat},{lng}), " + desc
 
-    with open(photo_path, 'r+b'):
-        with Image.open(photo_path, 'r') as image:
-            if image.format == "JPEG":
-                image.save(photo_path, "jpeg", quality=100, exif=exif_bytes)
+    xmpfile = None
+    try:
+        xmpfile = XMPFiles(file_path=photo_path, open_forupdate=True)
+        xmp = xmpfile.get_xmp()
+        if xmp is None:
+            xmp = XMPMeta()
+
+        xmp.delete_property(namespace_uri, property_name)
+
+        xmp.append_array_item(
+            namespace_uri,
+            property_name,
+            desc,
+            {'prop_array_is_unordered': True, 'prop_value_is_array': True}
+        )
+
+        if xmpfile.can_put_xmp(xmp):
+            xmpfile.put_xmp(xmp)
+        else:
+            print(f"Could not write XMP to {photo_path}")
+
+    except FileNotFoundError:
+        print(f"Error: Image not found at {photo_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        if xmpfile:
+            xmpfile.close_file()

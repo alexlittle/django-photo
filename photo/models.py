@@ -172,6 +172,13 @@ class Photo (models.Model):
         except PhotoProps.DoesNotExist:
             return None
 
+    def get_location(self):
+        loc_tag = Tag.objects.filter(phototag__photo=self, tagcategory__slug="location").first()
+        if not loc_tag:
+            return 0, 0
+
+        return loc_tag.get_lat(), loc_tag.get_lng(),
+
     def set_prop(self, property, value):
         if self.get_prop(property) is None:
             pp = PhotoProps(photo=self, name=property, value=value)
