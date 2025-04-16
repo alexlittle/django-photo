@@ -214,6 +214,7 @@ div.photo {
 .photo-thumbnail-container {
     border: 1px solid #cccccc;
     padding: 10px;
+    max-width: 300px;
 }
 .photo-thumbnail-container.selected {
   background-color: lightblue;
