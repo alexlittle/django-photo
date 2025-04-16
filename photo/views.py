@@ -164,7 +164,7 @@ class SearchView(ListView):
         context = super().get_context_data(**kwargs)
         search_query = self.request.GET.get('q', '').strip()
         form = SearchForm(initial={'q': search_query})
-
+        context['photos_checked'] = self.request.GET.getlist('photo_id', [])
         context.update({
             'form': form,
             'query': search_query,
@@ -385,7 +385,7 @@ class PhotoUpdateTagsView(FormView):
 
         # Redirect to the next page with updated photo IDs
         url_params = '&'.join([f'photo_id={x}' for x in photo_ids])
-        return HttpResponseRedirect(f"{next_url}?{url_params}")
+        return HttpResponseRedirect(f"{next_url}&{url_params}")
 
     def form_invalid(self, form):
         """Handle form errors."""

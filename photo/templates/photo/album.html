@@ -66,7 +66,7 @@
 <input type="button" value="{% trans 'Select all' %}" onclick="selectall()"/>
 <input type="button" value="{% trans 'Select none' %}" onclick="selectnone()"/>
 
-<input type="hidden" value="{{ request.path }}" name="next"/>
+<input type="hidden" value="{{ request.get_full_path }}" name="next"/>
 
 {% include 'includes/pagination.html' %}
 <div class="row col-auto">

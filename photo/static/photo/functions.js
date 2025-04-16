@@ -1,11 +1,17 @@
 
 
 function selectall(){
-  $(':checkbox').prop('checked', true);
+  $(':checkbox').each(function() {
+    $(this).prop('checked', true);
+    $(this).closest('.photo-thumbnail-container').addClass('selected');
+  });
 }
 
 function selectnone(){
-  $(':checkbox').prop('checked', false);
+   $(':checkbox').each(function() {
+    $(this).prop('checked', false);
+    $(this).closest('.photo-thumbnail-container').removeClass('selected');
+  });
 }
 
 // for highlighting photo background when selected
