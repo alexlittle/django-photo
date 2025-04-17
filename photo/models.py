@@ -52,6 +52,9 @@ class Album (models.Model):
         verbose_name = _('Album')
         verbose_name_plural = _('Albums')
 
+    def get_safe_name(self):
+        return self.name.lstrip('/')
+
     def has_cover(self):
         try:
             Photo.objects.get(album=self, album_cover=True)

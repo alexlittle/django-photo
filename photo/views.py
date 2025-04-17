@@ -375,16 +375,18 @@ class PhotoUpdateTagsView(FormView):
             for photo_id in photo_ids:
                 try:
                     photo = Photo.objects.get(id=photo_id)
-                    old_path = os.path.join(settings.PHOTO_ROOT, photo.album.name, photo.file)
-                    new_path = os.path.join(settings.PHOTO_ROOT, new_album.name, photo.file)
+                    old_path = os.path.join(settings.PHOTO_ROOT, photo.album.get_safe_name(), photo.file)
+                    new_path = os.path.join(settings.PHOTO_ROOT, new_album.get_safe_name(), photo.file)
                     os.rename(old_path, new_path)
                     photo.album = new_album
                     photo.save()
-                except (Photo.DoesNotExist, FileNotFoundError):
+                except (Photo.DoesNotExist, FileNotFoundError) as e:
                     continue
 
         # Redirect to the next page with updated photo IDs
         url_params = '&'.join([f'photo_id={x}' for x in photo_ids])
+        if '?' not in next_url:
+            next_url += '?'
         return HttpResponseRedirect(f"{next_url}&{url_params}")
 
     def form_invalid(self, form):
