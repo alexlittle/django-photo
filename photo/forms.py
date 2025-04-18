@@ -132,7 +132,7 @@ class UpdateTagsForm(forms.Form):
                 'tags',
                 Div('date', css_class='date-picker-row-fluid'),
                 'album',
-                Field('next', type="text"),
+                Field('next', type="hidden"),
                 Div(
                    Submit('submit', _(u'Update'), css_class='btn btn-default'),
                    css_class='col-lg-offset-2 col-lg-4',
