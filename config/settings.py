@@ -191,6 +191,8 @@ ALBUMS_PER_PAGE = 50
 
 IMAGE_EXTENSIONS = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JPG', '*.JPEG']
 
+# for when comparing tag similarity
+IGNORE_TAG_REGEXS = []
 
 try:
     from config.local_settings import *

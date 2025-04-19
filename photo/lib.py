@@ -1,4 +1,3 @@
-import piexif
 import re
 import os
 
