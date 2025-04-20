@@ -53,3 +53,6 @@ class Command(BaseCommand):
 
         # locations without source
         call_command('report_missing_source')
+
+        # tag diff
+        call_command('tag_diff')

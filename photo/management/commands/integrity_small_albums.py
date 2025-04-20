@@ -5,6 +5,7 @@ Management command to find albums with less than X photos
 
 from django.core.management.base import BaseCommand
 from django.db.models import Count
+from django.conf import settings
 
 from photo.models import Album
 
@@ -31,8 +32,8 @@ class Command(BaseCommand):
 
         for album in Album.objects.annotate(total=Count("photo")):
             if album.total < max_count:
-                print("http://localhost.photo/album/%d - %s - %s [%d photos]"
-                      % (album.id, album.title, album.name, album.total))
+                print("%s/album/%d - %s - %s [%d photos]"
+                      % (settings.DOMAIN_NAME, album.id, album.title, album.name, album.total))
                 counter += 1
 
         if counter == 0:

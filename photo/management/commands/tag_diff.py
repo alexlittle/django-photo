@@ -9,13 +9,14 @@ from django.utils.text import slugify
 
 from photo.models import Tag
 
+from . import bcolors
 
 class Command(BaseCommand):
     help = _(u"Check for tags that are very similar")
     errors = []
 
     def add_arguments(self, parser):
-        parser.add_argument('cutoff', type=float, default=0.6, nargs='?')
+        parser.add_argument('cutoff', type=float, default=0.85, nargs='?')
 
     def regex_tag_matches(self, tag1, tag2):
         for itr in settings.IGNORE_TAG_REGEXS:
@@ -25,6 +26,9 @@ class Command(BaseCommand):
         return False
 
     def handle(self, *args, **options):
+
+        print("Tag diff")
+        print("---------------------------------------")
 
         cutoff = options['cutoff']
 
@@ -49,4 +53,9 @@ class Command(BaseCommand):
                 print("----------------")
                 match_count += 1
 
-        print(f"{match_count} possible matches found")
+
+        if match_count == 0:
+            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+        else:
+            print("---------------------------------------")
+            print("%s%d tags close to others%s" % (bcolors.WARNING, match_count, bcolors.ENDC))
