@@ -90,7 +90,7 @@ soupsieve==2.6
 sqlparse==0.5.1
 sympy==1.13.3
 toml==0.10.2
-torch==2.2.2
+torch==2.7.0
 torchvision==0.17.2
 tqdm==4.66.5
 tqdm-loggable==0.2
