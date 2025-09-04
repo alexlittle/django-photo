@@ -33,8 +33,7 @@
 <p>
 	{{ photo_count }} {% trans 'photos' %} - 
  	<a href="{% url 'admin:photo_album_change' album.id %}" target="_blank">{% trans 'Edit' %}</a> |
-	<a href="{% url 'photo:album_exif' album.id %}">{% trans 'Rewrite Exif' %}</a> |
-	<a href="?detect=true">{% trans 'Detect faces' %}</a>
+	<a href="{% url 'photo:album_exif' album.id %}">{% trans 'Rewrite Exif' %}</a>
 </p>
 
 {% if task_id %}

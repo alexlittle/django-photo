@@ -16,12 +16,9 @@ from django.db.models import Max, Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
-
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, ListView, View,FormView
 
-
-from photo.asynctasks.face_detection import FaceDetection
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
 from photo.lib import add_tags, add_or_update_xmp_metadata
 from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch
@@ -67,10 +64,6 @@ class AlbumView(ListView):
         context['album'] = self.album
         context['photo_count'] = self.get_queryset().count()
         context['photos_checked'] = self.request.GET.getlist('photo_id', [])
-
-        if self.request.GET.get('detect', None) is not None:
-            upload_task = FaceDetection.delay(self.album.id)
-            context['task_id'] = upload_task.task_id
 
         return context
 
