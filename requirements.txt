@@ -19,3 +19,5 @@ tzdata==2025.2
 urllib3==2.3.0
 python-xmp-toolkit==2.0.2
 reportlab==4.4.3
+typing-inspection==0.4.0
+typing_extensions==4.12.2
