@@ -21,7 +21,7 @@ from django.views.generic import TemplateView, ListView, View,FormView
 
 from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
 from photo.lib import add_tags, add_or_update_xmp_metadata
-from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch
+from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch, TagProps
 
 # Celery Task
 from photo.tasks import UploadAlbum
@@ -108,14 +108,20 @@ class MapView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        tags = Tag.objects.filter(tagcategory__name='Location', tagprops__name='source', tagprops__value='me') \
+        source = self.request.GET.get('source', 'me')
+        tags = Tag.objects.filter(tagcategory__name='Location', tagprops__name='source', tagprops__value=source) \
             .exclude(tagprops__name='lat', tagprops__value='0') \
             .exclude(tagprops__name='map.display', tagprops__value='false') \
             .distinct()
 
+        sources = TagProps.objects.filter(tag__tagcategory__name='Location', name='source') \
+            .values_list('value', flat=True)\
+            .distinct()
+
         context.update({
             'title': _('Map'),
-            'tags': tags
+            'tags': tags,
+            'sources': sources
         })
         return context
 
