@@ -1,7 +1,7 @@
 celery==5.6.2
 celery-progress==0.5
 crispy-bootstrap4==2025.6
-Django==6.0.1
+Django==6.0.2
 django-autoslug==1.9.9
 django-crispy-forms==2.5
 mod_wsgi==5.0.2
