@@ -15,9 +15,9 @@ requests==2.33.1
 setuptools==82.0.1
 six==1.17.0
 sorl-thumbnail>=12.4,<13.0
-tzdata==2026.1
-urllib3==2.6.3
+tzdata==2026.2
+urllib3==2.7.0
 python-xmp-toolkit==2.1.0
-reportlab==4.4.10
+reportlab==4.5.0
 typing-inspection==0.4.2
 typing_extensions==4.15.0
