@@ -23,8 +23,6 @@ from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsFor
 from photo.lib import add_tags, add_or_update_xmp_metadata
 from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch, TagProps
 
-# Celery Task
-from photo.tasks import UploadAlbum
 
 
 class HomeView(ListView):
@@ -404,37 +402,3 @@ class AlbumExifUpdateView(View):
 
         return redirect('photo:album', album_id=album_id)
 
-
-
-class ScanFolderAsyncView(FormView):
-    template_name = 'photo/async_upload.html'
-    form_class = ScanFolderForm
-
-    def get_initial(self):
-        """Pre-fill the form with default values."""
-        initial = super().get_initial()
-        initial['default_date'] = timezone.now()
-        initial['directory'] = '/' + str(timezone.now().year) + '/'
-        initial['default_tags'] = ''
-        return initial
-
-    def form_valid(self, form):
-        """Handle form submission and start the async task."""
-        default_tags = form.cleaned_data.get("default_tags")
-        default_date = form.cleaned_data.get("default_date")
-        directory = form.cleaned_data.get("directory")
-
-        if not directory.endswith('/'):
-            directory += '/'
-
-        # Start Celery async task
-        upload_task = UploadAlbum.delay(directory, default_tags, default_date)
-
-        # Get task ID for tracking
-        task_id = upload_task.task_id
-
-        return self.render_to_response(self.get_context_data(form=form, task_id=task_id, title=_('Scan Folder - Async')))
-
-    def form_invalid(self, form):
-        """Render form again with errors."""
-        return self.render_to_response(self.get_context_data(form=form, title=_('Scan Folder - Async')))

@@ -8,7 +8,6 @@ from photo import urls as photo_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(photo_urls)),
-    path('celery-progress/', include('celery_progress.urls')),
 ]
 
 if settings.DEBUG:

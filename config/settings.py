@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost.photo', 'localhost']
 
@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'crispy_forms',
     'sorl.thumbnail',
-    'celery',
-    'celery_progress',
     'photo',
     'crispy_bootstrap4'
 ]
@@ -109,11 +107,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 #####################################################################
-# Email
-SERVER_EMAIL = 'Alex Little <consult@alexlittle.net>'
-EMAIL_SUBJECT_PREFIX = '[Alex Little]: '
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_FILE_PATH = '/tmp/'
+# Email not configured
 #####################################################################
 
 
@@ -195,9 +189,11 @@ IMAGE_EXTENSIONS = ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.gif', '*.bmp', '*.JP
 IGNORE_TAG_REGEXS = []
 
 try:
-    from config.local_settings import *
+    from config.local_settings import *  # noqa: F403
 except ImportError:
     import warnings
+
     warnings.warn(
-        "Using default settings."
-        "Add `config/local_settings.py` for custom settings.")
+        "Using default settings. Add `config/local_settings.py` for custom settings.",
+        stacklevel=2,
+    )

@@ -27,5 +27,4 @@ urlpatterns = [
     path('album/updatetags/', photo_views.PhotoUpdateTagsView.as_view(), name="update_tags"),
 
     path('export/', include('photo.export.urls')),
-    path('scan/async/', photo_views.ScanFolderAsyncView.as_view(), name='scan_folder_async'),
 ]

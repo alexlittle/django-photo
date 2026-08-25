@@ -1,0 +1,92 @@
+[project]
+name = "django-photo"
+version = "0.1.0"
+description = "Photo web application"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Alex Little", email = "alex@alexlittle.net" }
+]
+
+
+dependencies = [
+    "crispy-bootstrap4==2026.2",
+    "django==6.0.7",
+    "django-autoslug==1.9.9",
+    "django-crispy-forms==2.6",
+    "mysqlclient==2.2.8",
+    "nh3>=0.3.7",
+    "pillow==12.3.0",
+    "python-dateutil==2.9.0.post0",
+    "python-xmp-toolkit==2.1.0",
+    "pytz==2026.2",
+    "reportlab==5.0.0",
+    "requests==2.34.2",
+    "six==1.17.0",
+    "sorl-thumbnail>=12.4,<13.0",
+    "typing-extensions==4.16.0",
+    "typing-inspection==0.4.2",
+    "tzdata==2026.3",
+    "urllib3==2.7.0",
+]
+
+
+
+# Interrogate settings for checking existence of doc strings
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = false
+fail-under = 0
+verbose = 2
+exclude = ["tests", "docs", "build"]
+
+# pydoclint settings for checking correctness and consistency of docstrings
+[tool.pydoclint]
+style = "google"
+exclude = "tests|docs"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py"]
+
+[tool.coverage.run]
+relative_files = true
+source = ["."]
+omit = ["*/migrations/*", "*/tests/*", "*/settings*.py", "manage.py", "env/*", "docs/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"config/settings.py" = ["F403", "F405"]
+"config/settings_ci.py" = ["F403", "F405"]
+
+[dependency-groups]
+dev = [
+    "pytest-cov==7.1.0",
+    "interrogate==1.7.0",
+    "pydoclint==0.9.1",
+    "setuptools==84.0.0",
+    "pytest>=9.1.1",
+    "ruff>=0.16.4",
+    "pytest-django==4.14.0",
+]
+local = [
+    "django-extensions==4.1"
+]
+deploy = [
+    "mod-wsgi==6.0.6"
+]
+
+[tool.uv]
+package = false
+default-groups = ["local"]
