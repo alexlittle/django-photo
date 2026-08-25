@@ -17,6 +17,8 @@ from photo.forms import EditPhotoForm, ScanFolderForm, SearchForm, UpdateTagsFor
 from photo.lib import add_or_update_xmp_metadata, add_tags
 from photo.models import Album, CombinedSearch, Photo, PhotoTag, Tag, TagCategory, TagProps
 
+PHOTO_ALBUM = "photo:album"
+
 
 class HomeView(ListView):
     template_name = "photo/home.html"
@@ -171,7 +173,7 @@ class SearchView(ListView):
 
 
 class PhotoView(View):
-    def get(self, request, photo_id):
+    def get(self, _request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
         image_path = os.path.join(settings.PHOTO_ROOT, photo.album.name.lstrip("/"), photo.file)
 
@@ -191,7 +193,7 @@ class PhotoView(View):
 
 
 class PhotoViewAnnotated(View):
-    def get(self, request, photo_id):
+    def get(self, _request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
         image_path = os.path.join(settings.PHOTO_ROOT, photo.album.name.lstrip("/"), photo.file)
 
@@ -248,7 +250,7 @@ class ScanFolderView(FormView):
         )
         album_id = int(out.getvalue())
 
-        self.success_url = reverse("photo:album", kwargs={"album_id": album_id})
+        self.success_url = reverse(PHOTO_ALBUM, kwargs={"album_id": album_id})
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -289,7 +291,7 @@ class PhotoEditView(View):
             )
             photo.save()
             add_or_update_xmp_metadata(photo)
-            return redirect("photo:album", album_id=photo.album.id)
+            return redirect(PHOTO_ALBUM, album_id=photo.album.id)
 
         context = {
             "form": form,
@@ -300,7 +302,7 @@ class PhotoEditView(View):
 
 
 class PhotoSetCoverView(View):
-    def get(self, request, photo_id):
+    def get(self, _request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
         photos = Photo.objects.filter(album=photo.album, album_cover=True)
 
@@ -311,21 +313,21 @@ class PhotoSetCoverView(View):
         photo.album_cover = True
         photo.save()
 
-        return redirect("photo:album", album_id=photo.album.id)
+        return redirect(PHOTO_ALBUM, album_id=photo.album.id)
 
 
 class PhotoStarView(View):
-    def get(self, request, photo_id):
+    def get(self, _request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
         photo.set_prop("favourite", "true")
-        return redirect("photo:album", album_id=photo.album.id)
+        return redirect(PHOTO_ALBUM, album_id=photo.album.id)
 
 
 class PhotoUnstarView(View):
-    def get(self, request, photo_id):
+    def get(self, _request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
         photo.set_prop("favourite", "false")
-        return redirect("photo:album", album_id=photo.album.id)
+        return redirect(PHOTO_ALBUM, album_id=photo.album.id)
 
 
 class PhotoUpdateTagsView(FormView):
@@ -403,11 +405,11 @@ class PhotoUpdateTagsView(FormView):
 
 
 class AlbumExifUpdateView(View):
-    def get(self, request, album_id):
+    def get(self, _request, album_id):
         album = get_object_or_404(Album, id=album_id)
         photos = Photo.objects.filter(album=album)
 
         for photo in photos:
             add_or_update_xmp_metadata(photo)
 
-        return redirect("photo:album", album_id=album_id)
+        return redirect(PHOTO_ALBUM, album_id=album_id)
