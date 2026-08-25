@@ -25,7 +25,7 @@ packaging==25.0
 pillow==12.3.0
 pip-check-updates==0.29.0
 prompt_toolkit==3.0.52
-Pygments==2.19.2
+Pygments==2.20.0
 python-dateutil==2.9.0.post0
 python-xmp-toolkit==2.1.0
 pytz==2026.2
