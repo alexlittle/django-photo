@@ -8,6 +8,10 @@ from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer
 from photo.models import Album, Photo, Tag
 
 
+def make_font_tag(size, text):
+    return f"<font size={size}>{text}</font>"
+
+
 def make(album_id=None, tag_id=None):
     photos = None
     filename = None
@@ -34,9 +38,9 @@ def make(album_id=None, tag_id=None):
     except Tag.DoesNotExist:
         print("No Tag Specified")
 
-    print("Creating album for... " + filename)
+    print(f"Creating album for... {filename}")
 
-    album_url = "albums/" + filename + ".pdf"
+    album_url = f"albums/{filename}.pdf"
     album_filename = os.path.join(settings.PHOTO_ROOT, album_url)
 
     doc = SimpleDocTemplate(
@@ -53,16 +57,16 @@ def make(album_id=None, tag_id=None):
 
     if album_id and album.title:
         photo_page.append(Spacer(1, 12))
-        ptext = "<font size=40>" + album.title + "</font>"
+        ptext = make_font_tag(40, album.title)
         photo_page.append(Paragraph(ptext, style_centered))
         photo_page.append(Spacer(1, 50))
         if album.date_display:
-            ptext = "<font size=25>" + album.date_display + "</font>"
+            ptext = make_font_tag(25, album.date_display)
             photo_page.append(Paragraph(ptext, style_centered))
 
     if tag_id:
         photo_page.append(Spacer(1, 12))
-        ptext = "<font size=40>" + tag.name + "</font>"
+        ptext = make_font_tag(40, tag.name)
         photo_page.append(Paragraph(ptext, style_centered))
         photo_page.append(Spacer(1, 50))
 
@@ -73,11 +77,11 @@ def make(album_id=None, tag_id=None):
         photo_page.append(im)
         photo_page.append(Spacer(1, 12))
         if photo.title:
-            ptext = f"<font size=20>[id:{photo.id}] - {photo.title}</font>"
+            ptext = make_font_tag(20, f"[id:{photo.id}] - {photo.title}")
             photo_page.append(Paragraph(ptext, style_centered))
             photo_page.append(Spacer(1, 15))
 
-        ptext = "<font size=12>" + photo.date.strftime("%B %Y") + "</font>"
+        ptext = make_font_tag(12, photo.date.strftime("%B %Y"))
         photo_page.append(Paragraph(ptext, style_centered))
         photo_page.append(Spacer(1, 12))
 
