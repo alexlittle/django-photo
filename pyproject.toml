@@ -11,7 +11,7 @@ authors = [
 
 dependencies = [
     "crispy-bootstrap4==2026.2",
-    "django==6.0.7",
+    "django==6.1",
     "django-autoslug==1.9.9",
     "django-crispy-forms==2.7",
     "mysqlclient==2.2.8",
@@ -19,7 +19,7 @@ dependencies = [
     "pillow==12.3.0",
     "python-dateutil==2.9.0.post0",
     "python-xmp-toolkit==2.1.0",
-    "pytz==2026.2",
+    "pytz==2026.3.post1",
     "reportlab==5.0.1",
     "requests==2.34.2",
     "six==1.17.0",
