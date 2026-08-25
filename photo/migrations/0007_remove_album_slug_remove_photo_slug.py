@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('photo', '0006_alter_photo_file'),
+        ("photo", "0006_alter_photo_file"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='album',
-            name='slug',
+            model_name="album",
+            name="slug",
         ),
         migrations.RemoveField(
-            model_name='photo',
-            name='slug',
+            model_name="photo",
+            name="slug",
         ),
     ]

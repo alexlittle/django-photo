@@ -1,1 +1,0 @@
-from photo.asynctasks.upload_album import UploadAlbum

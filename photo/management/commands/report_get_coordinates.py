@@ -1,9 +1,9 @@
-
 """
 Management command to get lat/lng for places
 """
-import urllib
+
 import json
+import urllib
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -15,7 +15,7 @@ class Command(BaseCommand):
     help = "gets lat/lng for locations"
 
     def handle(self, *args, **options):
-        locations = Tag.objects.filter(tagcategory__name='Location')
+        locations = Tag.objects.filter(tagcategory__name="Location")
 
         tags = []
         for location in locations:
@@ -26,49 +26,51 @@ class Command(BaseCommand):
         for tag in tags:
             print("--------------------")
             print(tag.name)
-            print("Edit: %s/admin/photo/tag/%d/change/" % (settings.DOMAIN_NAME, tag.id))
-            print("Photos: %s/tag/%s" % (settings.DOMAIN_NAME, tag.slug))
+            print(f"Edit: {settings.DOMAIN_NAME}/admin/photo/tag/{tag.id}/change/")
+            print(f"Photos: {settings.DOMAIN_NAME}/tag/{tag.slug}")
             params = {
-                'q': tag.name.encode('utf-8'),
-                'username': settings.GEONAMES_USERNAME,
-                'maxRows': 20}
-            if tag.get_prop('country'):
-                params['country'] = tag.get_prop('country')
+                "q": tag.name.encode("utf-8"),
+                "username": settings.GEONAMES_USERNAME,
+                "maxRows": 20,
+            }
+            if tag.get_prop("country"):
+                params["country"] = tag.get_prop("country")
 
-            url = 'http://api.geonames.org/searchJSON?' + urllib.parse.urlencode(params)
+            url = "http://api.geonames.org/searchJSON?" + urllib.parse.urlencode(params)
 
             print(url)
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req)
             data_json = json.loads(response.read())
 
-            if len(data_json['geonames']) > 0:
+            if len(data_json["geonames"]) > 0:
                 for i in range(0, 20):
                     try:
-                        print("%d : %s, %s, %s, %s" % (i, data_json['geonames'][i]['toponymName'],
-                                                       data_json['geonames'][i]['name'],
-                                                       data_json['geonames'][i]['adminName1'],
-                                                       data_json['geonames'][i]['countryCode']))
+                        top_name = data_json["geonames"][i]["toponymName"]
+                        name = data_json["geonames"][i]["name"]
+                        admin_name = data_json["geonames"][i]["adminName1"]
+                        country_code = data_json["geonames"][i]["countryCode"]
+                        print(f"{i} : {top_name}, {name}, {admin_name}, {country_code}")
                     except (IndexError, KeyError):
                         pass
                 accept = input("Accept this? [0-19/Ignore/No]")
 
-                if accept == 'i':
-                    print('ignoring')
-                elif accept == 'n':
-                    print('no')
+                if accept == "i":
+                    print("ignoring")
+                elif accept == "n":
+                    print("no")
                 else:
                     idx = int(accept)
-                    print('accepted')
-                    lat = data_json['geonames'][idx]['lat']
-                    lng = data_json['geonames'][idx]['lng']
-                    country_code = data_json['geonames'][idx]['countryCode']
-                    cc_obj, created = TagProps.objects.get_or_create(tag=tag, name='country')
+                    print("accepted")
+                    lat = data_json["geonames"][idx]["lat"]
+                    lng = data_json["geonames"][idx]["lng"]
+                    country_code = data_json["geonames"][idx]["countryCode"]
+                    cc_obj, created = TagProps.objects.get_or_create(tag=tag, name="country")
                     cc_obj.value = country_code
                     cc_obj.save()
-                    lat_obj, created = TagProps.objects.get_or_create(tag=tag, name='lat')
+                    lat_obj, created = TagProps.objects.get_or_create(tag=tag, name="lat")
                     lat_obj.value = lat
                     lat_obj.save()
-                    lng_obj, created = TagProps.objects.get_or_create(tag=tag, name='lng')
+                    lng_obj, created = TagProps.objects.get_or_create(tag=tag, name="lng")
                     lng_obj.value = lng
                     lng_obj.save()

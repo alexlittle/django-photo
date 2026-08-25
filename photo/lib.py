@@ -1,12 +1,12 @@
-import re
 import os
+import re
 
-from PIL import Image
-from PIL.ExifTags import TAGS
 from django.conf import settings
 from libxmp import XMPFiles, XMPMeta, consts
+from PIL import Image
+from PIL.ExifTags import TAGS
 
-from photo.models import Tag, PhotoTag
+from photo.models import PhotoTag, Tag
 
 
 def get_exif(fn):
@@ -31,14 +31,11 @@ def ignore_folder(dir):
 
 
 def ignore_file(filename):
-    for ext in settings.IGNORE_EXTENSIONS:
-        if filename.lower().endswith(ext):
-            return True
-    return False
+    return any(filename.lower().endswith(ext) for ext in settings.IGNORE_EXTENSIONS)
 
 
 def add_tags(photo, tags_str):
-    tags = [x.strip() for x in tags_str.split(',')]
+    tags = [x.strip() for x in tags_str.split(",")]
     created = False
     for t in tags:
         if t.strip():
@@ -60,11 +57,12 @@ def rename_photo_file(photo):
         photo.file = new_name
         photo.save()
     except FileNotFoundError:
-        print("File not found: %s" % photo.file)
+        print(f"File not found: {photo.file}")
 
     return True
 
-def add_or_update_xmp_metadata(photo): #image_path, namespace_uri, property_name, property_value):
+
+def add_or_update_xmp_metadata(photo):  # image_path, namespace_uri, property_name, property_value):
     """Adds or updates an XMP property in an image file.
 
     Args:
@@ -76,12 +74,9 @@ def add_or_update_xmp_metadata(photo): #image_path, namespace_uri, property_name
 
     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
     namespace_uri = consts.XMP_NS_DC
-    property_name = 'subject'
+    property_name = "subject"
 
-    if photo.title:
-        desc = photo.title + " - " + photo.get_tags(", ")
-    else:
-        desc = photo.get_tags(", ")
+    desc = photo.title + " - " + photo.get_tags(", ") if photo.title else photo.get_tags(", ")
 
     # get location if exists
     lat, lng = photo.get_location()
@@ -101,7 +96,7 @@ def add_or_update_xmp_metadata(photo): #image_path, namespace_uri, property_name
             namespace_uri,
             property_name,
             desc,
-            {'prop_array_is_unordered': True, 'prop_value_is_array': True}
+            {"prop_array_is_unordered": True, "prop_value_is_array": True},
         )
 
         if xmpfile.can_put_xmp(xmp):

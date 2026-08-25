@@ -1,4 +1,3 @@
-
 """
 Management command to find albums with deep directory structure
 """
@@ -7,6 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from photo.models import Album
+
 from . import bcolors
 
 
@@ -15,26 +15,25 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-c',
-            '--count',
-            dest='max_dirs',
-            help='max_dirs',
+            "-c",
+            "--count",
+            dest="max_dirs",
+            help="max_dirs",
         )
 
     def handle(self, *args, **options):
-        max_dirs = int(options['max_dirs'])
-        print("Finds albums deeper than %d directories" % max_dirs)
+        max_dirs = int(options["max_dirs"])
+        print(f"Finds albums deeper than {max_dirs} directories")
         print("---------------------------------------")
         counter = 0
         for album in Album.objects.all():
-            dirs = filter(None, album.name.split('/'))
+            dirs = filter(None, album.name.split("/"))
             if len(list(dirs)) > max_dirs:
-                print("%salbum/%d - %s [%s]" % (settings.DOMAIN_NAME, album.id, album.title, album.name))
+                print(f"{settings.DOMAIN_NAME}album/{album.id} - {album.title} [{album.name}]")
                 counter += 1
-
         if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
         else:
             print("---------------------------------------")
-            print("%s%d directories deeper than%s%s" % (bcolors.WARNING, counter, max_dirs, bcolors.ENDC))
+            print(f"{bcolors.WARNING}{counter} directories deeper than {max_dirs}{bcolors.ENDC}")
         print("---------------------------------------")

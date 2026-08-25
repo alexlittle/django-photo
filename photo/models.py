@@ -1,8 +1,7 @@
-
 import os
 
 from django.conf import settings
-from django.db import models, connection
+from django.db import connection, models
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
@@ -13,7 +12,8 @@ from django.utils.translation import gettext_lazy as _
 class CombinedSearchManager(models.Manager):
     def combined_search(self, query):
         with connection.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                    DISTINCT p.id
                 FROM
@@ -29,16 +29,19 @@ class CombinedSearchManager(models.Manager):
                     MATCH (a.name, a.title, a.date_display) AGAINST (%s IN NATURAL LANGUAGE MODE)
 
                 ;
-            """, [query, query, query])
+            """,
+                [query, query, query],
+            )
 
-            results = [{'id': row[0]} for row in cursor.fetchall()]
+            results = [{"id": row[0]} for row in cursor.fetchall()]
         return results
+
 
 class CombinedSearch(models.Model):
     objects = CombinedSearchManager()
 
 
-class Album (models.Model):
+class Album(models.Model):
     name = models.TextField(blank=False, null=False)
     title = models.TextField(blank=True, null=True)
     date_display = models.TextField(blank=True, null=True)
@@ -49,11 +52,11 @@ class Album (models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _('Album')
-        verbose_name_plural = _('Albums')
+        verbose_name = _("Album")
+        verbose_name_plural = _("Albums")
 
     def get_safe_name(self):
-        return self.name.lstrip('/')
+        return self.name.lstrip("/")
 
     def has_cover(self):
         try:
@@ -76,13 +79,12 @@ class Album (models.Model):
     def get_count(self):
         return Photo.objects.filter(album=self).count()
 
-
     def get_cover(self):
         try:
             p = Photo.objects.get(album=self, album_cover=True)
         except Photo.DoesNotExist:
             try:
-                p = Photo.objects.filter(album=self).earliest('date')
+                p = Photo.objects.filter(album=self).earliest("date")
             except Photo.DoesNotExist:
                 return None
         except Photo.MultipleObjectsReturned:
@@ -100,35 +102,34 @@ class TagCategory(models.Model):
         return self.name
 
     class Meta:
-        verbose_name = _('Tag Category')
-        verbose_name_plural = _('Tag Categories')
+        verbose_name = _("Tag Category")
+        verbose_name_plural = _("Tag Categories")
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify(self.name)
-        super(TagCategory, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
-class Tag (models.Model):
+class Tag(models.Model):
     name = models.TextField(blank=False, null=False)
     slug = models.SlugField()
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
-    tagcategory = models.ForeignKey(
-        TagCategory, null=True, default=None, on_delete=models.CASCADE)
+    tagcategory = models.ForeignKey(TagCategory, null=True, default=None, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = _('Tag')
-        verbose_name_plural = _('Tags')
-        ordering = ['name']
+        verbose_name = _("Tag")
+        verbose_name_plural = _("Tags")
+        ordering = ["name"]
 
     def save(self, *args, **kwargs):
         if not self.id:
             self.slug = slugify(self.name)
-        super(Tag, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_prop(self, property):
         try:
@@ -141,16 +142,16 @@ class Tag (models.Model):
         return TagProps.objects.filter(tag=self)
 
     def get_lat(self):
-        return self.get_prop('lat')
+        return self.get_prop("lat")
 
     def get_lng(self):
-        return self.get_prop('lng')
+        return self.get_prop("lng")
 
     def get_photo_count(self):
         return Photo.objects.filter(phototag__tag=self).count()
 
 
-class Photo (models.Model):
+class Photo(models.Model):
     file = models.CharField(max_length=250, blank=False, null=False, unique=True)
     date = models.DateTimeField(default=timezone.now)
     title = models.TextField(blank=True, null=True)
@@ -158,15 +159,15 @@ class Photo (models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
     album_cover = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag, through='PhotoTag', name='tags')
+    tags = models.ManyToManyField(Tag, through="PhotoTag", name="tags")
     md5hash = models.CharField(max_length=32, blank=True, null=True)
 
     def __str__(self):
         return self.file
 
     class Meta:
-        verbose_name = _('Photo')
-        verbose_name_plural = _('Photos')
+        verbose_name = _("Photo")
+        verbose_name_plural = _("Photos")
 
     def get_prop(self, property):
         try:
@@ -180,7 +181,10 @@ class Photo (models.Model):
         if not loc_tag:
             return 0, 0
 
-        return loc_tag.get_lat(), loc_tag.get_lng(),
+        return (
+            loc_tag.get_lat(),
+            loc_tag.get_lng(),
+        )
 
     def set_prop(self, property, value):
         if self.get_prop(property) is None:
@@ -196,16 +200,16 @@ class Photo (models.Model):
         return PhotoProps.objects.filter(photo=self)
 
     def get_tags(self, separator):
-        tags = Tag.objects.filter(
-            phototag__photo=self).values_list('name', flat=True)
+        tags = Tag.objects.filter(phototag__photo=self).values_list("name", flat=True)
         return separator.join(tags)
 
     def get_full_url(self):
         return settings.PHOTO_ROOT + self.album.name + self.file
 
     def get_face_count(self):
-        count = self.get_prop('face_count')
+        count = self.get_prop("face_count")
         return count
+
 
 @receiver(post_delete, sender=Photo)
 def photo_delete_file(sender, instance, **kwargs):
@@ -223,17 +227,17 @@ class PhotoProps(models.Model):
     value = models.TextField(blank=False, null=False)
 
     class Meta:
-        verbose_name = _('Photo property')
-        verbose_name_plural = _('Photo properties')
+        verbose_name = _("Photo property")
+        verbose_name_plural = _("Photo properties")
 
 
 class PhotoTag(models.Model):
     photo = models.ForeignKey(Photo, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag,  on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = _('Photo Tag')
-        verbose_name_plural = _('Photo Tags')
+        verbose_name = _("Photo Tag")
+        verbose_name_plural = _("Photo Tags")
 
 
 class TagProps(models.Model):
@@ -242,12 +246,11 @@ class TagProps(models.Model):
     value = models.CharField(max_length=100, blank=False, null=False)
 
     class Meta:
-        unique_together = ('tag', 'name')
-        verbose_name = _('Tag property')
-        verbose_name_plural = _('Tag properties')
+        unique_together = ("tag", "name")
+        verbose_name = _("Tag property")
+        verbose_name_plural = _("Tag properties")
 
 
 def image_file_name(instance, filename):
     basename, ext = os.path.splitext(filename)
-    return os.path.join('cache', filename[0:2], filename[2:4], filename + ext.lower())
-
+    return os.path.join("cache", filename[0:2], filename[2:4], filename + ext.lower())

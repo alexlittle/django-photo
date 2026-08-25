@@ -1,7 +1,7 @@
-
 """
 Management command to create slugs
 """
+
 from django.core.management.base import BaseCommand
 
 from photo.models import Tag, TagCategory

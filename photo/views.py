@@ -1,157 +1,155 @@
-
-import os
 import json
-
+import os
 from io import StringIO
-
-from PIL import Image, ImageDraw
-
-
 
 from django.conf import settings
 from django.core import management
+from django.db.models import Count, Max
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.db.models import Max, Count
-from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, ListView, View,FormView
+from django.views.generic import FormView, ListView, TemplateView, View
+from PIL import Image, ImageDraw
 
-from photo.forms import ScanFolderForm, EditPhotoForm, SearchForm, UpdateTagsForm
-from photo.lib import add_tags, add_or_update_xmp_metadata
-from photo.models import Album, Photo, PhotoTag, Tag, TagCategory, CombinedSearch, TagProps
-
+from photo.forms import EditPhotoForm, ScanFolderForm, SearchForm, UpdateTagsForm
+from photo.lib import add_or_update_xmp_metadata, add_tags
+from photo.models import Album, CombinedSearch, Photo, PhotoTag, Tag, TagCategory, TagProps
 
 
 class HomeView(ListView):
-
-    template_name = 'photo/home.html'
+    template_name = "photo/home.html"
     paginate_by = settings.ALBUMS_PER_PAGE
-    context_object_name = 'albums'
+    context_object_name = "albums"
 
     def get_queryset(self):
-        return Album.objects.all().annotate(max_date=Max('photo__date')).order_by('-max_date')
+        return Album.objects.all().annotate(max_date=Max("photo__date")).order_by("-max_date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['years'] = Tag.objects.filter(tagcategory__slug='date')
+        context["years"] = Tag.objects.filter(tagcategory__slug="date")
         return context
 
 
 class AlbumView(ListView):
-    template_name = 'photo/album.html'
-    context_object_name = 'photos'
+    template_name = "photo/album.html"
+    context_object_name = "photos"
     paginate_by = settings.PHOTOS_PER_PAGE
 
     def dispatch(self, request, *args, **kwargs):
-        self.album = get_object_or_404(Album, pk=kwargs['album_id'])
+        self.album = get_object_or_404(Album, pk=kwargs["album_id"])
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        photos = Photo.objects.filter(album=self.album).order_by('date', 'file')
+        photos = Photo.objects.filter(album=self.album).order_by("date", "file")
 
-        if self.request.GET.get('view', '') == 'print':
-            photos = photos.exclude(photoprops__name='exclude.album.export', photoprops__value='true')
+        if self.request.GET.get("view", "") == "print":
+            photos = photos.exclude(
+                photoprops__name="exclude.album.export", photoprops__value="true"
+            )
 
         return photos
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['album'] = self.album
-        context['photo_count'] = self.get_queryset().count()
-        context['photos_checked'] = self.request.GET.getlist('photo_id', [])
+        context["album"] = self.album
+        context["photo_count"] = self.get_queryset().count()
+        context["photos_checked"] = self.request.GET.getlist("photo_id", [])
 
         return context
 
 
 class TagSlugView(ListView):
-    template_name = 'photo/tag.html'
-    context_object_name = 'photos'
+    template_name = "photo/tag.html"
+    context_object_name = "photos"
     paginate_by = settings.PHOTOS_PER_PAGE  # Enables built-in pagination
 
     def get_queryset(self):
-        slug_list = self.kwargs['slug'].split('+')
+        slug_list = self.kwargs["slug"].split("+")
         return (
             Photo.objects.filter(phototag__tag__slug__in=slug_list)
-            .annotate(count=Count('id'))
+            .annotate(count=Count("id"))
             .filter(count=len(slug_list))
-            .order_by('date')
+            .order_by("date")
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        slug_list = self.kwargs['slug'].split('+')
-        context['tags'] = Tag.objects.filter(slug__in=slug_list)
-        context['photos_checked'] = self.request.GET.getlist('photo_id', [])
+        slug_list = self.kwargs["slug"].split("+")
+        context["tags"] = Tag.objects.filter(slug__in=slug_list)
+        context["photos_checked"] = self.request.GET.getlist("photo_id", [])
         return context
 
 
 class CloudView(TemplateView):
-    template_name = 'photo/cloud.html'
+    template_name = "photo/cloud.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'title': _('Cloud'),
-            'tags': Tag.objects.all().order_by('name'),
-            'categories': TagCategory.objects.all().order_by('name'),
-        })
+        context.update(
+            {
+                "title": _("Cloud"),
+                "tags": Tag.objects.all().order_by("name"),
+                "categories": TagCategory.objects.all().order_by("name"),
+            }
+        )
         return context
 
 
 class MapView(TemplateView):
-    template_name = 'photo/map.html'
+    template_name = "photo/map.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        source = self.request.GET.get('source', 'me')
-        tags = Tag.objects.filter(tagcategory__name='Location', tagprops__name='source', tagprops__value=source) \
-            .exclude(tagprops__name='lat', tagprops__value='0') \
-            .exclude(tagprops__name='map.display', tagprops__value='false') \
+        source = self.request.GET.get("source", "me")
+        tags = (
+            Tag.objects.filter(
+                tagcategory__name="Location", tagprops__name="source", tagprops__value=source
+            )
+            .exclude(tagprops__name="lat", tagprops__value="0")
+            .exclude(tagprops__name="map.display", tagprops__value="false")
             .distinct()
+        )
 
-        sources = TagProps.objects.filter(tag__tagcategory__name='Location', name='source') \
-            .values_list('value', flat=True)\
+        sources = (
+            TagProps.objects.filter(tag__tagcategory__name="Location", name="source")
+            .values_list("value", flat=True)
             .distinct()
+        )
 
-        context.update({
-            'title': _('Map'),
-            'tags': tags,
-            'sources': sources
-        })
+        context.update({"title": _("Map"), "tags": tags, "sources": sources})
         return context
 
 
 class CloudCategoryView(TemplateView):
-    template_name = 'photo/cloud_category.html'
+    template_name = "photo/cloud_category.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category = kwargs['category']
-        tags = Tag.objects.filter(tagcategory__name=category) \
-            .values('id', 'name', 'slug') \
-            .annotate(count=Count('phototag')).order_by('name')
+        category = kwargs["category"]
+        tags = (
+            Tag.objects.filter(tagcategory__name=category)
+            .values("id", "name", "slug")
+            .annotate(count=Count("phototag"))
+            .order_by("name")
+        )
 
-        context.update({
-            'title': _('Cloud'),
-            'tags': tags
-        })
+        context.update({"title": _("Cloud"), "tags": tags})
         return context
 
 
 class SearchView(ListView):
-    template_name = 'photo/search.html'
-    context_object_name = 'results'
+    template_name = "photo/search.html"
+    context_object_name = "results"
     paginate_by = settings.PHOTOS_PER_PAGE  # Enables automatic pagination
 
     def get_queryset(self):
-        search_query = self.request.GET.get('q', '').strip()
+        search_query = self.request.GET.get("q", "").strip()
 
         if search_query:
             search_id_results = CombinedSearch.objects.combined_search(search_query)
-            search_ids = [result['id'] for result in search_id_results]
+            search_ids = [result["id"] for result in search_id_results]
         else:
             search_ids = []
 
@@ -159,14 +157,16 @@ class SearchView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        search_query = self.request.GET.get('q', '').strip()
-        form = SearchForm(initial={'q': search_query})
-        context['photos_checked'] = self.request.GET.getlist('photo_id', [])
-        context.update({
-            'form': form,
-            'query': search_query,
-            'total_results': self.get_queryset().count(),
-        })
+        search_query = self.request.GET.get("q", "").strip()
+        form = SearchForm(initial={"q": search_query})
+        context["photos_checked"] = self.request.GET.getlist("photo_id", [])
+        context.update(
+            {
+                "form": form,
+                "query": search_query,
+                "total_results": self.get_queryset().count(),
+            }
+        )
         return context
 
 
@@ -189,6 +189,7 @@ class PhotoView(View):
 
         return response
 
+
 class PhotoViewAnnotated(View):
     def get(self, request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
@@ -196,7 +197,7 @@ class PhotoViewAnnotated(View):
 
         with Image.open(image_path) as im:
             draw = ImageDraw.Draw(im)
-            boxes = json.loads(photo.get_prop('face_annotate'))
+            boxes = json.loads(photo.get_prop("face_annotate"))
             for box in boxes:
                 draw.rectangle(box, width=5)
 
@@ -208,65 +209,69 @@ class PhotoViewAnnotated(View):
 
 class PhotoFavouritesView(ListView):
     model = Photo
-    template_name = 'photo/favourites.html'
-    context_object_name = 'photos'
+    template_name = "photo/favourites.html"
+    context_object_name = "photos"
     paginate_by = settings.PHOTOS_PER_PAGE
 
     def get_queryset(self):
-        return Photo.objects.filter(photoprops__name='favourite', photoprops__value='true').order_by('-date')
+        return Photo.objects.filter(
+            photoprops__name="favourite", photoprops__value="true"
+        ).order_by("-date")
 
 
 class ScanFolderView(FormView):
-    template_name = 'photo/scan.html'
+    template_name = "photo/scan.html"
     form_class = ScanFolderForm
-    success_url = '/'  # Placeholder, to be updated dynamically
+    success_url = "/"  # Placeholder, to be updated dynamically
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['default_date'] = timezone.now()
-        initial['directory'] = '/' + str(timezone.now().year) + '/'
-        initial['default_tags'] = ''
+        initial["default_date"] = timezone.now()
+        initial["directory"] = "/" + str(timezone.now().year) + "/"
+        initial["default_tags"] = ""
         return initial
 
     def form_valid(self, form):
         default_tags = form.cleaned_data.get("default_tags")
         default_date = form.cleaned_data.get("default_date")
         directory = form.cleaned_data.get("directory")
-        if not directory.endswith('/'):
-            directory = directory + '/'
+        if not directory.endswith("/"):
+            directory = directory + "/"
 
         out = StringIO()
-        management.call_command('upload_album',
-                                directory=directory,
-                                defaulttags=default_tags,
-                                defaultdate=default_date,
-                                stdout=out)
+        management.call_command(
+            "upload_album",
+            directory=directory,
+            defaulttags=default_tags,
+            defaultdate=default_date,
+            stdout=out,
+        )
         album_id = int(out.getvalue())
 
-        self.success_url = reverse('photo:album', kwargs={'album_id': album_id})
+        self.success_url = reverse("photo:album", kwargs={"album_id": album_id})
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form, title=_('Scan Folder')))
+        return self.render_to_response(self.get_context_data(form=form, title=_("Scan Folder")))
 
 
 class PhotoEditView(View):
-    template_name = 'photo/edit.html'
+    template_name = "photo/edit.html"
     form_class = EditPhotoForm
 
     def get(self, request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
-        tags = Tag.objects.filter(phototag__photo=photo).values_list('name', flat=True)
+        tags = Tag.objects.filter(phototag__photo=photo).values_list("name", flat=True)
         data = {
-            'tags': ", ".join(tags),
-            'title': photo.title,
-            'date': photo.date,
+            "tags": ", ".join(tags),
+            "title": photo.title,
+            "date": photo.date,
         }
         form = self.form_class(initial=data)
         context = {
-            'form': form,
-            'title': _(u'Edit Photo'),
-            'photo': photo,
+            "form": form,
+            "title": _("Edit Photo"),
+            "photo": photo,
         }
         return render(request, self.template_name, context)
 
@@ -279,15 +284,17 @@ class PhotoEditView(View):
             new_tags = form.cleaned_data.get("tags")
             add_tags(photo, new_tags)
             photo.title = form.cleaned_data.get("title")
-            photo.date = form.cleaned_data.get("date").replace(hour=photo.date.hour, minute=photo.date.minute)
+            photo.date = form.cleaned_data.get("date").replace(
+                hour=photo.date.hour, minute=photo.date.minute
+            )
             photo.save()
             add_or_update_xmp_metadata(photo)
-            return redirect('photo:album', album_id=photo.album.id)
+            return redirect("photo:album", album_id=photo.album.id)
 
         context = {
-            'form': form,
-            'title': _(u'Edit Photo'),
-            'photo': photo,
+            "form": form,
+            "title": _("Edit Photo"),
+            "photo": photo,
         }
         return render(request, self.template_name, context)
 
@@ -304,36 +311,36 @@ class PhotoSetCoverView(View):
         photo.album_cover = True
         photo.save()
 
-        return redirect('photo:album', album_id=photo.album.id)
+        return redirect("photo:album", album_id=photo.album.id)
 
 
 class PhotoStarView(View):
     def get(self, request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
-        photo.set_prop('favourite', 'true')
-        return redirect('photo:album', album_id=photo.album.id)
+        photo.set_prop("favourite", "true")
+        return redirect("photo:album", album_id=photo.album.id)
 
 
 class PhotoUnstarView(View):
     def get(self, request, photo_id):
         photo = get_object_or_404(Photo, pk=photo_id)
-        photo.set_prop('favourite', 'false')
-        return redirect('photo:album', album_id=photo.album.id)
+        photo.set_prop("favourite", "false")
+        return redirect("photo:album", album_id=photo.album.id)
 
 
 class PhotoUpdateTagsView(FormView):
-    template_name = 'photo/update_tags.html'
+    template_name = "photo/update_tags.html"
     form_class = UpdateTagsForm
 
     def get_initial(self):
         """Pre-fill the form with query parameters."""
         initial = super().get_initial()
-        initial['next'] = self.request.GET.get("next", "/")
+        initial["next"] = self.request.GET.get("next", "/")
         return initial
 
     def get_photo_ids(self):
         """Retrieve photo IDs from request."""
-        return self.request.GET.getlist('photo_id', [])
+        return self.request.GET.getlist("photo_id", [])
 
     def form_valid(self, form):
         """Process the form when submitted."""
@@ -342,7 +349,7 @@ class PhotoUpdateTagsView(FormView):
         update_tags = form.cleaned_data.get("tags", "")
         date = form.cleaned_data.get("date")
         next_url = form.cleaned_data.get("next")
-        tags = [x.strip() for x in update_tags.split(',') if x.strip()]
+        tags = [x.strip() for x in update_tags.split(",") if x.strip()]
 
         for tag_name in tags:
             tag, _ = Tag.objects.get_or_create(name=tag_name)
@@ -372,24 +379,27 @@ class PhotoUpdateTagsView(FormView):
             for photo_id in photo_ids:
                 try:
                     photo = Photo.objects.get(id=photo_id)
-                    old_path = os.path.join(settings.PHOTO_ROOT, photo.album.get_safe_name(), photo.file)
-                    new_path = os.path.join(settings.PHOTO_ROOT, new_album.get_safe_name(), photo.file)
+                    old_path = os.path.join(
+                        settings.PHOTO_ROOT, photo.album.get_safe_name(), photo.file
+                    )
+                    new_path = os.path.join(
+                        settings.PHOTO_ROOT, new_album.get_safe_name(), photo.file
+                    )
                     os.rename(old_path, new_path)
                     photo.album = new_album
                     photo.save()
-                except (Photo.DoesNotExist, FileNotFoundError) as e:
+                except (Photo.DoesNotExist, FileNotFoundError):
                     continue
 
         # Redirect to the next page with updated photo IDs
-        url_params = '&'.join([f'photo_id={x}' for x in photo_ids])
-        if '?' not in next_url:
-            next_url += '?'
+        url_params = "&".join([f"photo_id={x}" for x in photo_ids])
+        if "?" not in next_url:
+            next_url += "?"
         return HttpResponseRedirect(f"{next_url}&{url_params}")
 
     def form_invalid(self, form):
         """Handle form errors."""
-        return self.render_to_response(self.get_context_data(form=form, title=_('Update Tags')))
-
+        return self.render_to_response(self.get_context_data(form=form, title=_("Update Tags")))
 
 
 class AlbumExifUpdateView(View):
@@ -400,5 +410,4 @@ class AlbumExifUpdateView(View):
         for photo in photos:
             add_or_update_xmp_metadata(photo)
 
-        return redirect('photo:album', album_id=album_id)
-
+        return redirect("photo:album", album_id=album_id)

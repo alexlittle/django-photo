@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('photo', '0001_initial'),
+        ("photo", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='photo',
-            name='md5hash',
+            model_name="photo",
+            name="md5hash",
             field=models.CharField(blank=True, max_length=20, null=True),
         ),
     ]

@@ -1,7 +1,7 @@
-
 """
 Management command to find albums with no title set
 """
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
@@ -22,12 +22,13 @@ class Command(BaseCommand):
 
         counter = 0
         for a in albums:
-            print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo:album', args=(a.id,))))
+            link = reverse("photo:album", args=(a.id,))
+            print(f"{a.name} - {settings.DOMAIN_NAME}{link}")
             counter += 1
 
         if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
         else:
             print("---------------------------------------")
-            print("%s%d albums without a title%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+            print(f"{bcolors.WARNING}{counter} albums without a title{bcolors.ENDC}")
         print("---------------------------------------")

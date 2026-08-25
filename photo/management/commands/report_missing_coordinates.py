@@ -1,4 +1,3 @@
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
@@ -22,16 +21,14 @@ class Command(BaseCommand):
         for t in tags:
             if t.get_lat() is None or t.get_lat() == "0":
                 counter += 1
-                print("%d %s - %s%s" % (counter,
-                                        t.name,
-                                        settings.DOMAIN_NAME,
-                                        reverse('admin:photo_tag_change',
-                                                args=(t.id, ))))
-                print("     %s%s" % (settings.DOMAIN_NAME, reverse('photo:tag_slug', args=(t.slug,))))
+                tag_link = reverse("admin:photo_tag_change", args=(t.id,))
+                tag_slug = reverse("photo:tag_slug", args=(t.slug,))
+                print(f"{counter} {t.name} - {settings.DOMAIN_NAME}{tag_link}")
+                print(f"     {settings.DOMAIN_NAME}{tag_slug}")
 
         if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
         else:
             print("---------------------------------------")
-            print("%s%d missing coordinates%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+            print(f"{bcolors.WARNING}{counter} missing coordinates{bcolors.ENDC}")
         print("---------------------------------------")

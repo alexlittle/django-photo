@@ -1,11 +1,10 @@
-
 """
 Management command to find albums with less than X photos
 """
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.models import Count
-from django.conf import settings
 
 from photo.models import Album
 
@@ -17,28 +16,31 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-c',
-            '--count',
-            dest='max_count',
-            help='max_count',
+            "-c",
+            "--count",
+            dest="max_count",
+            help="max_count",
         )
 
     def handle(self, *args, **options):
-        max_count = int(options['max_count'])
+        max_count = int(options["max_count"])
 
-        print("Albums with less than %d photos" % max_count)
+        print(f"Albums with less than {max_count} photos")
         print("---------------------------------------")
         counter = 0
 
         for album in Album.objects.annotate(total=Count("photo")):
             if album.total < max_count:
-                print("%s/album/%d - %s - %s [%d photos]"
-                      % (settings.DOMAIN_NAME, album.id, album.title, album.name, album.total))
+                link = f"{settings.DOMAIN_NAME}/album/{album.id}"
+                print(f"{link} - {album.title} - {album.name} [{album.total} photos]")
                 counter += 1
 
         if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
         else:
             print("---------------------------------------")
-            print("%s%d albums with less than %d photos %s" % (bcolors.WARNING, counter, max_count, bcolors.ENDC))
+            print(
+                f"{bcolors.WARNING}{counter} albums with less than "
+                f"{max_count} photos {bcolors.ENDC}"
+            )
         print("---------------------------------------")

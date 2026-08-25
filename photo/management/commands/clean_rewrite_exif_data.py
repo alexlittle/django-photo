@@ -1,12 +1,11 @@
-
 """
 Management command to rewrite exif data
 """
 
 from django.core.management.base import BaseCommand
 
-from photo.models import Photo, Album
 from photo.lib import add_or_update_xmp_metadata
+from photo.models import Album, Photo
 
 
 class Command(BaseCommand):
@@ -14,16 +13,16 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-a',
-            '--album',
-            dest='album',
-            help='Source Album ID',
+            "-a",
+            "--album",
+            dest="album",
+            help="Source Album ID",
         )
 
     def handle(self, *args, **options):
 
         try:
-            album = Album.objects.get(id=options['album'])
+            album = Album.objects.get(id=options["album"])
             print(album.name)
         except Album.DoesNotExist:
             print("Album not found")

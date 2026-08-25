@@ -1,6 +1,6 @@
-
 from django.core.management.base import BaseCommand
-from photo.models import Photo, Album, PhotoTag, Tag
+
+from photo.models import Album, Photo, PhotoTag, Tag
 
 
 class Command(BaseCommand):
@@ -8,17 +8,17 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-a',
-            '--album',
-            dest='album',
-            help='Source Album',
+            "-a",
+            "--album",
+            dest="album",
+            help="Source Album",
         )
 
     def handle(self, *args, **options):
-        album = Album.objects.get(pk=options['album'])
+        album = Album.objects.get(pk=options["album"])
         photos = Photo.objects.filter(album=album)
 
-        print("Retagging date tags for %s" % album.title)
+        print(f"Retagging date tags for {album.title}")
         print("---------------------------------------")
         for p in photos:
             print(p)
@@ -30,4 +30,4 @@ class Command(BaseCommand):
 
             month_tag, created = Tag.objects.get_or_create(name=p.date.strftime("%B"))
             photo_tag, created = PhotoTag.objects.get_or_create(photo=p, tag=month_tag)
-            print("Added date tags: %s %s" % (year_tag.name, month_tag.name))
+            print(f"Added date tags: {year_tag.name} {month_tag.name}")

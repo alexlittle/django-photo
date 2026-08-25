@@ -27,28 +27,32 @@ class Command(BaseCommand):
                 md5hash = self.md5(photo_path)
                 photo.md5hash = md5hash
                 photo.save()
-                print("created md5 for %s" % md5hash)
+                print(f"created md5 for {md5hash}")
 
         counter = 1
-        hashes = Photo.objects.exclude(md5hash=None) .values('md5hash').distinct()
+        hashes = Photo.objects.exclude(md5hash=None).values("md5hash").distinct()
         for hash in hashes:
-            photos = Photo.objects.filter(md5hash=hash['md5hash'])
+            photos = Photo.objects.filter(md5hash=hash["md5hash"])
             if photos.count() > 1:
                 print("--- " + str(counter) + " ---")
                 delete_options = []
                 for idx, photo in enumerate(photos):
-                    print("[" + str(idx+1)+"] Duplicate: http://localhost.photo/photo/edit/"
-                          + str(photo.id))
+                    print(
+                        "["
+                        + str(idx + 1)
+                        + "] Duplicate: http://localhost.photo/photo/edit/"
+                        + str(photo.id)
+                    )
                     print(photo.album.name)
-                    delete_option = {'option': idx+1, 'photo': photo.id}
+                    delete_option = {"option": idx + 1, "photo": photo.id}
                     delete_options.append(delete_option)
                 counter += 1
 
                 select_input = input("Select no to delete: ")
                 for option in delete_options:
-                    if option['option'] == int(select_input):
+                    if option["option"] == int(select_input):
                         try:
-                            Photo.objects.get(pk=option['photo']).delete()
+                            Photo.objects.get(pk=option["photo"]).delete()
                             print("photo deleted")
                         except Photo.DoesNotExist:
                             print("photo not found")

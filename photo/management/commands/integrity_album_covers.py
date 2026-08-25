@@ -1,7 +1,7 @@
-
 """
 Management command to find albums with no or multiple covers
 """
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
@@ -22,14 +22,15 @@ class Command(BaseCommand):
         counter = 0
         for a in albums:
             if not a.has_cover():
-                print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo:album', args=(a.id,))))
+                link = reverse("photo:album", args=(a.id,))
+                print(f"{a.name} - {settings.DOMAIN_NAME}{link}")
                 counter += 1
 
         if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
         else:
             print("---------------------------------------")
-            print("%s%d albums without covers%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+            print(f"{bcolors.WARNING}{counter} albums without covers{bcolors.ENDC}")
         print("---------------------------------------")
 
         print("Multiple covers:")
@@ -37,12 +38,13 @@ class Command(BaseCommand):
         counter = 0
         for a in albums:
             if a.has_multiple_covers():
-                print("%s - %s%s" % (a.name, settings.DOMAIN_NAME, reverse('photo:album', args=(a.id,))))
+                link = reverse("photo:album", args=(a.id,))
+                print(f"{a.name} - {settings.DOMAIN_NAME}{link}")
                 counter += 1
 
         if counter == 0:
-            print("%sOK%s" % (bcolors.OK, bcolors.ENDC))
+            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
         else:
             print("---------------------------------------")
-            print("%s%d albums with multiple covers%s" % (bcolors.WARNING, counter, bcolors.ENDC))
+            print(f"{bcolors.WARNING}{counter} albums with multiple covers{bcolors.ENDC}")
         print("---------------------------------------")

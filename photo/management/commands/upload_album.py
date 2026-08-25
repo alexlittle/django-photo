@@ -1,14 +1,14 @@
 import glob
 import os
-import pytz
 import re
 
-from django.core.management.base import BaseCommand
+import pytz
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.utils.dateparse import parse_datetime
 
-from photo.models import Album, Photo, Tag, PhotoTag
-from photo.lib import get_exif, add_tags
+from photo.lib import add_tags, get_exif
+from photo.models import Album, Photo, PhotoTag, Tag
 
 
 class Command(BaseCommand):
@@ -16,29 +16,29 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-dir',
-            '--directory',
-            dest='directory',
-            help='Source Directory',
+            "-dir",
+            "--directory",
+            dest="directory",
+            help="Source Directory",
         )
         parser.add_argument(
-            '-dt',
-            '--defaulttags',
-            dest='defaulttags',
-            help='Default tags',
+            "-dt",
+            "--defaulttags",
+            dest="defaulttags",
+            help="Default tags",
         )
         parser.add_argument(
-            '-dd',
-            '--defaultdate',
-            dest='defaultdate',
-            help='Default date',
+            "-dd",
+            "--defaultdate",
+            dest="defaultdate",
+            help="Default date",
         )
 
     def handle(self, *args, **options):
 
-        directory = options['directory']
-        default_tags = options['defaulttags']
-        default_date = options['defaultdate']
+        directory = options["directory"]
+        default_tags = options["defaulttags"]
+        default_date = options["defaultdate"]
 
         # find if dir is already in locations
         album, created = Album.objects.get_or_create(name=directory)
@@ -46,7 +46,6 @@ class Command(BaseCommand):
         for img_ext in settings.IMAGE_EXTENSIONS:
             image_files = glob.glob(settings.PHOTO_ROOT + directory + img_ext)
             for im in image_files:
-
                 image_file_name = os.path.basename(im)
                 print(image_file_name)
                 # find if image exists
@@ -61,8 +60,8 @@ class Command(BaseCommand):
                     result = False
                 if result:
                     try:
-                        exif_date = exif_tags['DateTimeOriginal']
-                        naive = parse_datetime(re.sub(r'\:', r'-', exif_date, 2))
+                        exif_date = exif_tags["DateTimeOriginal"]
+                        naive = parse_datetime(re.sub(r":", r"-", exif_date, count=2))
 
                         photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
 

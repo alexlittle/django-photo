@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('photo', '0003_auto_20191113_1617'),
+        ("photo", "0003_auto_20191113_1617"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='tagprops',
-            unique_together={('tag', 'name')},
+            name="tagprops",
+            unique_together={("tag", "name")},
         ),
     ]

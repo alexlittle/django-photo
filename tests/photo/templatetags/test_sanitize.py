@@ -10,7 +10,7 @@ import pytest
 from django.template import Context, Template
 from django.utils.safestring import SafeString
 
-from notes.templatetags.sanitize import (
+from photo.templatetags.sanitize import (
     ALLOWED_ATTRIBUTES,
     ALLOWED_TAGS,
     register,
