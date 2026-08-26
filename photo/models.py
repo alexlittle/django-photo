@@ -40,6 +40,9 @@ class CombinedSearchManager(models.Manager):
 class CombinedSearch(models.Model):
     objects = CombinedSearchManager()
 
+    class Meta:
+        managed = False
+
 
 class Album(models.Model):
     name = models.TextField(blank=False, null=False)
@@ -160,7 +163,7 @@ class Photo(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     album_cover = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag, through="PhotoTag", name="tags")
-    md5hash = models.CharField(max_length=32, blank=True, null=True)
+    file_hash = models.CharField(max_length=128, blank=True, null=True)
 
     def __str__(self):
         return self.file

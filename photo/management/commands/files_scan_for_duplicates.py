@@ -8,7 +8,7 @@ from photo.models import Photo
 
 
 class Command(BaseCommand):
-    help = "Updates MD5Hash of photos and looks for duplicates"
+    help = "Updates Hash of photos and looks for duplicates"
 
     def sha512(self, fname):
         hash_sha512 = hashlib.sha512()
@@ -19,20 +19,20 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # create hashes
-        to_hash = Photo.objects.filter(md5hash=None)
+        to_hash = Photo.objects.filter(file_hash=None)
 
         for photo in to_hash:
             photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
             if os.path.isfile(photo_path):
                 sha512hash = self.sha512(photo_path)
-                photo.md5hash = sha512hash
+                photo.file_hash = sha512hash
                 photo.save()
                 print(f"created md5 for {sha512hash}")
 
         counter = 1
-        hashes = Photo.objects.exclude(md5hash=None).values("md5hash").distinct()
-        for hash in hashes:
-            photos = Photo.objects.filter(md5hash=hash["md5hash"])
+        hashes = Photo.objects.exclude(file_hash=None).values("file_hash").distinct()
+        for file_hash in hashes:
+            photos = Photo.objects.filter(file_hash=file_hash["file_hash"])
             if photos.count() > 1:
                 print("--- " + str(counter) + " ---")
                 delete_options = []
