@@ -9,9 +9,9 @@ from datetime import date
 from unittest import expectedFailure
 
 from django.core.management.base import CommandError
-from photo.tests.base import CommandTestCase, create_album, create_photo, local, make_datetime
 
 from photo.models import Album
+from tests.base import CommandTestCase, create_album, create_photo, local, make_datetime
 
 COMMAND = "clean_album_redate"
 
