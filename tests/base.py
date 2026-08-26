@@ -1,11 +1,15 @@
 """Shared fixtures and helpers for the photo app view tests."""
 
 import os
+import re
 import shutil
 import tempfile
+from contextlib import redirect_stdout
 from datetime import datetime
+from io import StringIO
 
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
 from PIL import Image
@@ -89,3 +93,43 @@ class PhotoRootTestCase(TestCase):
         path = os.path.join(self.album_dir(photo.album), photo.file)
         Image.new(mode, size, colour).save(path, image_format)
         return path
+
+    def write_image_with_exif(self, photo, size=(40, 40), **exif_tags):
+        """Write a JPEG carrying real EXIF tags, given by numeric tag id.
+
+        Useful ids: 36867 DateTimeOriginal, 36868 DateTimeDigitized,
+        306 DateTime. Values use the EXIF format "YYYY:MM:DD HH:MM:SS".
+        """
+        exif = Image.Exif()
+        for tag_id, value in exif_tags.items():
+            exif[int(tag_id)] = value
+        path = os.path.join(self.album_dir(photo.album), photo.file)
+        Image.new("RGB", size, (200, 40, 40)).save(path, "JPEG", exif=exif)
+        return path
+
+
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def strip_ansi(text):
+    """Drop the bcolors escape sequences so assertions read normally."""
+    return ANSI_ESCAPE.sub("", text)
+
+
+class CommandTestCase(PhotoRootTestCase):
+    """Base for management command tests.
+
+    The commands write with bare ``print()`` rather than ``self.stdout.write``,
+    so passing ``stdout=`` to ``call_command`` captures nothing on its own.
+    ``run_command`` redirects ``sys.stdout`` *and* passes the same buffer as the
+    command's stdout/stderr, so these tests keep working if the commands are
+    later migrated to ``self.stdout.write``.
+    """
+
+    def run_command(self, name, *args, **options):
+        buffer = StringIO()
+        options.setdefault("stdout", buffer)
+        options.setdefault("stderr", buffer)
+        with redirect_stdout(buffer):
+            call_command(name, *args, **options)
+        return strip_ansi(buffer.getvalue())
