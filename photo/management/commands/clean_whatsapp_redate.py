@@ -28,9 +28,9 @@ class Command(BaseCommand):
 
                 # add year and month tags
                 year = p.date.year
-                tag, created = Tag.objects.get_or_create(name=year)
+                tag, _ = Tag.objects.get_or_create(name=year)
                 PhotoTag.objects.get_or_create(photo=p, tag=tag)
 
                 month = p.date.strftime("%B")
-                tag, created = Tag.objects.get_or_create(name=month)
+                tag, _ = Tag.objects.get_or_create(name=month)
                 PhotoTag.objects.get_or_create(photo=p, tag=tag)

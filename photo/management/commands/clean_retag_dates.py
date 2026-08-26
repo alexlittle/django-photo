@@ -25,7 +25,7 @@ class Command(BaseCommand):
             # remove existing date tags
             PhotoTag.objects.filter(photo=p, tag__tagcategory__name="Date").delete()
 
-            year_tag, created = Tag.objects.get_or_create(name=p.date.year)
+            year_tag, _ = Tag.objects.get_or_create(name=p.date.year)
             PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
 
             month_tag, _ = Tag.objects.get_or_create(name=p.date.strftime("%B"))

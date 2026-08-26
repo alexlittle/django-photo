@@ -1,15 +1,4 @@
-/*
-bf7c0b - mid brown
-e7d2a7 - light brown
-89a324 - mid green
-5c5441 - dark green/brown
 
-
-f8ffff - very light blue
-e0ffff - light blue
-2fcbfe - mid blue
-04689a - dark blue
-*/
 
 html {
   position: relative;
@@ -103,10 +92,6 @@ h2 {
   .navbar-wrapper .navbar {
     padding-right: 0;
     padding-left: 0;
-  }
-
-  /* The navbar becomes detached from the top, so we round the corners */
-  .navbar-wrapper .navbar {
     border-radius: 4px;
   }
 
@@ -140,7 +125,7 @@ h2 {
 
 .btn-primary {
     background-color: #2fcbfe;
-    border-color: ##04689a;
+    border-color: #04689a;
     color: #FFFFFF;
 }
 
