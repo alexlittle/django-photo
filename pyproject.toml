@@ -11,7 +11,7 @@ authors = [
 
 dependencies = [
     "crispy-bootstrap4==2026.2",
-    "django==6.0.7",
+    "django==6.1",
     "django-autoslug==1.9.9",
     "django-crispy-forms==2.7",
     "mysqlclient==2.2.8",
