@@ -1,8 +1,8 @@
 import glob
 import os
 import re
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.dateparse import parse_datetime
@@ -63,7 +63,8 @@ class Command(BaseCommand):
                         exif_date = exif_tags["DateTimeOriginal"]
                         naive = parse_datetime(re.sub(r":", r"-", exif_date, count=2))
 
-                        photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
+                        LONDON = ZoneInfo("Europe/London")
+                        photo.date = naive.replace(tzinfo=LONDON)
 
                         # add year and month tags
                         year = photo.date.year
