@@ -9,6 +9,9 @@ from django.utils.translation import gettext_lazy as _
 
 from photo.models import Album
 
+VALID_DATE = "Please enter a valid date."
+DIV_SUBMIT_CLASS = "col-lg-offset-2 col-lg-4"
+
 
 class ScanFolderForm(forms.Form):
     directory = forms.CharField(
@@ -36,7 +39,7 @@ class ScanFolderForm(forms.Form):
             "default_tags",
             Div(
                 Submit("submit", _("Upload"), css_class="btn btn-default"),
-                css_class="col-lg-offset-2 col-lg-4",
+                css_class=DIV_SUBMIT_CLASS,
             ),
         )
 
@@ -61,8 +64,8 @@ class EditPhotoForm(forms.Form):
     date = forms.DateTimeField(
         required=True,
         error_messages={
-            "required": _("Please enter a valid date"),
-            "invalid": _("Please enter a valid date"),
+            "required": _(VALID_DATE),
+            "invalid": _(VALID_DATE),
         },
     )
 
@@ -78,7 +81,7 @@ class EditPhotoForm(forms.Form):
             Div("date", css_class="date-picker-row-fluid"),
             Div(
                 Submit("submit", _("Update"), css_class="btn btn-default"),
-                css_class="col-lg-offset-2 col-lg-4",
+                css_class=DIV_SUBMIT_CLASS,
             ),
         )
 
@@ -118,8 +121,8 @@ class UpdateTagsForm(forms.Form):
     date = forms.DateField(
         required=False,
         error_messages={
-            "required": _("Please enter a valid date"),
-            "invalid": _("Please enter a valid date"),
+            "required": _(VALID_DATE),
+            "invalid": _(VALID_DATE),
         },
     )
     album = forms.ChoiceField(
@@ -144,7 +147,7 @@ class UpdateTagsForm(forms.Form):
             Field("next", type="hidden"),
             Div(
                 Submit("submit", _("Update"), css_class="btn btn-default"),
-                css_class="col-lg-offset-2 col-lg-4",
+                css_class=DIV_SUBMIT_CLASS,
             ),
         )
 

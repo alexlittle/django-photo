@@ -36,7 +36,7 @@ class Command(BaseCommand):
             if tag.get_prop("country"):
                 params["country"] = tag.get_prop("country")
 
-            url = "http://api.geonames.org/searchJSON?" + urllib.parse.urlencode(params)
+            url = "https://api.geonames.org/searchJSON?" + urllib.parse.urlencode(params)
 
             print(url)
             req = urllib.request.Request(url)
