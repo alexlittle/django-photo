@@ -40,7 +40,7 @@ def add_tags(photo, tags_str):
     for t in tags:
         if t.strip():
             tag, created = Tag.objects.get_or_create(name=t)
-            photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+            _, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
     return created
 
 

@@ -68,11 +68,11 @@ class Command(BaseCommand):
                         # add year and month tags
                         year = photo.date.year
                         tag, created = Tag.objects.get_or_create(name=year)
-                        photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+                        _, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
 
                         month = photo.date.strftime("%B")
                         tag, created = Tag.objects.get_or_create(name=month)
-                        photo_tag, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+                        _, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
 
                     except (KeyError, AttributeError, ValueError):
                         if created:

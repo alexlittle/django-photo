@@ -65,12 +65,12 @@ class Command(BaseCommand):
                     lat = data_json["geonames"][idx]["lat"]
                     lng = data_json["geonames"][idx]["lng"]
                     country_code = data_json["geonames"][idx]["countryCode"]
-                    cc_obj, created = TagProps.objects.get_or_create(tag=tag, name="country")
+                    cc_obj, _ = TagProps.objects.get_or_create(tag=tag, name="country")
                     cc_obj.value = country_code
                     cc_obj.save()
-                    lat_obj, created = TagProps.objects.get_or_create(tag=tag, name="lat")
+                    lat_obj, _ = TagProps.objects.get_or_create(tag=tag, name="lat")
                     lat_obj.value = lat
                     lat_obj.save()
-                    lng_obj, created = TagProps.objects.get_or_create(tag=tag, name="lng")
+                    lng_obj, _ = TagProps.objects.get_or_create(tag=tag, name="lng")
                     lng_obj.value = lng
                     lng_obj.save()

@@ -26,8 +26,8 @@ class Command(BaseCommand):
             PhotoTag.objects.filter(photo=p, tag__tagcategory__name="Date").delete()
 
             year_tag, created = Tag.objects.get_or_create(name=p.date.year)
-            photo_tag, created = PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
+            PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
 
             month_tag, created = Tag.objects.get_or_create(name=p.date.strftime("%B"))
-            photo_tag, created = PhotoTag.objects.get_or_create(photo=p, tag=month_tag)
+            PhotoTag.objects.get_or_create(photo=p, tag=month_tag)
             print(f"Added date tags: {year_tag.name} {month_tag.name}")

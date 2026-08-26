@@ -28,6 +28,6 @@ class Command(BaseCommand):
                 if accept != "0":
                     country_code = accept
                     print(country_code)
-                    cc_obj, created = TagProps.objects.get_or_create(tag=t, name="country")
+                    cc_obj, _ = TagProps.objects.get_or_create(tag=t, name="country")
                     cc_obj.value = country_code
                     cc_obj.save()

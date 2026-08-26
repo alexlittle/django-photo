@@ -251,6 +251,6 @@ class TagProps(models.Model):
         verbose_name_plural = _("Tag properties")
 
 
-def image_file_name(instance, filename):
-    basename, ext = os.path.splitext(filename)
+def image_file_name(_instance, filename):
+    _, ext = os.path.splitext(filename)
     return os.path.join("cache", filename[0:2], filename[2:4], filename + ext.lower())
