@@ -3,14 +3,14 @@ Management command to redate photos
 """
 
 import re
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.dateparse import parse_datetime
 
+from photo.lib import get_exif
 from photo.models import Album, Photo
-from photo.views import get_exif
 
 
 class Command(BaseCommand):
@@ -38,21 +38,25 @@ class Command(BaseCommand):
             im = settings.PHOTO_ROOT + album.name + photo.file
             exif_tags, result = get_exif(im)
             if result:
-                try:
-                    if "DateTimeOriginal" in exif_tags:
-                        exif_date = exif_tags["DateTimeOriginal"]
-                    elif "DateTimeDigitized" in exif_tags:
-                        exif_date = exif_tags["DateTimeDigitized"]
-                    elif "DateTime" in exif_tags:
-                        exif_date = exif_tags["DateTime"]
-                    naive = parse_datetime(re.sub(r"\:", r"-", exif_date, count=2))
-                    photo.date = pytz.timezone("Europe/London").localize(naive, is_dst=None)
-                    photo.save()
-                    print("updated: " + photo.file)
-                except KeyError:
-                    print(exif_tags)
-                    print("KeyError" + photo.file)
-                except AttributeError:
-                    print("AttributeError " + photo.file)
-                except ValueError:
-                    print("ValueError " + photo.file)
+                self.update_photo_date(photo, exif_tags)
+
+    def update_photo_date(self, photo, exif_tags):
+        try:
+            if "DateTimeOriginal" in exif_tags:
+                exif_date = exif_tags["DateTimeOriginal"]
+            elif "DateTimeDigitized" in exif_tags:
+                exif_date = exif_tags["DateTimeDigitized"]
+            elif "DateTime" in exif_tags:
+                exif_date = exif_tags["DateTime"]
+            naive = parse_datetime(re.sub(r"\:", r"-", exif_date, count=2))
+            LONDON = ZoneInfo("Europe/London")
+            photo.date = naive.replace(tzinfo=LONDON)
+            photo.save()
+            print("updated: " + photo.file)
+        except KeyError:
+            print(exif_tags)
+            print("KeyError" + photo.file)
+        except AttributeError:
+            print("AttributeError " + photo.file)
+        except ValueError:
+            print("ValueError " + photo.file)

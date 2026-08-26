@@ -176,7 +176,7 @@ IMAGE_EXTENSIONS = ["*.jpg", "*.jpeg", "*.png", "*.tif", "*.gif", "*.bmp", "*.JP
 IGNORE_TAG_REGEXS = []
 
 try:
-    from config.local_settings import *  # noqa: F403
+    from config.local_settings import *  # noqa: F403  # NOSONAR
 except ImportError:
     import warnings
 
