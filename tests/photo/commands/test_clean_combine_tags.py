@@ -92,16 +92,15 @@ class CleanCombineTagsTests(CommandTestCase):
 
         self.assertEqual(self.tags_for(photo), ["Seaside"])
 
-    @expectedFailure
     def test_a_photo_carrying_both_tags_does_not_end_up_double_tagged(self):
-        # PhotoTag has no unique_together on (photo, tag), and the command
-        # repoints rows with pt.save() rather than get_or_create. A photo that
-        # already had both tags ends up with two identical rows for the new
-        # tag.
+        # PhotoTag now has unique_together on (photo, tag), and the command
+        # repoints rows with get_or_create rather than pt.save(). A photo that
+        # already had both tags ends up with a single row for the new tag.
         #
-        # That is not cosmetic: TagSlugView annotates Count("id") over the
-        # phototag join and filters on the number of slugs requested, so a
-        # doubled row makes a single-tag photo match a two-tag query.
+        # This used to matter beyond cosmetics: TagSlugView annotates
+        # Count("id") over the phototag join and filters on the number of
+        # slugs requested, so a doubled row made a single-tag photo match a
+        # two-tag query.
         photo = create_photo(self.album, "a.jpg")
         tag_photo(photo, self.old, self.new)
 

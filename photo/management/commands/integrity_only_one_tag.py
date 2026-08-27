@@ -20,7 +20,7 @@ class Command(BaseCommand):
         for album in albums:
             photos = Photo.objects.filter(album=album)
             for photo in photos:
-                tag_count = PhotoTag.objects.filter(photo=photo).count()
+                tag_count = PhotoTag.objects.filter(photo=photo).values("tag").distinct().count()
                 if tag_count < 2:
                     self.stdout.write(
                         f"{album.name}{photo.file} - {settings.DOMAIN_NAME}/photo/edit/{photo.id}"

@@ -5,6 +5,7 @@ Reports photos carrying fewer than two tags, walking albums in name order.
 
 from unittest import expectedFailure
 
+from django.db import IntegrityError, transaction
 from django.test import override_settings
 from django.urls import reverse
 
@@ -92,18 +93,27 @@ class IntegrityOnlyOneTagTests(CommandTestCase):
 
         self.assertIn("OK", output)
 
-    def test_duplicate_tag_rows_hide_a_thinly_tagged_photo(self):
-        # The count is over PhotoTag rows, not distinct tags. PhotoTag has no
-        # unique constraint, and clean_combine_tags can leave two rows pointing
-        # at the same tag -- which makes a one-tag photo look adequately
-        # tagged. Counting distinct tags would be sturdier.
+    def test_a_duplicate_tag_row_does_not_hide_a_thinly_tagged_photo(self):
+        # The count is over distinct tags, not raw PhotoTag rows, so a
+        # photo cannot look adequately tagged just because it happens to
+        # carry two rows for the same tag.
         photo = create_photo(self.album, "a.jpg")
-        PhotoTag.objects.create(photo=photo, tag=self.beach)
         PhotoTag.objects.create(photo=photo, tag=self.beach)
 
         output = self.run_command(COMMAND)
 
-        self.assertIn("OK", output)
+        self.assertIn("/2024/a.jpg", output)
+        self.assertIn("1 photos with only one tag", output)
+
+    def test_duplicate_phototag_rows_are_rejected_at_the_database_level(self):
+        # PhotoTag has unique_together on (photo, tag): clean_combine_tags
+        # used to be able to create a second identical row via pt.save()
+        # instead of get_or_create, which this constraint now rules out.
+        photo = create_photo(self.album, "a.jpg")
+        PhotoTag.objects.create(photo=photo, tag=self.beach)
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            PhotoTag.objects.create(photo=photo, tag=self.beach)
 
     @expectedFailure
     def test_the_edit_link_is_well_formed(self):

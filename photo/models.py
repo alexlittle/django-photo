@@ -239,6 +239,7 @@ class PhotoTag(models.Model):
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ("photo", "tag")
         verbose_name = _("Photo Tag")
         verbose_name_plural = _("Photo Tags")
 

@@ -21,8 +21,7 @@ class Command(BaseCommand):
         photo_tags = PhotoTag.objects.filter(tag=oldtag)
         pt_count = photo_tags.count()
         for pt in photo_tags:
-            pt.tag = newtag
-            pt.save()
+            PhotoTag.objects.get_or_create(photo=pt.photo, tag=newtag)
 
         oldtag.delete()
 
