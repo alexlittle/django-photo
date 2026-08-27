@@ -26,7 +26,14 @@ class Command(BaseCommand):
 
                 accept = input("Enter source [0 to ignore]")
 
-                if accept != "0":
+                if accept.strip() not in ("", "0"):
                     cc_obj, _ = TagProps.objects.get_or_create(tag=t, name="source")
                     cc_obj.value = accept
                     cc_obj.save()
+
+        if counter == 0:
+            print("OK")
+        else:
+            print("---------------------------------------")
+            print(f"{counter} missing sources")
+        print("---------------------------------------")

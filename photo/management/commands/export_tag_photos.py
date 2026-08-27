@@ -31,7 +31,11 @@ class Command(BaseCommand):
                 print("couldn't create directory - maybe it already exists?")
         else:
             export_path = options["export_path"]
+            os.makedirs(export_path, exist_ok=True)
 
         for photo in photos:
             file_to_copy = os.path.join(settings.PHOTO_ROOT, photo.album.name[1:], photo.file)
-            copy(file_to_copy, export_path)
+            try:
+                copy(file_to_copy, export_path)
+            except OSError:
+                print(f"couldn't copy {file_to_copy} - skipping")

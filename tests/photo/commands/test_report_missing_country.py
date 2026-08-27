@@ -116,13 +116,9 @@ class ReportMissingCountryTests(CommandTestCase):
         self.assertIn("Missing countries", output)
         self.assertNotIn("Harrogate", output)
 
-    def test_an_empty_answer_stores_an_empty_country(self):
-        # Documents a rough edge: only "0" is treated as skip, so pressing enter
-        # writes an empty country prop -- which the next run will treat as
-        # missing again and re-prompt for. Harmless but noisy; treating a blank
-        # answer as skip would be tidier.
+    def test_an_empty_answer_is_treated_as_skip(self):
         tag = create_tag("Harrogate", self.location)
 
         self.run_with_answers("")
 
-        self.assertEqual(TagProps.objects.get(tag=tag, name="country").value, "")
+        self.assertFalse(TagProps.objects.filter(tag=tag, name="country").exists())

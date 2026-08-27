@@ -3,7 +3,8 @@ Management command to get lat/lng for places
 """
 
 import json
-import urllib
+import urllib.parse
+import urllib.request
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -44,13 +45,18 @@ class Command(BaseCommand):
             response = urllib.request.urlopen(req)
             data_json = json.loads(response.read())
 
-            if len(data_json["geonames"]) > 0:
-                for i in range(0, 20):
+            results = data_json.get("geonames")
+            if results is None:
+                print(f"GeoNames error: {data_json}")
+                continue
+
+            if len(results) > 0:
+                for i in range(0, min(20, len(results))):
                     try:
-                        top_name = data_json["geonames"][i]["toponymName"]
-                        name = data_json["geonames"][i]["name"]
-                        admin_name = data_json["geonames"][i]["adminName1"]
-                        country_code = data_json["geonames"][i]["countryCode"]
+                        top_name = results[i]["toponymName"]
+                        name = results[i]["name"]
+                        admin_name = results[i]["adminName1"]
+                        country_code = results[i]["countryCode"]
                         print(f"{i} : {top_name}, {name}, {admin_name}, {country_code}")
                     except (IndexError, KeyError):
                         pass
@@ -61,17 +67,24 @@ class Command(BaseCommand):
                 elif accept == "n":
                     print("no")
                 else:
-                    idx = int(accept)
-                    print("accepted")
-                    lat = data_json["geonames"][idx]["lat"]
-                    lng = data_json["geonames"][idx]["lng"]
-                    country_code = data_json["geonames"][idx]["countryCode"]
-                    cc_obj, _ = TagProps.objects.get_or_create(tag=tag, name="country")
-                    cc_obj.value = country_code
-                    cc_obj.save()
-                    lat_obj, _ = TagProps.objects.get_or_create(tag=tag, name="lat")
-                    lat_obj.value = lat
-                    lat_obj.save()
-                    lng_obj, _ = TagProps.objects.get_or_create(tag=tag, name="lng")
-                    lng_obj.value = lng
-                    lng_obj.save()
+                    try:
+                        idx = int(accept)
+                    except ValueError:
+                        idx = None
+
+                    if idx is None or not (0 <= idx < len(results)):
+                        print("invalid selection, ignoring")
+                    else:
+                        print("accepted")
+                        lat = results[idx]["lat"]
+                        lng = results[idx]["lng"]
+                        country_code = results[idx]["countryCode"]
+                        cc_obj, _ = TagProps.objects.get_or_create(tag=tag, name="country")
+                        cc_obj.value = country_code
+                        cc_obj.save()
+                        lat_obj, _ = TagProps.objects.get_or_create(tag=tag, name="lat")
+                        lat_obj.value = lat
+                        lat_obj.save()
+                        lng_obj, _ = TagProps.objects.get_or_create(tag=tag, name="lng")
+                        lng_obj.value = lng
+                        lng_obj.save()

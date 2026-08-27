@@ -3,7 +3,9 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.urls import reverse
 
+from photo.lib import get_domain
 from photo.models import Photo
 
 
@@ -27,7 +29,7 @@ class Command(BaseCommand):
                 sha512hash = self.sha512(photo_path)
                 photo.file_hash = sha512hash
                 photo.save()
-                print(f"created md5 for {sha512hash}")
+                print(f"created hash for {sha512hash}")
 
         counter = 1
         hashes = Photo.objects.exclude(file_hash=None).values("file_hash").distinct()
@@ -37,22 +39,24 @@ class Command(BaseCommand):
                 print("--- " + str(counter) + " ---")
                 delete_options = []
                 for idx, photo in enumerate(photos):
-                    print(
-                        "["
-                        + str(idx + 1)
-                        + "] Duplicate: http://localhost.photo/photo/edit/"
-                        + str(photo.id)
-                    )
+                    link = reverse("photo:edit", args=(photo.id,))
+                    print(f"[{idx + 1}] Duplicate: {get_domain()}{link}")
                     print(photo.album.name)
                     delete_option = {"option": idx + 1, "photo": photo.id}
                     delete_options.append(delete_option)
                 counter += 1
 
                 select_input = input("Select no to delete: ")
-                for option in delete_options:
-                    if option["option"] == int(select_input):
-                        try:
-                            Photo.objects.get(pk=option["photo"]).delete()
-                            print("photo deleted")
-                        except Photo.DoesNotExist:
-                            print("photo not found")
+                try:
+                    selected = int(select_input)
+                except ValueError:
+                    selected = None
+
+                if selected is not None:
+                    for option in delete_options:
+                        if option["option"] == selected:
+                            try:
+                                Photo.objects.get(pk=option["photo"]).delete()
+                                print("photo deleted")
+                            except Photo.DoesNotExist:
+                                print("photo not found")

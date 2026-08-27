@@ -6,6 +6,7 @@ characters 4-7 are the year, 8-9 the month, 10-11 the day. So ``IMG_20240115``
 becomes 2024-01-15.
 """
 
+import warnings
 from datetime import date
 
 from django.core.management.base import CommandError
@@ -70,8 +71,8 @@ class CleanPhotoDateByFilenameTests(CommandTestCase):
         self.assertEqual(output.strip(), "")
 
     def test_time_of_day_is_discarded(self):
-        # The command assigns a plain date, so the stored time resets to
-        # midnight rather than being preserved.
+        # The filename carries no time-of-day, so the command always builds
+        # midnight UTC -- the stored time resets rather than being preserved.
         photo = create_photo(
             self.album, "IMG_20240115_120000.jpg", make_datetime(2024, 1, 1, 17, 20)
         )
@@ -82,14 +83,15 @@ class CleanPhotoDateByFilenameTests(CommandTestCase):
         stored = local(photo.date)
         self.assertEqual((stored.hour, stored.minute), (0, 0))
 
-    def test_assigning_a_naive_date_warns(self):
-        # Documents current behaviour: a datetime.date is assigned straight to a
-        # DateTimeField, so Django emits a naive-datetime RuntimeWarning. Any
-        # CI running with -W error will fail here. Building an aware datetime
-        # in the command would remove it.
+    def test_assigning_the_new_date_does_not_warn(self):
+        # The command now builds an aware datetime (anchored to UTC, not a
+        # real geographic zone, since a filename carries a calendar date with
+        # no meaningful time-of-day -- a DST-observing zone could otherwise
+        # shift the stored date by a day), so no naive-datetime warning fires.
         create_photo(self.album, "IMG_20240115_120000.jpg", self.wrong_date)
 
-        with self.assertWarns(RuntimeWarning):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             self.run_command(COMMAND, "2024-01-01", album=str(self.album.id))
 
     def test_unknown_album_raises(self):

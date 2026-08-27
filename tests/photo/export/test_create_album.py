@@ -36,10 +36,13 @@ class MakeFontTagTests(PhotoRootTestCase):
         # space would produce broken markup.
         self.assertIn("size=12>", make_font_tag(12, "x"))
 
-    def test_text_is_not_escaped(self):
-        # Anything in an album or photo title goes into the paragraph markup
-        # verbatim, so a title containing < or & will break the PDF build.
-        self.assertEqual(make_font_tag(20, "Fish & Chips"), "<font size=20>Fish & Chips</font>")
+    def test_text_is_escaped(self):
+        # Album/tag/photo titles reach the paragraph markup through here, so
+        # this is what stops a stray < or & from breaking the PDF build.
+        self.assertEqual(make_font_tag(20, "Fish & Chips"), "<font size=20>Fish &amp; Chips</font>")
+
+    def test_an_unmatched_markup_character_is_rendered_literally(self):
+        self.assertEqual(make_font_tag(20, "<b>Brighton"), "<font size=20>&lt;b&gt;Brighton</font>")
 
 
 class CreateAlbumTestCase(PhotoRootTestCase):
@@ -157,11 +160,8 @@ class TagExportTests(CreateAlbumTestCase):
 
         self.assertTrue(path.endswith("Beach.pdf"))
 
-    def test_an_unknown_tag_id_crashes(self):
-        # Tag.DoesNotExist is caught, but `tag` is then unbound and the
-        # `if tag_id:` block dereferences it anyway.
-        with self.assertRaises(UnboundLocalError):
-            self.build(tag_id=9999)
+    def test_an_unknown_tag_id_fails_cleanly(self):
+        self.assertIsNone(self.build(tag_id=9999))
 
 
 class AlbumExportTests(CreateAlbumTestCase):
@@ -215,11 +215,8 @@ class AlbumExportTests(CreateAlbumTestCase):
 
         self.assertTrue(path.endswith(f"{untitled.id}.pdf"))
 
-    def test_an_unknown_album_id_crashes(self):
-        # Album.DoesNotExist is caught, but `album` is unbound when
-        # `if album_id and album.has_cover()` runs.
-        with self.assertRaises(UnboundLocalError):
-            self.build(album_id=9999)
+    def test_an_unknown_album_id_fails_cleanly(self):
+        self.assertIsNone(self.build(album_id=9999))
 
     def test_calling_with_neither_argument_writes_a_none_pdf(self):
         # Neither the album nor tag query runs, so `photos` stays the empty
@@ -248,21 +245,23 @@ class OutputPathTests(CreateAlbumTestCase):
         super().setUp()
         self.beach = create_tag("Beach")
 
-    def test_a_missing_albums_directory_is_fatal(self):
-        # Nothing creates PHOTO_ROOT/albums, so a fresh install fails on the
-        # first export. os.makedirs(..., exist_ok=True) would cover it.
+    def test_a_missing_albums_directory_is_created(self):
         os.rmdir(os.path.join(self.photo_root, "albums"))
 
-        with self.assertRaises(FileNotFoundError):
-            self.build(tag_id=self.beach.id)
+        path = self.build(tag_id=self.beach.id)
 
-    def test_a_name_containing_a_slash_escapes_the_output_directory(self):
-        # The filename is interpolated straight into the path, so a tag or album
-        # title with a slash writes somewhere unintended -- or fails, as here.
+        self.assertTrue(os.path.exists(path))
+
+    def test_a_name_containing_a_slash_does_not_escape_the_output_directory(self):
+        # The filename is sanitised before being joined into the path, so a
+        # tag or album title with a slash can no longer write somewhere
+        # unintended.
         slashed = create_tag("Trips/2024")
 
-        with self.assertRaises(FileNotFoundError):
-            self.build(tag_id=slashed.id)
+        path = self.build(tag_id=slashed.id)
+
+        self.assertEqual(os.path.dirname(path), os.path.join(self.photo_root, "albums"))
+        self.assertTrue(path.endswith("Trips-2024.pdf"))
 
     def test_the_output_lands_inside_photo_root(self):
         # Worth noting alongside files_scan_albums, which walks PHOTO_ROOT and
@@ -315,15 +314,16 @@ class PageContentTests(CreateAlbumTestCase):
 
         self.assertTrue(os.path.exists(path))
 
-    def test_an_unmatched_tag_in_a_title_breaks_the_build(self):
-        # make_font_tag does no escaping, so anything reportlab reads as an
-        # unclosed markup tag aborts the export. Album titles, date_display and
-        # tag names all reach the paragraph parser the same way.
+    def test_an_unmatched_tag_in_a_title_does_not_break_the_build(self):
+        # make_font_tag escapes its text, so anything that looks like markup
+        # -- album titles, date_display and tag names all reach the paragraph
+        # parser the same way -- renders as literal text instead of aborting.
         photo = create_photo(self.album, "a.jpg", title="<b>Brighton")
         tag_photo(photo, self.beach)
 
-        with self.assertRaises(ValueError):
-            self.build(tag_id=self.beach.id)
+        path = self.build(tag_id=self.beach.id)
+
+        self.assertTrue(os.path.exists(path))
 
     def test_a_thumbnail_that_cannot_be_opened_is_fatal(self):
         photo = create_photo(self.album, "a.jpg")

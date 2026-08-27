@@ -7,7 +7,6 @@ The network call is mocked throughout -- these tests never reach api.geonames.or
 """
 
 import json
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -179,28 +178,31 @@ class ReportGetCoordinatesTests(CommandTestCase):
         self.assertEqual(urlopen.call_count, 2)
         self.assertEqual(prompt.call_count, 2)
 
-    @expectedFailure
     def test_a_non_numeric_answer_is_handled(self):
-        # Anything other than "i" or "n" goes straight to int(), so a typo or a
-        # bare enter raises ValueError and abandons the remaining tags -- losing
-        # the work done so far in a session that is slow and manual.
-        create_tag("Harrogate", self.location)
+        tag = create_tag("Harrogate", self.location)
 
-        self.run_with(geonames(place()), "")
+        output, _urlopen, _prompt = self.run_with(geonames(place()), "")
 
-    @expectedFailure
+        self.assertIn("invalid selection", output)
+        self.assertFalse(TagProps.objects.filter(tag=tag).exists())
+
     def test_an_out_of_range_answer_is_handled(self):
-        # The index is not bounds-checked against the number of results, so
-        # answering 5 to a three-result list raises IndexError.
-        create_tag("Harrogate", self.location)
+        tag = create_tag("Harrogate", self.location)
 
-        self.run_with(geonames(place()), "5")
+        output, _urlopen, _prompt = self.run_with(geonames(place()), "5")
 
-    @expectedFailure
+        self.assertIn("invalid selection", output)
+        self.assertFalse(TagProps.objects.filter(tag=tag).exists())
+
     def test_a_geonames_error_response_is_handled(self):
         # GeoNames returns {"status": {...}} rather than a geonames key when a
-        # daily limit is hit or credentials are wrong. That raises a bare
-        # KeyError with no indication of the cause.
-        create_tag("Harrogate", self.location)
+        # daily limit is hit or credentials are wrong.
+        tag = create_tag("Harrogate", self.location)
 
-        self.run_with({"status": {"message": "daily limit exceeded", "value": 18}})
+        output, _urlopen, prompt = self.run_with(
+            {"status": {"message": "daily limit exceeded", "value": 18}}
+        )
+
+        self.assertIn("GeoNames error", output)
+        prompt.assert_not_called()
+        self.assertFalse(TagProps.objects.filter(tag=tag).exists())

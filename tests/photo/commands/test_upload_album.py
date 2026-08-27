@@ -180,14 +180,9 @@ class UploadAlbumTests(PhotoRootTestCase):
 
         self.assertEqual(Photo.objects.count(), 0)
 
-    @expectedFailure
     def test_the_default_date_is_used_when_there_is_no_exif(self):
-        # The default date is only reachable from inside `if result:` -- that
-        # is, when EXIF exists but lacks DateTimeOriginal. A PNG, or a JPEG with
-        # no EXIF at all, sets result=False and skips the block entirely, so the
-        # photo keeps the model default of timezone.now() and the supplied
-        # default date is silently discarded. This is the case ScanFolderView
-        # hits whenever it uploads scans or screenshots.
+        # This is the case ScanFolderView hits whenever it uploads scans or
+        # screenshots: a PNG, or a JPEG with no EXIF at all.
         from datetime import date
 
         self.write_png("/2024/", "a.png")

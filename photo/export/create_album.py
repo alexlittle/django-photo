@@ -1,4 +1,5 @@
 import os
+from xml.sax.saxutils import escape
 
 from django.conf import settings
 from reportlab.lib.pagesizes import A4
@@ -9,7 +10,7 @@ from photo.models import Album, Photo, Tag
 
 
 def make_font_tag(size, text):
-    return f"<font size={size}>{text}</font>"
+    return f"<font size={size}>{escape(str(text))}</font>"
 
 
 def make(album_id=None, tag_id=None):
@@ -27,6 +28,7 @@ def make(album_id=None, tag_id=None):
             filename = album.title or str(album.id)
         except Album.DoesNotExist:
             print("No Album Specified")
+            return None
 
     if tag_id:
         try:
@@ -39,11 +41,16 @@ def make(album_id=None, tag_id=None):
             filename = tag.name
         except Tag.DoesNotExist:
             print("No Tag Specified")
+            return None
 
     print(f"Creating album for... {filename}")
 
-    album_url = f"albums/{filename}.pdf"
+    # A title or tag name might contain "/", which would otherwise escape the
+    # albums directory when joined into a path below.
+    safe_filename = str(filename).replace("/", "-")
+    album_url = f"albums/{safe_filename}.pdf"
     album_filename = os.path.join(settings.PHOTO_ROOT, album_url)
+    os.makedirs(os.path.join(settings.PHOTO_ROOT, "albums"), exist_ok=True)
 
     doc = SimpleDocTemplate(
         album_filename, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=30

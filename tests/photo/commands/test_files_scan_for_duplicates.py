@@ -11,7 +11,6 @@ fire.
 
 import os
 import re
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from photo.models import Photo
@@ -55,7 +54,7 @@ class FilesScanForDuplicatesTests(CommandTestCase):
 
         output, _prompt = self.run_with_answers()
 
-        self.assertIn("created md5 for", output)
+        self.assertIn("created hash for", output)
 
     def test_a_photo_with_no_file_on_disk_is_left_unhashed(self):
         photo = create_photo(self.album, "ghost.jpg")
@@ -151,22 +150,14 @@ class FilesScanForDuplicatesTests(CommandTestCase):
         prompt.assert_not_called()
         self.assertEqual(output.strip(), "")
 
-    @expectedFailure
     def test_a_non_numeric_selection_is_handled(self):
-        # int(select_input) is unguarded, so pressing enter or typing "skip"
-        # raises ValueError and abandons the remaining duplicate groups. An
-        # explicit skip option would be worth adding while this is interactive.
         self.make_pair()
 
         self.run_with_answers("")
 
         self.assertEqual(Photo.objects.count(), 2)
 
-    @expectedFailure
     def test_the_edit_link_uses_the_configured_domain(self):
-        # The URL is hardcoded to http://localhost.photo/photo/edit/<id>, which
-        # is a dev host baked into a command that also deletes files. Every
-        # other command in this set builds its links from photo.lib.get_domain().
         self.make_pair()
 
         output, _prompt = self.run_with_answers("0")

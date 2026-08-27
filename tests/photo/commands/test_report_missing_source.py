@@ -5,7 +5,6 @@ prompts for a source value per Location tag that lacks one, with "0" to skip.
 Like report_missing_country, the "report_" prefix undersells it -- it writes.
 """
 
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from django.urls import reverse
@@ -68,6 +67,14 @@ class ReportMissingSourceTests(CommandTestCase):
 
         prompt.assert_not_called()
 
+    def test_no_tags_missing_a_source_reports_ok(self):
+        tag = create_tag("Harrogate", self.location)
+        set_tag_prop(tag, "source", "me")
+
+        output, _prompt = self.run_with_answers()
+
+        self.assertIn("OK", output)
+
     def test_every_tag_missing_a_source_is_visited(self):
         create_tag("Harrogate", self.location)
         create_tag("Leeds", self.location)
@@ -97,14 +104,12 @@ class ReportMissingSourceTests(CommandTestCase):
         self.assertIn(domain + reverse("admin:photo_tag_change", args=(tag.id,)), output)
         self.assertIn(domain + reverse("photo:tag_slug", args=(tag.slug,)), output)
 
-    def test_an_empty_answer_stores_an_empty_source(self):
-        # Only "0" skips, so pressing enter writes "" -- which the next run
-        # treats as missing and prompts for again.
+    def test_an_empty_answer_is_treated_as_skip(self):
         tag = create_tag("Harrogate", self.location)
 
         self.run_with_answers("")
 
-        self.assertEqual(TagProps.objects.get(tag=tag, name="source").value, "")
+        self.assertFalse(TagProps.objects.filter(tag=tag, name="source").exists())
 
     def test_the_source_value_drives_the_map_view(self):
         # MapView filters Location tags on their "source" prop, so a tag left
@@ -116,12 +121,7 @@ class ReportMissingSourceTests(CommandTestCase):
 
         self.assertEqual(TagProps.objects.get(tag=tag, name="source").value, "me")
 
-    @expectedFailure
     def test_a_summary_is_printed(self):
-        # Unlike report_missing_coordinates, this command has no closing
-        # summary -- it counts matches but never reports the total, and
-        # prints no "OK" when there is nothing to do. Easy to mistake a
-        # finished run for a broken one, especially inside report_full.
         create_tag("Harrogate", self.location)
         set_tag_prop(create_tag("Leeds", self.location), "source", "me")
 

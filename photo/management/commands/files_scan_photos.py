@@ -5,7 +5,7 @@ Management command to find any photos that haven't been uploaded
 import os
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from photo.lib import ignore_file, ignore_folder
 from photo.models import Photo
@@ -45,14 +45,9 @@ class Command(BaseCommand):
             help="delete items that are not found",
         )
 
-        parser.add_argument(
-            "--autoadd",
-            action="store_true",
-            dest="autoadd",
-            help="add items that are not found",
-        )
-
     def handle(self, *args, **options):
+        if not options["files"] and not options["db"]:
+            raise CommandError("Nothing to do: pass --files and/or --db")
 
         # Scan directory structure to find photos not uploaded to DB
         if options["files"]:

@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 print(f"     {get_domain()}{tag_slug}")
                 accept = input("Enter country code? [0 to ignore]")
 
-                if accept != "0":
+                if accept.strip() not in ("", "0"):
                     country_code = accept
                     print(country_code)
                     cc_obj, _ = TagProps.objects.get_or_create(tag=t, name="country")

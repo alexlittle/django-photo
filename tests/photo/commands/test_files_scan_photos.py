@@ -1,12 +1,14 @@
 """Tests for the ``files_scan_photos`` management command.
 
-Two independent passes, neither of which runs unless asked for:
+Two independent passes, requiring at least one of the two flags that select
+them:
   --files  walks PHOTO_ROOT and reports images with no database row
   --db     walks the database and reports rows with no file on disk
 """
 
 import os
 
+from django.core.management.base import CommandError
 from django.test import override_settings
 
 from photo.models import Photo
@@ -17,25 +19,22 @@ COMMAND = "files_scan_photos"
 
 @override_settings(IGNORE_FOLDERS=[], IGNORE_EXTENSIONS=[".db", ".ini"])
 class FilesScanPhotosNoFlagsTests(CommandTestCase):
-    def test_without_flags_the_command_does_nothing(self):
+    def test_without_flags_the_command_errors(self):
         album = create_album("/2024/")
         create_photo(album, "orphan.jpg")
 
-        output = self.run_command(COMMAND)
+        with self.assertRaises(CommandError):
+            self.run_command(COMMAND)
 
-        self.assertEqual(output.strip(), "")
-        self.assertTrue(Photo.objects.filter(file="orphan.jpg").exists())
-
-    def test_autoadd_is_accepted_but_has_no_effect(self):
-        # --autoadd is declared in add_arguments and never read in handle().
+    def test_autoadd_is_no_longer_a_recognised_option(self):
+        # The dead --autoadd flag (declared but never read in handle()) has
+        # been removed rather than implemented.
         album = create_album("/2024/")
         photo = create_photo(album, "a.jpg")
         self.write_image(photo)
-        self.touch("/2024/", "extra.jpg")
 
-        self.run_command(COMMAND, files=True, autoadd=True)
-
-        self.assertFalse(Photo.objects.filter(file="extra.jpg").exists())
+        with self.assertRaises(TypeError):
+            self.run_command(COMMAND, files=True, autoadd=True)
 
     def touch(self, album_name, filename):
         directory = os.path.join(self.photo_root, album_name.lstrip("/"))

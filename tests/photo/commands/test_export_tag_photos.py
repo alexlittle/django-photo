@@ -5,7 +5,6 @@ export directory. With no destination given it creates one under PHOTO_ROOT.
 """
 
 import os
-from unittest import expectedFailure
 
 from tests.base import CommandTestCase, create_album, create_photo, create_tag, tag_photo
 
@@ -130,10 +129,7 @@ class ExportTagPhotosTests(CommandTestCase):
 
         self.assertEqual(os.listdir(target), [])
 
-    @expectedFailure
     def test_a_missing_source_file_is_skipped(self):
-        # shutil.copy is unguarded, so a database row whose file has gone
-        # raises FileNotFoundError and abandons the rest of the export.
         ghost = create_photo(self.album, "ghost.jpg")
         real = create_photo(self.album, "a.jpg")
         self.write_image(real)
@@ -145,10 +141,7 @@ class ExportTagPhotosTests(CommandTestCase):
 
         self.assertEqual(os.listdir(target), ["a.jpg"])
 
-    @expectedFailure
     def test_a_destination_that_does_not_exist_is_created(self):
-        # An explicit export_path is used as-is with no makedirs, so pointing
-        # at a path that is not there fails on the first copy.
         photo = create_photo(self.album, "a.jpg")
         self.write_image(photo)
         tag_photo(photo, self.beach)

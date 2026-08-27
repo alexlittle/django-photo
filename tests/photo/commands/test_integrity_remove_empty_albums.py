@@ -1,7 +1,9 @@
 """Tests for the ``integrity_remove_empty_albums`` management command.
 
-Deletes every album with no photos. Destructive, and unlike the --autodelete
-flag on files_scan_photos there is no opt-in: running it deletes immediately.
+Deletes every album with no photos. Destructive: running it with no flags
+deletes immediately (matching --autodelete on files_scan_photos, and keeping
+this safe to call unattended from report_full/cron); --dry-run lists the
+candidates instead.
 """
 
 from photo.models import Album, Photo
@@ -91,10 +93,43 @@ class IntegrityRemoveEmptyAlbumsTests(CommandTestCase):
         self.assertFalse(Album.objects.filter(pk=album.pk).exists())
 
     def test_the_command_deletes_without_asking(self):
-        # No --dry-run and no confirmation prompt: pinning this so that adding
+        # No confirmation prompt with no flags: pinning this so that adding
         # one later is a deliberate, visible change.
         create_album("/2024/")
 
         self.run_command(COMMAND)
 
         self.assertEqual(Album.objects.count(), 0)
+
+    def test_dry_run_deletes_nothing(self):
+        create_album("/2024/")
+
+        self.run_command(COMMAND, dry_run=True)
+
+        self.assertEqual(Album.objects.count(), 1)
+
+    def test_dry_run_lists_the_candidates(self):
+        create_album("/2024/")
+
+        output = self.run_command(COMMAND, dry_run=True)
+
+        self.assertIn("Would remove: /2024/", output)
+        self.assertIn("1 albums with no photos would be removed", output)
+
+    def test_dry_run_with_nothing_to_do_reports_ok(self):
+        album = create_album("/2024/")
+        create_photo(album, "a.jpg")
+
+        output = self.run_command(COMMAND, dry_run=True)
+
+        self.assertIn("OK", output)
+
+    def test_dry_run_leaves_populated_albums_out_of_the_list(self):
+        album = create_album("/2024/")
+        create_photo(album, "a.jpg")
+        create_album("/2023/")
+
+        output = self.run_command(COMMAND, dry_run=True)
+
+        self.assertNotIn("/2024/", output)
+        self.assertIn("Would remove: /2023/", output)

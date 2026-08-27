@@ -10,9 +10,6 @@ class Command(BaseCommand):
         # deep structure
         call_command("files_deep_structure", count=2)
 
-        # remove unused tags
-        call_command("integrity_remove_unused_tags")
-
         # Missing albums (not in db but on disk)
         call_command("files_scan_albums")
 
@@ -27,6 +24,10 @@ class Command(BaseCommand):
 
         # Uncategorised tags
         call_command("integrity_uncategorised_tags")
+
+        # remove unused tags -- runs after the uncategorised-tags report above,
+        # so a tag removed here still showed up in that report first
+        call_command("integrity_remove_unused_tags")
 
         # Album cover issues
         call_command("integrity_album_covers")
@@ -46,11 +47,12 @@ class Command(BaseCommand):
         # locations without coordinates
         call_command("report_missing_coordinates")
 
-        # locations without country
-        call_command("report_missing_country")
-
         # locations without source
         call_command("report_missing_source")
 
         # tag diff
         call_command("tag_diff")
+
+        # Note: report_missing_country is deliberately not run here -- it
+        # blocks on input(), which would hang report_full when run
+        # unattended (e.g. from cron). Run it separately when wanted.

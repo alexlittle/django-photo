@@ -49,7 +49,9 @@ class Command(BaseCommand):
                 image_file_name = os.path.basename(im)
                 print(image_file_name)
                 # find if image exists
-                photo, created = Photo.objects.get_or_create(album=album, file=image_file_name)
+                photo, photo_created = Photo.objects.get_or_create(
+                    album=album, file=image_file_name
+                )
 
                 # add all the tags
                 add_tags(photo, default_tags)
@@ -58,6 +60,8 @@ class Command(BaseCommand):
                     exif_tags, result = get_exif(im)
                 except AttributeError:  # png files don't generally have exif data
                     result = False
+
+                date_set = False
                 if result:
                     try:
                         exif_date = exif_tags["DateTimeOriginal"]
@@ -65,19 +69,28 @@ class Command(BaseCommand):
 
                         LONDON = ZoneInfo("Europe/London")
                         photo.date = naive.replace(tzinfo=LONDON)
+                        date_set = True
 
                         # add year and month tags
                         year = photo.date.year
-                        tag, created = Tag.objects.get_or_create(name=year)
-                        _, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+                        tag, _ = Tag.objects.get_or_create(name=year)
+                        PhotoTag.objects.get_or_create(photo=photo, tag=tag)
 
                         month = photo.date.strftime("%B")
-                        tag, created = Tag.objects.get_or_create(name=month)
-                        _, created = PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+                        tag, _ = Tag.objects.get_or_create(name=month)
+                        PhotoTag.objects.get_or_create(photo=photo, tag=tag)
 
                     except (KeyError, AttributeError, ValueError):
-                        if created:
-                            photo.date = default_date
+                        pass
+
+                # PNGs, and JPEGs with no usable EXIF date, fall back to the
+                # date typed into the upload form -- but only for photos we're
+                # creating now (not ones already on record from an earlier
+                # scan), and only when a default was actually supplied (a bare
+                # `upload_album` with no -dd leaves the model's own
+                # default=timezone.now() in place, same as before).
+                if not date_set and photo_created and default_date is not None:
+                    photo.date = default_date
 
                 photo.save()
 
