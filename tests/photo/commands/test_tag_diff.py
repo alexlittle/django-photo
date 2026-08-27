@@ -4,8 +4,6 @@ Flags tags whose names are close matches for other tags -- typo and near-
 duplicate detection, via difflib.get_close_matches over every pair.
 """
 
-from unittest import expectedFailure
-
 from django.test import override_settings
 from django.urls import reverse
 
@@ -126,17 +124,19 @@ class TagDiffTests(CommandTestCase):
 
         self.assertIn("OK", output)
 
-    @expectedFailure
     def test_the_link_uses_the_tags_stored_slug(self):
-        # The URL is built from slugify(name) rather than tag.slug. Those agree
-        # for a freshly created tag, but Tag.save() only derives the slug when
-        # there is no id, so a renamed tag keeps its original slug and this
-        # links to a slug that resolves to nothing.
+        # The URL is built from tag.slug rather than slugify(name). Those
+        # agree for a freshly created tag, but Tag.save() only derives the
+        # slug when it's blank, so a renamed tag keeps its original slug and
+        # the link still resolves. The rename (bypassing save(), as a direct
+        # DB update would) still has to stay close enough to "Sunsets" to be
+        # flagged, otherwise there'd be nothing to assert a link on.
         tag = create_tag("Sunset")
         create_tag("Sunsets")
-        Tag.objects.filter(pk=tag.pk).update(name="Sundown")
+        Tag.objects.filter(pk=tag.pk).update(name="Sunsete")
 
         output = self.run_command(COMMAND)
 
         expected = "https://photos.example.test" + reverse("photo:tag_slug", args=(tag.slug,))
         self.assertIn(expected, output)
+        self.assertEqual(tag.slug, "sunset")

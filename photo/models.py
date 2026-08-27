@@ -109,7 +109,7 @@ class TagCategory(models.Model):
         verbose_name_plural = _("Tag Categories")
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
@@ -130,7 +130,7 @@ class Tag(models.Model):
         ordering = ["name"]
 
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 

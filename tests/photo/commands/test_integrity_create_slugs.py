@@ -1,19 +1,16 @@
 """Tests for the ``integrity_create_slugs`` management command.
 
-Meant to backfill slugs on tag categories and tags that are missing one.
+Backfills slugs on tag categories and tags that are missing one.
 
-Two independent problems stop it doing that, both covered below:
+Two independent problems used to stop it doing that:
   * ``slug = models.SlugField()`` is not nullable, so a missing slug is stored
-    as "" and ``filter(slug=None)`` (which Django turns into IS NULL) matches
-    nothing at all;
-  * both models only derive a slug ``if not self.id``, so re-saving an existing
-    row would not populate it even if the filter did select it.
-
-The reachable behaviour is therefore "does nothing, quietly". These tests pin
-that, and the expected failures describe the intended behaviour.
+    as "" and ``filter(slug=None)`` (which Django turns into IS NULL) matched
+    nothing at all -- the command now filters on ``slug=""`` instead;
+  * both models only derived a slug ``if not self.id``, so re-saving an
+    existing row never populated it even if the filter did select it -- the
+    guard is now ``if not self.slug``, so a blank slug is filled in on any
+    save, while a tag that already has a slug keeps it even if renamed.
 """
-
-from unittest import expectedFailure
 
 from photo.models import Tag, TagCategory
 from tests.base import CommandTestCase, create_tag
@@ -48,15 +45,17 @@ class IntegrityCreateSlugsTests(CommandTestCase):
 
         self.assertEqual(category.slug, "tag-category")
 
-    def test_a_blank_slug_cannot_be_repaired_by_resaving(self):
-        # The second half of the problem: save() guards on `if not self.id`, so
-        # calling save() on an existing row never recomputes the slug.
+    def test_a_blank_slug_is_repaired_by_resaving(self):
+        # save() now guards on `if not self.slug`, so calling save() on an
+        # existing row with a blank slug recomputes it. A tag that already
+        # has a slug is untouched even if its name changes -- only a blank
+        # slug is filled in.
         tag = self.blank_the_slug(create_tag("Beach"))
 
         tag.save()
 
         tag.refresh_from_db()
-        self.assertEqual(tag.slug, "")
+        self.assertEqual(tag.slug, "beach")
 
     def test_a_blank_slug_is_not_selected_by_the_filter(self):
         # The first half: filter(slug=None) becomes IS NULL, and the column is
@@ -66,7 +65,6 @@ class IntegrityCreateSlugsTests(CommandTestCase):
         self.assertFalse(Tag.objects.filter(slug=None).exists())
         self.assertTrue(Tag.objects.filter(slug="").exists())
 
-    @expectedFailure
     def test_a_tag_with_a_blank_slug_is_repaired(self):
         tag = self.blank_the_slug(create_tag("Beach"))
 
@@ -75,7 +73,6 @@ class IntegrityCreateSlugsTests(CommandTestCase):
         tag.refresh_from_db()
         self.assertEqual(tag.slug, "beach")
 
-    @expectedFailure
     def test_a_tag_category_with_a_blank_slug_is_repaired(self):
         category = self.blank_the_slug(TagCategory.objects.create(name="Location"))
 
@@ -84,7 +81,6 @@ class IntegrityCreateSlugsTests(CommandTestCase):
         category.refresh_from_db()
         self.assertEqual(category.slug, "location")
 
-    @expectedFailure
     def test_repaired_names_are_reported(self):
         self.blank_the_slug(create_tag("Beach"))
 

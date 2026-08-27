@@ -18,6 +18,10 @@ class Command(BaseCommand):
         oldtag = Tag.objects.get(slug=options["oldtag"])
         newtag = Tag.objects.get(slug=options["newtag"])
 
+        if oldtag.id == newtag.id:
+            self.stdout.write(self.style.ERROR("Cannot combine a tag with itself"))
+            return
+
         photo_tags = PhotoTag.objects.filter(tag=oldtag)
         pt_count = photo_tags.count()
         for pt in photo_tags:

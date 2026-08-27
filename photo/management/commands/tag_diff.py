@@ -4,7 +4,6 @@ import re
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
-from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 
 from photo.models import Tag
@@ -31,12 +30,13 @@ class Command(BaseCommand):
 
         cutoff = options["cutoff"]
 
-        # get all tags as plain list
-        tags = list(Tag.objects.order_by("name").values_list("name", flat=True))
+        # get all tags as (name, slug) pairs
+        tags = list(Tag.objects.order_by("name").values_list("name", "slug"))
+        names = [name for name, _slug in tags]
 
         match_count = 0
-        for current_tag in tags:
-            filtered_list = [tag for tag in tags if tag != current_tag]
+        for current_tag, current_slug in tags:
+            filtered_list = [name for name in names if name != current_tag]
             matches = difflib.get_close_matches(current_tag, filtered_list, cutoff=cutoff)
 
             filtered_matches = []
@@ -44,9 +44,7 @@ class Command(BaseCommand):
                 if not self.regex_tag_matches(current_tag, match):
                     filtered_matches.append(match)
 
-            url = settings.DOMAIN_NAME + reverse(
-                "photo:tag_slug", kwargs={"slug": slugify(current_tag)}
-            )
+            url = settings.DOMAIN_NAME + reverse("photo:tag_slug", kwargs={"slug": current_slug})
             if filtered_matches:
                 self.stdout.write(f"{current_tag} - {url}")
                 self.stdout.write(str(filtered_matches))

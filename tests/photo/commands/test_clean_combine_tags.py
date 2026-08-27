@@ -4,8 +4,6 @@ Takes two tag slugs, repoints every PhotoTag from the old tag to the new one,
 then deletes the old tag.
 """
 
-from unittest import expectedFailure
-
 from photo.models import PhotoTag, Tag
 from tests.base import CommandTestCase, create_album, create_photo, create_tag, tag_photo
 
@@ -108,14 +106,16 @@ class CleanCombineTagsTests(CommandTestCase):
 
         self.assertEqual(PhotoTag.objects.filter(photo=photo, tag=self.new).count(), 1)
 
-    @expectedFailure
     def test_combining_a_tag_with_itself_is_refused(self):
-        # Both lookups return the same row, so every PhotoTag is repointed to
-        # the tag that is then deleted -- cascading the lot away. The photo
-        # silently loses the tag entirely.
+        # Both lookups used to return the same row, so every PhotoTag was
+        # repointed to the tag that then got deleted -- cascading the lot
+        # away and silently losing the tag entirely. The command now checks
+        # for this and bails out instead of touching anything.
         photo = create_photo(self.album, "a.jpg")
         tag_photo(photo, self.old)
 
-        self.run_command(COMMAND, "seaside", "seaside")
+        output = self.run_command(COMMAND, "seaside", "seaside")
 
         self.assertEqual(self.tags_for(photo), ["Seaside"])
+        self.assertTrue(Tag.objects.filter(slug="seaside").exists())
+        self.assertIn("Cannot combine a tag with itself", output)
