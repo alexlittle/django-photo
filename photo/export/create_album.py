@@ -13,30 +13,32 @@ def make_font_tag(size, text):
 
 
 def make(album_id=None, tag_id=None):
-    photos = None
+    photos = Photo.objects.none()
     filename = None
 
-    try:
-        album = Album.objects.get(id=album_id)
-        photos = (
-            Photo.objects.filter(album=album)
-            .exclude(photoprops__name="exclude.album.export", photoprops__value="true")
-            .order_by("date")
-        )
-        filename = album.title or str(album.id)
-    except Album.DoesNotExist:
-        print("No Album Specified")
+    if album_id:
+        try:
+            album = Album.objects.get(id=album_id)
+            photos = (
+                Photo.objects.filter(album=album)
+                .exclude(photoprops__name="exclude.album.export", photoprops__value="true")
+                .order_by("date")
+            )
+            filename = album.title or str(album.id)
+        except Album.DoesNotExist:
+            print("No Album Specified")
 
-    try:
-        photos = (
-            Photo.objects.filter(phototag__tag_id=tag_id)
-            .exclude(photoprops__name="exclude.album.export", photoprops__value="true")
-            .order_by("date")
-        )
-        tag = Tag.objects.get(pk=tag_id)
-        filename = tag.name
-    except Tag.DoesNotExist:
-        print("No Tag Specified")
+    if tag_id:
+        try:
+            photos = (
+                Photo.objects.filter(phototag__tag_id=tag_id)
+                .exclude(photoprops__name="exclude.album.export", photoprops__value="true")
+                .order_by("date")
+            )
+            tag = Tag.objects.get(pk=tag_id)
+            filename = tag.name
+        except Tag.DoesNotExist:
+            print("No Tag Specified")
 
     print(f"Creating album for... {filename}")
 
@@ -51,7 +53,8 @@ def make(album_id=None, tag_id=None):
     style_centered = ParagraphStyle(name="centeredStyle", alignment=TA_CENTER)
 
     if album_id and album.has_cover():
-        image = os.path.join(settings.MEDIA_ROOT, "..", album.get_cover(album, 700)[1:])
+        cover_photo = album.get_cover()
+        image = os.path.join(settings.MEDIA_ROOT, "..", cover_photo.get_thumbnail(700)[1:])
         im = Image(image)
         photo_page.append(im)
 

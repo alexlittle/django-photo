@@ -3,15 +3,12 @@
 This is the module behind the ``export_pdf_album`` command. It builds a PDF from
 either an album or a tag and writes it to PHOTO_ROOT/albums/<name>.pdf.
 
-Two model methods it calls -- ``Photo.get_thumbnail(size)`` and a ``get_cover``
-taking arguments -- are not present on the models.py in this repo as I read it,
-so they are patched here with ``create=True``. If your models do define them,
-these patches are harmless; if they do not, see the notes at the bottom of this
-file, because that is a separate problem from the ones tested here.
+``Photo.get_thumbnail(size)`` is a real model method backed by sorl-thumbnail.
+It's patched here with a fixed return value so the tests don't need real
+thumbnail generation or a real MEDIA_ROOT layout.
 """
 
 import os
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from django.test import override_settings
@@ -168,40 +165,35 @@ class TagExportTests(CreateAlbumTestCase):
 
 
 class AlbumExportTests(CreateAlbumTestCase):
-    """The album path does not work. These pin why."""
+    """The album path renders every photo in the album, tagged or not."""
 
     def setUp(self):
         super().setUp()
         self.album = create_album("/2024/", title="Holiday")
 
-    def test_the_second_query_overwrites_the_album_selection(self):
-        # The two try blocks both run unconditionally. The tag block reassigns
-        # `photos` before Tag.objects.get raises, so the album's own queryset is
-        # thrown away every time. A tagged photo in the album therefore never
-        # reaches the PDF.
+    def test_an_album_export_contains_the_albums_photos(self):
+        # The command used to build two queries unconditionally: an album
+        # query, then a tag query that overwrote it before Tag.objects.get
+        # raised for the missing tag_id. That threw away the album's own
+        # selection on every call. The tag query now only runs when tag_id
+        # is actually given.
         photo = create_photo(self.album, "in_album.jpg")
         tag_photo(photo, create_tag("Beach"))
 
         _path, rendered = self.build_capturing_photos(album_id=self.album.id)
 
-        self.assertEqual(rendered, [])
+        self.assertEqual([p.file for p in rendered], ["in_album.jpg"])
 
-    def test_an_untagged_album_photo_appears_only_by_coincidence(self):
-        # filter(phototag__tag_id=None) matches photos with no tags, so an
-        # untagged photo in the target album does come out -- which is very
-        # likely why this has gone unnoticed. Tag the same photo and it
-        # vanishes from its own album's export.
+    def test_an_untagged_photo_in_the_album_is_still_rendered(self):
+        # Album membership, not tagging, is what selects photos for the
+        # album path -- an untagged photo belongs in its own album's export.
         create_photo(self.album, "untagged.jpg")
 
         _path, rendered = self.build_capturing_photos(album_id=self.album.id)
 
         self.assertEqual([p.file for p in rendered], ["untagged.jpg"])
 
-    def test_untagged_photos_from_other_albums_are_pulled_in(self):
-        # filter(phototag__tag_id=None) becomes an IS NULL lookup, which Django
-        # serves with a LEFT OUTER JOIN -- so it matches every untagged photo in
-        # the library, whatever album it belongs to. Both bugs in one shot: the
-        # album's own tagged photo is dropped, a stranger's is picked up.
+    def test_an_album_export_excludes_photos_from_other_albums(self):
         photo = create_photo(self.album, "in_album.jpg")
         tag_photo(photo, create_tag("Beach"))
         other = create_album("/2023/", title="Other")
@@ -209,10 +201,9 @@ class AlbumExportTests(CreateAlbumTestCase):
 
         _path, rendered = self.build_capturing_photos(album_id=self.album.id)
 
-        self.assertEqual([p.file for p in rendered], ["elsewhere.jpg"])
+        self.assertEqual([p.file for p in rendered], ["in_album.jpg"])
 
     def test_the_filename_still_comes_from_the_album(self):
-        # filename survives because `filename = tag.name` is after the raise.
         path = self.build(album_id=self.album.id)
 
         self.assertTrue(path.endswith("Holiday.pdf"))
@@ -231,42 +222,22 @@ class AlbumExportTests(CreateAlbumTestCase):
             self.build(album_id=9999)
 
     def test_calling_with_neither_argument_writes_a_none_pdf(self):
+        # Neither the album nor tag query runs, so `photos` stays the empty
+        # queryset it's initialised to -- not the every-untagged-photo query
+        # this used to fall through to.
         create_photo(self.album, "a.jpg")
 
         path = self.build()
 
         self.assertTrue(path.endswith("None.pdf"))
 
-    @expectedFailure
-    def test_an_album_export_contains_the_albums_photos(self):
-        # What the album path is supposed to do. Guarding the second block with
-        # `if tag_id:` (or making the two mutually exclusive) fixes this and the
-        # cross-album leak together.
-        photo = create_photo(self.album, "in_album.jpg")
-        tag_photo(photo, create_tag("Beach"))
-
-        _path, rendered = self.build_capturing_photos(album_id=self.album.id)
-
-        self.assertEqual([p.file for p in rendered], ["in_album.jpg"])
-
-    @expectedFailure
-    def test_an_album_export_excludes_photos_from_other_albums(self):
-        photo = create_photo(self.album, "in_album.jpg")
-        tag_photo(photo, create_tag("Beach"))
-        other = create_album("/2023/", title="Other")
-        create_photo(other, "elsewhere.jpg")
-
-        _path, rendered = self.build_capturing_photos(album_id=self.album.id)
-
-        self.assertNotIn("elsewhere.jpg", [p.file for p in rendered])
-
-    @expectedFailure
     def test_the_cover_is_fetched_with_the_documented_signature(self):
-        # The call is album.get_cover(album, 700) -- self passed explicitly plus
-        # a size -- but Album.get_cover is defined as get_cover(self) and
-        # returns a Photo, not a path. Any album with a cover set therefore
-        # fails before a single page is written. This is the one bug here that
-        # is invisible until an album happens to have a cover.
+        # The call used to be album.get_cover(album, 700) -- self passed
+        # explicitly plus a size -- but Album.get_cover takes no arguments
+        # and returns a Photo, not a path. Any album with a cover set used
+        # to fail before a single page was written. The command now calls
+        # album.get_cover() to get the Photo, then cover_photo.get_thumbnail(700)
+        # for the path, same as every other photo.
         create_photo(self.album, "cover.jpg", album_cover=True)
 
         self.build(album_id=self.album.id)
@@ -377,7 +348,6 @@ class PageContentTests(CreateAlbumTestCase):
 class AlbumModelAssumptionTests(PhotoRootTestCase):
     """Pins the model API this module depends on, so drift is caught early."""
 
-    @expectedFailure
     def test_photo_exposes_get_thumbnail(self):
         self.assertTrue(
             hasattr(Photo, "get_thumbnail"),

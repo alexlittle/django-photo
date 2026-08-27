@@ -7,6 +7,7 @@ from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from sorl.thumbnail import get_thumbnail
 
 
 class CombinedSearchManager(models.Manager):
@@ -208,6 +209,10 @@ class Photo(models.Model):
 
     def get_full_url(self):
         return settings.PHOTO_ROOT + self.album.name + self.file
+
+    def get_thumbnail(self, size):
+        """Same sorl-thumbnail mechanism the templates use via {% thumbnail %}."""
+        return get_thumbnail(self.get_full_url(), str(size)).url
 
     def get_face_count(self):
         count = self.get_prop("face_count")
