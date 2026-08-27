@@ -3,16 +3,18 @@
 Reports albums with no title set.
 """
 
-from django.test import override_settings
 from django.urls import reverse
 
-from tests.base import CommandTestCase, create_album
+from tests.base import CommandTestCase, create_album, set_site_domain
 
 COMMAND = "integrity_albums_no_title"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class IntegrityAlbumsNoTitleTests(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        set_site_domain("photos.example.test")
+
     def test_an_album_with_no_title_is_reported(self):
         create_album("/2024/")
 

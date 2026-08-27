@@ -10,19 +10,18 @@ installed and Tag registered for these to resolve.
 
 from unittest.mock import patch
 
-from django.test import override_settings
 from django.urls import reverse
 
 from photo.models import TagCategory, TagProps
-from tests.base import CommandTestCase, create_tag, set_tag_prop
+from tests.base import CommandTestCase, create_tag, set_site_domain, set_tag_prop
 
 COMMAND = "report_missing_country"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class ReportMissingCountryTests(CommandTestCase):
     def setUp(self):
         super().setUp()
+        set_site_domain("photos.example.test")
         self.location = TagCategory.objects.create(name="Location")
 
     def run_with_answers(self, *answers):

@@ -6,14 +6,12 @@ tests below pin that constraint and the command's always-OK output.
 """
 
 from django.db import IntegrityError, transaction
-from django.test import override_settings
 
 from tests.base import CommandTestCase, create_album, create_photo
 
 COMMAND = "files_duplicate_filenames"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class FilesDuplicateFilenamesTests(CommandTestCase):
     def setUp(self):
         super().setUp()

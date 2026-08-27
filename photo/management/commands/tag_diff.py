@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from photo.lib import get_domain
 from photo.models import Tag
 
 
@@ -44,7 +45,7 @@ class Command(BaseCommand):
                 if not self.regex_tag_matches(current_tag, match):
                     filtered_matches.append(match)
 
-            url = settings.DOMAIN_NAME + reverse("photo:tag_slug", kwargs={"slug": current_slug})
+            url = get_domain() + reverse("photo:tag_slug", kwargs={"slug": current_slug})
             if filtered_matches:
                 self.stdout.write(f"{current_tag} - {url}")
                 self.stdout.write(str(filtered_matches))

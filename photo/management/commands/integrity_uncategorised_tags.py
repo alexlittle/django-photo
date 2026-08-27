@@ -2,10 +2,10 @@
 Management command to get tags with no category set
 """
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
 
+from photo.lib import get_domain
 from photo.models import Tag
 
 
@@ -19,7 +19,7 @@ class Command(BaseCommand):
         tags = Tag.objects.filter(tagcategory=None)
         for t in tags:
             link = reverse("admin:photo_tag_change", args=(t.id,))
-            self.stdout.write(f"{t.name} - {settings.DOMAIN_NAME}{link}")
+            self.stdout.write(f"{t.name} - {get_domain()}{link}")
 
         if tags.count() == 0:
             self.stdout.write(self.style.SUCCESS("OK"))

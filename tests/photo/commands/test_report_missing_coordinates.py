@@ -4,19 +4,18 @@ Read-only report: Location tags with no usable latitude. The interactive
 counterpart that actually fills them in is report_get_coordinates.
 """
 
-from django.test import override_settings
 from django.urls import reverse
 
 from photo.models import TagCategory
-from tests.base import CommandTestCase, create_tag, set_tag_prop
+from tests.base import CommandTestCase, create_tag, set_site_domain, set_tag_prop
 
 COMMAND = "report_missing_coordinates"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class ReportMissingCoordinatesTests(CommandTestCase):
     def setUp(self):
         super().setUp()
+        set_site_domain("photos.example.test")
         self.location = TagCategory.objects.create(name="Location")
 
     def test_a_tag_with_no_latitude_is_reported(self):

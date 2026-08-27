@@ -3,17 +3,26 @@
 Reports tags with no TagCategory set.
 """
 
-from django.test import override_settings
 from django.urls import reverse
 
 from photo.models import TagCategory
-from tests.base import CommandTestCase, create_album, create_photo, create_tag, make_datetime
+from tests.base import (
+    CommandTestCase,
+    create_album,
+    create_photo,
+    create_tag,
+    make_datetime,
+    set_site_domain,
+)
 
 COMMAND = "integrity_uncategorised_tags"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class IntegrityUncategorisedTagsTests(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        set_site_domain("photos.example.test")
+
     def test_an_uncategorised_tag_is_reported(self):
         create_tag("Beach")
 

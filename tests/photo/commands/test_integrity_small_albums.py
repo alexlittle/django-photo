@@ -3,16 +3,18 @@
 Reports albums holding fewer than --count photos.
 """
 
-from django.test import override_settings
 from django.urls import reverse
 
-from tests.base import CommandTestCase, create_album, create_photo
+from tests.base import CommandTestCase, create_album, create_photo, set_site_domain
 
 COMMAND = "integrity_small_albums"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class IntegritySmallAlbumsTests(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        set_site_domain("photos.example.test")
+
     def test_a_small_album_is_reported(self):
         album = create_album("/2024/", title="Holiday")
         create_photo(album, "a.jpg")

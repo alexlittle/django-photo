@@ -2,10 +2,10 @@
 Management command to find albums with deep directory structure
 """
 
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.urls import reverse
 
+from photo.lib import get_domain
 from photo.models import Album
 
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
             dirs = filter(None, album.name.split("/"))
             if len(list(dirs)) > max_dirs:
                 link = reverse("photo:album", args=(album.id,))
-                self.stdout.write(f"{settings.DOMAIN_NAME}{link} - {album.title} [{album.name}]")
+                self.stdout.write(f"{get_domain()}{link} - {album.title} [{album.name}]")
                 counter += 1
         if counter == 0:
             self.stdout.write(self.style.SUCCESS("OK"))

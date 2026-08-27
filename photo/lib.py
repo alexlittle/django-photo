@@ -2,11 +2,18 @@ import os
 import re
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from libxmp import XMPFiles, XMPMeta, consts
 from PIL import Image
 from PIL.ExifTags import TAGS
 
 from photo.models import PhotoTag, Tag
+
+
+def get_domain():
+    """Base URL (scheme + host) for the configured Django site, for links in
+    generated output (e.g. management command reports)."""
+    return f"https://{Site.objects.get_current().domain}"
 
 
 def get_exif(fn):

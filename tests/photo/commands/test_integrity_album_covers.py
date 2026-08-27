@@ -5,16 +5,18 @@ than one. The logic lives in ``Album.has_cover`` / ``Album.has_multiple_covers``
 which this command drives one album at a time.
 """
 
-from django.test import override_settings
 from django.urls import reverse
 
-from tests.base import CommandTestCase, create_album, create_photo
+from tests.base import CommandTestCase, create_album, create_photo, set_site_domain
 
 COMMAND = "integrity_album_covers"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class IntegrityAlbumCoversTests(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        set_site_domain("photos.example.test")
+
     def test_an_album_with_no_cover_is_reported(self):
         album = create_album("/2024/")
         create_photo(album, "a.jpg")

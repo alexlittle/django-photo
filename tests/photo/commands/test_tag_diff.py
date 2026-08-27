@@ -8,13 +8,17 @@ from django.test import override_settings
 from django.urls import reverse
 
 from photo.models import Tag
-from tests.base import CommandTestCase, create_tag
+from tests.base import CommandTestCase, create_tag, set_site_domain
 
 COMMAND = "tag_diff"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test", IGNORE_TAG_REGEXS=[])
+@override_settings(IGNORE_TAG_REGEXS=[])
 class TagDiffTests(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        set_site_domain("photos.example.test")
+
     def test_similar_tags_are_flagged(self):
         create_tag("Sunset")
         create_tag("Sunsets")

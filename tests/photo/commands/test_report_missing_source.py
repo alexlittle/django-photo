@@ -8,19 +8,18 @@ Like report_missing_country, the "report_" prefix undersells it -- it writes.
 from unittest import expectedFailure
 from unittest.mock import patch
 
-from django.test import override_settings
 from django.urls import reverse
 
 from photo.models import TagCategory, TagProps
-from tests.base import CommandTestCase, create_tag, set_tag_prop
+from tests.base import CommandTestCase, create_tag, set_site_domain, set_tag_prop
 
 COMMAND = "report_missing_source"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class ReportMissingSourceTests(CommandTestCase):
     def setUp(self):
         super().setUp()
+        set_site_domain("photos.example.test")
         self.location = TagCategory.objects.create(name="Location")
 
     def run_with_answers(self, *answers):

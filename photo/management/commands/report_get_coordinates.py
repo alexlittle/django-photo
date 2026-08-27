@@ -8,6 +8,7 @@ import urllib
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from photo.lib import get_domain
 from photo.models import Tag, TagProps
 
 
@@ -26,8 +27,8 @@ class Command(BaseCommand):
         for tag in tags:
             print("--------------------")
             print(tag.name)
-            print(f"Edit: {settings.DOMAIN_NAME}/admin/photo/tag/{tag.id}/change/")
-            print(f"Photos: {settings.DOMAIN_NAME}/tag/{tag.slug}")
+            print(f"Edit: {get_domain()}/admin/photo/tag/{tag.id}/change/")
+            print(f"Photos: {get_domain()}/tag/{tag.slug}")
             params = {
                 "q": tag.name.encode("utf-8"),
                 "username": settings.GEONAMES_USERNAME,

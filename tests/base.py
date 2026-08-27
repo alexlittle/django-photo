@@ -9,6 +9,7 @@ from datetime import datetime
 from io import StringIO
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -60,6 +61,16 @@ def set_photo_prop(photo, name, value):
 def tag_photo(photo, *tags):
     for tag in tags:
         PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+
+
+def set_site_domain(domain):
+    """Point the configured Django site (django.contrib.sites) at ``domain``.
+
+    Commands build their links from ``photo.lib.get_domain()``, which reads
+    ``Site.objects.get_current().domain`` -- this is the test-side equivalent
+    of the old ``override_settings(DOMAIN_NAME=...)``.
+    """
+    Site.objects.update_or_create(pk=settings.SITE_ID, defaults={"domain": domain, "name": domain})
 
 
 class PhotoRootTestCase(TestCase):

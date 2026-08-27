@@ -166,7 +166,7 @@ class FilesScanForDuplicatesTests(CommandTestCase):
     def test_the_edit_link_uses_the_configured_domain(self):
         # The URL is hardcoded to http://localhost.photo/photo/edit/<id>, which
         # is a dev host baked into a command that also deletes files. Every
-        # other command in this set uses settings.DOMAIN_NAME.
+        # other command in this set builds its links from photo.lib.get_domain().
         self.make_pair()
 
         output, _prompt = self.run_with_answers("0")

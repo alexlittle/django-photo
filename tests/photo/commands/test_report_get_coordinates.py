@@ -42,7 +42,7 @@ class FakeResponse:
         return self._body
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test", GEONAMES_USERNAME="testuser")
+@override_settings(GEONAMES_USERNAME="testuser")
 class ReportGetCoordinatesTests(CommandTestCase):
     def setUp(self):
         super().setUp()

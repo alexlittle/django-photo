@@ -4,15 +4,16 @@ Reports albums whose name has more path segments than the given --count.
 "/2024/" is one segment deep, "/2024/holiday/" is two.
 """
 
-from django.test import override_settings
-
-from tests.base import CommandTestCase, create_album
+from tests.base import CommandTestCase, create_album, set_site_domain
 
 COMMAND = "files_deep_structure"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class FilesDeepStructureTests(CommandTestCase):
+    def setUp(self):
+        super().setUp()
+        set_site_domain("photos.example.test")
+
     def test_a_deeper_album_is_reported(self):
         create_album("/2024/holiday/beach/", title="Beach")
 

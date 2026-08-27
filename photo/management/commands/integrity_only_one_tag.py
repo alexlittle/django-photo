@@ -2,10 +2,10 @@
 Management command to find photos with only one tag
 """
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
 
+from photo.lib import get_domain
 from photo.models import Album, Photo, PhotoTag
 
 
@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 tag_count = PhotoTag.objects.filter(photo=photo).values("tag").distinct().count()
                 if tag_count < 2:
                     link = reverse("photo:edit", args=(photo.id,))
-                    self.stdout.write(f"{album.name}{photo.file} - {settings.DOMAIN_NAME}{link}")
+                    self.stdout.write(f"{album.name}{photo.file} - {get_domain()}{link}")
                     counter += 1
 
         if counter == 0:

@@ -2,10 +2,10 @@
 Management command to find albums with no or multiple covers
 """
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.urls import reverse
 
+from photo.lib import get_domain
 from photo.models import Album
 
 
@@ -21,7 +21,7 @@ class Command(BaseCommand):
         for a in albums:
             if not a.has_cover():
                 link = reverse("photo:album", args=(a.id,))
-                self.stdout.write(f"{a.name} - {settings.DOMAIN_NAME}{link}")
+                self.stdout.write(f"{a.name} - {get_domain()}{link}")
                 counter += 1
 
         if counter == 0:
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         for a in albums:
             if a.has_multiple_covers():
                 link = reverse("photo:album", args=(a.id,))
-                self.stdout.write(f"{a.name} - {settings.DOMAIN_NAME}{link}")
+                self.stdout.write(f"{a.name} - {get_domain()}{link}")
                 counter += 1
 
         if counter == 0:

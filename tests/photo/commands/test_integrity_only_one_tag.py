@@ -4,19 +4,25 @@ Reports photos carrying fewer than two tags, walking albums in name order.
 """
 
 from django.db import IntegrityError, transaction
-from django.test import override_settings
 from django.urls import reverse
 
 from photo.models import PhotoTag
-from tests.base import CommandTestCase, create_album, create_photo, create_tag, tag_photo
+from tests.base import (
+    CommandTestCase,
+    create_album,
+    create_photo,
+    create_tag,
+    set_site_domain,
+    tag_photo,
+)
 
 COMMAND = "integrity_only_one_tag"
 
 
-@override_settings(DOMAIN_NAME="https://photos.example.test")
 class IntegrityOnlyOneTagTests(CommandTestCase):
     def setUp(self):
         super().setUp()
+        set_site_domain("photos.example.test")
         self.album = create_album("/2024/")
         self.beach = create_tag("Beach")
         self.sunset = create_tag("Sunset")
