@@ -9,7 +9,6 @@ parsing in ``photo.lib`` is exercised too.
 """
 
 from datetime import UTC, date
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from tests.base import CommandTestCase, create_album, create_photo, local, make_datetime
@@ -145,13 +144,7 @@ class CleanRedatePhotosTests(CommandTestCase):
         self.assertEqual(summer.date.astimezone(UTC).hour, 11)
         self.assertEqual(winter.date.astimezone(UTC).hour, 12)
 
-    @expectedFailure
     def test_exif_without_any_timestamp_tag_does_not_crash(self):
-        # If none of the three tags is present, exif_date is never assigned and
-        # the reference raises UnboundLocalError. That inherits from NameError,
-        # so none of the KeyError/AttributeError/ValueError handlers catch it
-        # and the whole run dies on one bad file. (The `except KeyError` branch
-        # looks like it was meant for this, but `in` checks never raise.)
         photo = create_photo(self.album, "a.jpg", make_datetime(2020, 1, 1))
         # Orientation only -- EXIF present, but no timestamp.
         self.write_image_with_exif(photo, **{"274": 1})
@@ -162,11 +155,7 @@ class CleanRedatePhotosTests(CommandTestCase):
 
         self.assertEqual(self.stored(later).date(), date(2024, 3, 9))
 
-    @expectedFailure
     def test_a_missing_file_is_skipped_rather_than_fatal(self):
-        # get_exif calls Image.open with no guard, so a database row whose file
-        # has gone raises FileNotFoundError and stops the run. Worth pairing
-        # with files_scan_photos --db before running this.
         create_photo(self.album, "ghost.jpg", make_datetime(2020, 1, 1))
         later = create_photo(self.album, "b.jpg", make_datetime(2020, 1, 1))
         self.write_image_with_exif(later, **{str(DATE_TIME_ORIGINAL): "2024:03:09 14:25:00"})

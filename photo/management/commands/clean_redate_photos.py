@@ -36,7 +36,11 @@ class Command(BaseCommand):
 
         for photo in photos:
             im = settings.PHOTO_ROOT + album.name + photo.file
-            exif_tags, result = get_exif(im)
+            try:
+                exif_tags, result = get_exif(im)
+            except FileNotFoundError:
+                print("File not found: " + photo.file)
+                continue
             if result:
                 self.update_photo_date(photo, exif_tags)
 
@@ -48,6 +52,8 @@ class Command(BaseCommand):
                 exif_date = exif_tags["DateTimeDigitized"]
             elif "DateTime" in exif_tags:
                 exif_date = exif_tags["DateTime"]
+            else:
+                raise KeyError("DateTimeOriginal/DateTimeDigitized/DateTime")
             naive = parse_datetime(re.sub(r"\:", r"-", exif_date, count=2))
             LONDON = ZoneInfo("Europe/London")
             photo.date = naive.replace(tzinfo=LONDON)

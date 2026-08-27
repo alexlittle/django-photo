@@ -121,10 +121,7 @@ class CleanWhatsappRedateTests(CommandTestCase):
         self.assertEqual(Tag.objects.filter(name="2024").count(), 1)
         self.assertEqual(Tag.objects.get(name="2024").id, existing.id)
 
-    @expectedFailure
     def test_created_date_tags_land_in_the_date_category(self):
-        # Same gap as clean_retag_dates: get_or_create(name=...) supplies no
-        # tagcategory, so these tags never show up in HomeView's "years".
         from photo.models import TagCategory
 
         date_category = TagCategory.objects.create(name="Date")

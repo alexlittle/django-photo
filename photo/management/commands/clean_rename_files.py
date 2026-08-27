@@ -12,6 +12,7 @@ class Command(BaseCommand):
             "-a",
             "--album",
             dest="album",
+            required=True,
             help="Source Album",
         )
 

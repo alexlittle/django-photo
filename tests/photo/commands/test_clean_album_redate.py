@@ -85,10 +85,7 @@ class CleanAlbumRedateTests(CommandTestCase):
         with self.assertRaises(ValueError):
             self.run_command(COMMAND, "2024-99-09", album="9999")
 
-    @expectedFailure
     def test_missing_album_argument_is_reported_cleanly(self):
-        # --album is optional, so it reaches Album.objects.get(pk=None) and
-        # raises a bare DoesNotExist instead of a usable message.
         with self.assertRaises(CommandError):
             self.run_command(COMMAND, "2024-03-09")
 

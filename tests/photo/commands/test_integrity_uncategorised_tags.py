@@ -62,11 +62,10 @@ class IntegrityUncategorisedTagsTests(CommandTestCase):
 
         self.assertIn("Orphan", output)
 
-    def test_date_tags_created_by_the_retag_commands_show_up_here(self):
-        # clean_retag_dates and clean_whatsapp_redate both create year and month
-        # tags via get_or_create(name=...) with no tagcategory, so this report
-        # steadily fills up with them. Running those commands makes this one
-        # noisier rather than the library tidier.
+    def test_date_tags_created_by_the_retag_commands_are_not_reported(self):
+        # clean_retag_dates and clean_whatsapp_redate now create year and month
+        # tags under the "Date" category, so they no longer show up as noise
+        # in this report.
         album = create_album("/2024/", title="Holiday")
         create_photo(album, "a.jpg", make_datetime(2024, 3, 9))
         TagCategory.objects.create(name="Date")
@@ -74,6 +73,6 @@ class IntegrityUncategorisedTagsTests(CommandTestCase):
         self.run_command("clean_retag_dates", album=str(album.id))
         output = self.run_command(COMMAND)
 
-        self.assertIn("2024", output)
-        self.assertIn("March", output)
-        self.assertIn("2 uncategorised tags", output)
+        self.assertNotIn("2024", output)
+        self.assertNotIn("March", output)
+        self.assertIn("OK", output)

@@ -4,8 +4,6 @@ For each photo in an album: drop any tags in the "Date" category, then add a
 year tag and a month tag derived from the stored date.
 """
 
-from unittest import expectedFailure
-
 from photo.models import Album, Tag, TagCategory
 from tests.base import (
     CommandTestCase,
@@ -114,14 +112,7 @@ class CleanRetagDatesTests(CommandTestCase):
         with self.assertRaises(Album.DoesNotExist):
             self.run_command(COMMAND, album="9999")
 
-    @expectedFailure
     def test_created_tags_land_in_the_date_category(self):
-        # get_or_create(name=...) passes no tagcategory, so new year and month
-        # tags are created uncategorised. Two consequences:
-        #   - HomeView's "years" context filters on tagcategory__slug="date",
-        #     so freshly created year tags never appear there.
-        #   - the delete at the top of the loop also filters on that category,
-        #     so it cannot clear tags this command created itself (see below).
         photo = create_photo(self.album, "a.jpg", make_datetime(2024, 3, 9))
 
         self.run_command(COMMAND, album=str(self.album.id))
@@ -130,11 +121,7 @@ class CleanRetagDatesTests(CommandTestCase):
         self.assertEqual(year_tag.tagcategory, self.date_category)
         self.assertIn("2024", self.tags_for(photo))
 
-    @expectedFailure
     def test_redating_a_photo_replaces_rather_than_accumulates_tags(self):
-        # Follows from the above. First pass tags the photo 2024/March as
-        # uncategorised tags. Re-date the photo and run again: the delete
-        # matches nothing, so the photo ends up carrying both dates at once.
         photo = create_photo(self.album, "a.jpg", make_datetime(2024, 3, 9))
         self.run_command(COMMAND, album=str(self.album.id))
 

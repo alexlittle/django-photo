@@ -2,7 +2,7 @@ import datetime
 
 from django.core.management.base import BaseCommand
 
-from photo.models import Photo, PhotoTag, Tag
+from photo.models import Photo, PhotoTag, Tag, TagCategory
 
 
 class Command(BaseCommand):
@@ -14,6 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         photos = Photo.objects.filter(file__istartswith="img-", album__pk=options["album"])
+        date_category, _ = TagCategory.objects.get_or_create(name="Date")
         for p in photos:
             print(p.file + " : " + str(p.date))
 
@@ -28,9 +29,13 @@ class Command(BaseCommand):
 
                 # add year and month tags
                 year = p.date.year
-                tag, _ = Tag.objects.get_or_create(name=year)
+                tag, _ = Tag.objects.get_or_create(
+                    name=year, defaults={"tagcategory": date_category}
+                )
                 PhotoTag.objects.get_or_create(photo=p, tag=tag)
 
                 month = p.date.strftime("%B")
-                tag, _ = Tag.objects.get_or_create(name=month)
+                tag, _ = Tag.objects.get_or_create(
+                    name=month, defaults={"tagcategory": date_category}
+                )
                 PhotoTag.objects.get_or_create(photo=p, tag=tag)

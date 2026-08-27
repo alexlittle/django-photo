@@ -7,7 +7,6 @@ becomes 2024-01-15.
 """
 
 from datetime import date
-from unittest import expectedFailure
 
 from django.core.management.base import CommandError
 
@@ -97,25 +96,15 @@ class CleanPhotoDateByFilenameTests(CommandTestCase):
         with self.assertRaises(Album.DoesNotExist):
             self.run_command(COMMAND, "2024-01-01", album="9999")
 
-    @expectedFailure
     def test_missing_album_argument_is_reported_cleanly(self):
-        # --album is optional, so omitting it reaches Album.objects.get(pk=None)
-        # and blows up with a bare DoesNotExist rather than a usable message.
-        # Marking it required=True, or raising CommandError, would fix this.
         with self.assertRaises(CommandError):
             self.run_command(COMMAND, "2024-01-01")
 
-    @expectedFailure
     def test_a_malformed_date_argument_is_reported_cleanly(self):
-        # "2024" splits into one part, so date[1] raises IndexError before any
-        # validation happens.
         with self.assertRaises(CommandError):
             self.run_command(COMMAND, "2024", album=str(self.album.id))
 
-    @expectedFailure
     def test_a_filename_without_a_date_is_skipped(self):
-        # int("otos") raises ValueError and takes the whole run down, so one bad
-        # filename in an album stops every later photo being processed.
         create_photo(self.album, "holiday-photos.jpg", self.wrong_date)
         later = create_photo(self.album, "IMG_20240115_120000.jpg", self.wrong_date)
 
@@ -123,9 +112,7 @@ class CleanPhotoDateByFilenameTests(CommandTestCase):
 
         self.assertEqual(self.redate(later), date(2024, 1, 15))
 
-    @expectedFailure
     def test_an_impossible_date_in_the_filename_is_skipped(self):
-        # Month 99 raises ValueError out of datetime.date().
         create_photo(self.album, "IMG_20249915_120000.jpg", self.wrong_date)
 
         self.run_command(COMMAND, "2024-01-01", album=str(self.album.id))

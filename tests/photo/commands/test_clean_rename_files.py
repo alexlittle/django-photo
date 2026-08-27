@@ -6,7 +6,6 @@ The real lib function runs here -- it is plain os.rename, no external tooling.
 """
 
 import os
-from unittest import expectedFailure
 
 from photo.models import Album
 from tests.base import CommandTestCase, create_album, create_photo
@@ -108,7 +107,6 @@ class CleanRenameFilesTests(CommandTestCase):
         self.assertEqual(first_pass, f"a-{photo.id}.jpg")
         self.assertEqual(photo.file, f"a-{photo.id}-{photo.id}.jpg")
 
-    @expectedFailure
     def test_missing_album_argument_is_reported_cleanly(self):
         from django.core.management.base import CommandError
 
