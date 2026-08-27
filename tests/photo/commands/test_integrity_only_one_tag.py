@@ -3,8 +3,6 @@
 Reports photos carrying fewer than two tags, walking albums in name order.
 """
 
-from unittest import expectedFailure
-
 from django.db import IntegrityError, transaction
 from django.test import override_settings
 from django.urls import reverse
@@ -115,13 +113,7 @@ class IntegrityOnlyOneTagTests(CommandTestCase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             PhotoTag.objects.create(photo=photo, tag=self.beach)
 
-    @expectedFailure
     def test_the_edit_link_is_well_formed(self):
-        # Built by hand as f"{DOMAIN_NAME}/photo/edit/{id}", which drops the
-        # trailing slash that photo:edit actually uses. That is a third URL
-        # style in this command set -- integrity_album_covers uses reverse(),
-        # files_deep_structure omits the leading slash, this one omits the
-        # trailing one. reverse("photo:edit") would settle it.
         photo = create_photo(self.album, "a.jpg")
 
         output = self.run_command(COMMAND)

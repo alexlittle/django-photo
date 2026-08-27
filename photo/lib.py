@@ -45,9 +45,14 @@ def add_tags(photo, tags_str):
 
 
 def rename_photo_file(photo):
-    current_full_path = settings.PHOTO_ROOT + photo.album.name + photo.file
+    root, ext = os.path.splitext(photo.file)
+    suffix = f"-{photo.id}"
+    if root.endswith(suffix):
+        # already renamed -- keep this idempotent
+        return True
 
-    new_name = photo.file.replace(".", "-" + str(photo.id) + ".", 1)
+    current_full_path = settings.PHOTO_ROOT + photo.album.name + photo.file
+    new_name = f"{root}{suffix}{ext}"
     new_full_path = settings.PHOTO_ROOT + photo.album.name + new_name
 
     # rename photo file

@@ -4,6 +4,7 @@ Management command to find albums with no title set
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.urls import reverse
 
 from photo.models import Album
@@ -13,7 +14,7 @@ class Command(BaseCommand):
     help = "find albums with no title set"
 
     def handle(self, *args, **options):
-        albums = Album.objects.filter(title=None)
+        albums = Album.objects.filter(Q(title=None) | Q(title=""))
 
         self.stdout.write("Albums with no title")
         self.stdout.write("---------------------------------------")

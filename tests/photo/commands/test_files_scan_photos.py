@@ -131,9 +131,8 @@ class FilesScanPhotosFilesPassTests(CommandTestCase):
         self.assertIn("/1999/stray.jpg", output)
 
     def test_duplicate_detection_reports_ok(self):
-        # Photo.file is unique=True at the model level, so the
-        # MultipleObjectsReturned branch that fills `dups` can never fire.
-        # The whole "Multiple copies" section is effectively dead code.
+        # Photo.file is unique=True at the model level, so a photo can never
+        # have more than one database entry -- this section always reports OK.
         photo = create_photo(self.album, "known.jpg")
         self.write_image(photo)
 
@@ -142,13 +141,9 @@ class FilesScanPhotosFilesPassTests(CommandTestCase):
         self.assertIn("Multiple copies of photo in database", output)
 
     def test_a_scan_that_examines_no_files_does_not_crash(self):
-        # `dups` used to be initialised inside the inner `for name in files`
-        # loop but read after both loops finish, so if the loop body never ran
-        # the name was never bound and the command died with
-        # UnboundLocalError. That happened on an empty PHOTO_ROOT *and* on any
-        # tree where every file is filtered out by IGNORE_EXTENSIONS -- a
-        # folder holding nothing but Thumbs.db was enough. `dups = []` now
-        # lives beside `folders_to_add`, fixing both.
+        # A folder holding nothing but Thumbs.db means the inner `for name in
+        # files` loop body never runs, on an empty PHOTO_ROOT and on any tree
+        # where every file is filtered out by IGNORE_EXTENSIONS.
         self.touch("Thumbs.db")
 
         output = self.run_command(COMMAND, files=True)

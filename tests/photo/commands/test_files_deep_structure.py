@@ -4,8 +4,6 @@ Reports albums whose name has more path segments than the given --count.
 "/2024/" is one segment deep, "/2024/holiday/" is two.
 """
 
-from unittest import expectedFailure
-
 from django.test import override_settings
 
 from tests.base import CommandTestCase, create_album
@@ -86,30 +84,19 @@ class FilesDeepStructureTests(CommandTestCase):
 
         self.assertIn("1 directories deeper than 0", output)
 
-    @expectedFailure
     def test_the_album_link_is_well_formed(self):
-        # The URL is built as f"{DOMAIN_NAME}album/{id}" with no separating
-        # slash, giving "https://photos.example.testalbum/12". Note the sibling
-        # command report_missing_country does DOMAIN_NAME + reverse(...), which
-        # yields a leading slash -- so the two disagree about whether
-        # DOMAIN_NAME carries a trailing slash. Using reverse("photo:album")
-        # here would settle it.
         album = create_album("/2024/holiday/beach/", title="Beach")
 
         output = self.run_command(COMMAND, count="2")
 
-        self.assertIn(f"https://photos.example.test/album/{album.id}", output)
+        self.assertIn(f"https://photos.example.test/album/{album.id}/", output)
 
-    @expectedFailure
     def test_a_missing_count_argument_is_reported_cleanly(self):
-        # --count is optional, so int(None) raises TypeError before anything
-        # useful is printed. Either default it or mark it required.
         from django.core.management.base import CommandError
 
         with self.assertRaises(CommandError):
             self.run_command(COMMAND)
 
-    @expectedFailure
     def test_a_non_numeric_count_is_reported_cleanly(self):
         from django.core.management.base import CommandError
 

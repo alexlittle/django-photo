@@ -1,12 +1,8 @@
 """Tests for the ``files_duplicate_filenames`` management command.
 
-Groups photos by filename and reports any name used more than once.
-
-Important context: ``Photo.file`` is declared ``unique=True``, and that
-uniqueness is global rather than per-album. While that constraint is in place
-the count can never exceed one, so the reporting branch of this command is
-unreachable and it will always print OK. The tests below cover the reachable
-behaviour and pin the constraint that makes the rest dead.
+``Photo.file`` is declared ``unique=True``, globally rather than per-album, so
+no two photos can ever share a filename -- the command always reports OK. The
+tests below pin that constraint and the command's always-OK output.
 """
 
 from django.db import IntegrityError, transaction

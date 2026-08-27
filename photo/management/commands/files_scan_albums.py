@@ -49,7 +49,7 @@ class Command(BaseCommand):
         counter = 0
         for album in albums:
             if not os.path.isdir(settings.PHOTO_ROOT + album.name):
-                self.stdout.write(self.style.ERROR(f"{album_path} not found"))
+                self.stdout.write(self.style.ERROR(f"{album.name} not found"))
                 counter += 1
 
         if counter == 0:

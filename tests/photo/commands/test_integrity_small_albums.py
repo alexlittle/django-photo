@@ -3,8 +3,6 @@
 Reports albums holding fewer than --count photos.
 """
 
-from unittest import expectedFailure
-
 from django.test import override_settings
 from django.urls import reverse
 
@@ -91,12 +89,7 @@ class IntegritySmallAlbumsTests(CommandTestCase):
         self.assertIn("/2024/", output)
         self.assertNotIn("/2023/", output)
 
-    @expectedFailure
     def test_the_album_link_is_well_formed(self):
-        # Built as f"{DOMAIN_NAME}/album/{id}", which has the leading slash that
-        # files_deep_structure omits but drops the trailing one that
-        # photo:album actually uses. Third hand-rolled variant in this command
-        # set; reverse("photo:album") would settle all of them.
         album = create_album("/2024/", title="Holiday")
 
         output = self.run_command(COMMAND, count="3")
@@ -106,10 +99,7 @@ class IntegritySmallAlbumsTests(CommandTestCase):
         )
         self.assertIn(expected, output)
 
-    @expectedFailure
     def test_a_missing_count_argument_is_reported_cleanly(self):
-        # Same as files_deep_structure: --count is optional, so int(None)
-        # raises TypeError before anything useful is printed.
         from django.core.management.base import CommandError
 
         with self.assertRaises(CommandError):

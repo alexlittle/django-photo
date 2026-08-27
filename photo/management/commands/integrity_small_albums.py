@@ -3,8 +3,9 @@ Management command to find albums with less than X photos
 """
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Count
+from django.urls import reverse
 
 from photo.models import Album
 
@@ -16,12 +17,15 @@ class Command(BaseCommand):
         parser.add_argument(
             "-c",
             "--count",
-            dest="max_count",
+            required=True,
             help="max_count",
         )
 
     def handle(self, *args, **options):
-        max_count = int(options["max_count"])
+        try:
+            max_count = int(options["count"])
+        except ValueError:
+            raise CommandError(f"Invalid count {options['count']!r}, expected an integer") from None
 
         self.stdout.write(f"Albums with less than {max_count} photos")
         self.stdout.write("---------------------------------------")
@@ -29,7 +33,7 @@ class Command(BaseCommand):
 
         for album in Album.objects.annotate(total=Count("photo")):
             if album.total < max_count:
-                link = f"{settings.DOMAIN_NAME}/album/{album.id}"
+                link = settings.DOMAIN_NAME + reverse("photo:album", args=(album.id,))
                 self.stdout.write(f"{link} - {album.title} - {album.name} [{album.total} photos]")
                 counter += 1
 

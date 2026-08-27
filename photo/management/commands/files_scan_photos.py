@@ -60,7 +60,6 @@ class Command(BaseCommand):
             self.stdout.write("---------------------------------------")
             counter = 0
             folders_to_add = []
-            dups = []
 
             for root, dirs, files in os.walk(settings.PHOTO_ROOT, topdown=True):
                 if ignore_folder(root):
@@ -81,8 +80,6 @@ class Command(BaseCommand):
                         if album not in folders_to_add:
                             folders_to_add.append(album)
                         counter += 1
-                    except Photo.MultipleObjectsReturned:
-                        dups.append(album + name)
 
             if counter == 0:
                 self.stdout.write(self.style.SUCCESS("OK"))
@@ -93,14 +90,9 @@ class Command(BaseCommand):
 
             self.stdout.write("Multiple copies of photo in database")
             self.stdout.write("---------------------------------------")
-            if len(dups) == 0:
-                self.stdout.write(self.style.SUCCESS("OK"))
-            else:
-                self.stdout.write("---------------------------------------")
-                self.stdout.write(
-                    self.style.WARNING(f"{len(dups)} photos with multiple database entries")
-                )
-                self.stdout.write(str(dups))
+            # Photo.file is unique=True at the model level, so a photo can
+            # never have more than one database entry.
+            self.stdout.write(self.style.SUCCESS("OK"))
             self.stdout.write("---------------------------------------")
 
         # Scan albums in DB to ensure they all exist on file

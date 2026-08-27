@@ -3,8 +3,6 @@
 Reports albums with no title set.
 """
 
-from unittest import expectedFailure
-
 from django.test import override_settings
 from django.urls import reverse
 
@@ -65,13 +63,7 @@ class IntegrityAlbumsNoTitleTests(CommandTestCase):
 
         self.assertIn("OK", output)
 
-    @expectedFailure
     def test_an_empty_string_title_is_reported(self):
-        # Album.title is TextField(blank=True, null=True), so a title can be
-        # either NULL or "". The filter only catches NULL, so albums saved
-        # through a form -- which stores "" for an untouched field -- slip
-        # through this check entirely. filter(Q(title=None) | Q(title="")) would
-        # catch both.
         create_album("/2024/", title="")
 
         output = self.run_command(COMMAND)

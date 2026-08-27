@@ -80,20 +80,19 @@ class CleanRenameFilesTests(CommandTestCase):
         with self.assertRaises(Album.DoesNotExist):
             self.run_command(COMMAND, album="9999")
 
-    def test_the_suffix_goes_before_the_first_dot_not_the_extension(self):
-        # rename_photo_file uses file.replace(".", "-<id>.", 1), so a filename
-        # containing more than one dot gets the id inserted at the first one.
+    def test_the_suffix_goes_before_the_extension_not_the_first_dot(self):
+        # rename_photo_file inserts the id before the extension (the last
+        # dot), so a filename containing more than one dot is only touched at
+        # the end.
         photo = create_photo(self.album, "my.holiday.jpg")
         self.write_image(photo)
 
         self.run_command(COMMAND, album=str(self.album.id))
 
         photo.refresh_from_db()
-        self.assertEqual(photo.file, f"my-{photo.id}.holiday.jpg")
+        self.assertEqual(photo.file, f"my.holiday-{photo.id}.jpg")
 
-    def test_running_twice_appends_the_id_twice(self):
-        # Not idempotent -- a second pass turns a-7.jpg into a-7-7.jpg. Worth
-        # knowing before scripting this against a whole library.
+    def test_running_twice_is_idempotent(self):
         photo = create_photo(self.album, "a.jpg")
         self.write_image(photo)
 
@@ -105,7 +104,7 @@ class CleanRenameFilesTests(CommandTestCase):
         photo.refresh_from_db()
 
         self.assertEqual(first_pass, f"a-{photo.id}.jpg")
-        self.assertEqual(photo.file, f"a-{photo.id}-{photo.id}.jpg")
+        self.assertEqual(photo.file, f"a-{photo.id}.jpg")
 
     def test_missing_album_argument_is_reported_cleanly(self):
         from django.core.management.base import CommandError

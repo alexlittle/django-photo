@@ -102,14 +102,7 @@ class FilesScanAlbumsTests(CommandTestCase):
 
         self.assertEqual(output.count("OK"), 2)
 
-    @expectedFailure
     def test_a_missing_album_is_named_correctly(self):
-        # The second loop prints `album_path`, which is the leftover loop
-        # variable from the *first* loop, not the album it is currently
-        # checking. So every missing album is reported under whatever directory
-        # the first pass happened to look at last -- and if the first pass never
-        # ran (an empty PHOTO_ROOT), the name is unbound and the command dies
-        # with UnboundLocalError. Should be `album.name`.
         create_album("/2023/")
         self.make_dir("2024")
 
@@ -117,10 +110,7 @@ class FilesScanAlbumsTests(CommandTestCase):
 
         self.assertIn("/2023/ not found", output)
 
-    @expectedFailure
     def test_an_empty_photo_root_does_not_crash(self):
-        # Same root cause: nothing binds album_path, so the second loop raises
-        # UnboundLocalError as soon as it finds an album with no directory.
         create_album("/2024/")
 
         output = self.run_command(COMMAND)
