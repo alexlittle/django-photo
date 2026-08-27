@@ -7,16 +7,14 @@ from django.core.management.base import BaseCommand
 
 from photo.models import Album, Photo, PhotoTag
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = ""
 
     def handle(self, *args, **options):
         albums = Album.objects.all().order_by("name")
-        print("Photos with only one tag")
-        print("---------------------------------------")
+        self.stdout.write("Photos with only one tag")
+        self.stdout.write("---------------------------------------")
 
         counter = 0
         for album in albums:
@@ -24,14 +22,14 @@ class Command(BaseCommand):
             for photo in photos:
                 tag_count = PhotoTag.objects.filter(photo=photo).count()
                 if tag_count < 2:
-                    print(
+                    self.stdout.write(
                         f"{album.name}{photo.file} - {settings.DOMAIN_NAME}/photo/edit/{photo.id}"
                     )
                     counter += 1
 
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} photos with only one tag{bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} photos with only one tag"))
+        self.stdout.write("---------------------------------------")

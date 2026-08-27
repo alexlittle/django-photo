@@ -112,18 +112,17 @@ ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
 
 
 def strip_ansi(text):
-    """Drop the bcolors escape sequences so assertions read normally."""
+    """Drop ANSI colour escape sequences so assertions read normally."""
     return ANSI_ESCAPE.sub("", text)
 
 
 class CommandTestCase(PhotoRootTestCase):
     """Base for management command tests.
 
-    The commands write with bare ``print()`` rather than ``self.stdout.write``,
-    so passing ``stdout=`` to ``call_command`` captures nothing on its own.
-    ``run_command`` redirects ``sys.stdout`` *and* passes the same buffer as the
-    command's stdout/stderr, so these tests keep working if the commands are
-    later migrated to ``self.stdout.write``.
+    The commands write via ``self.stdout.write`` (styled with ``self.style``),
+    and a couple still use bare ``print()`` (e.g. interactive prompts).
+    ``run_command`` redirects ``sys.stdout`` *and* passes the same buffer as
+    the command's stdout/stderr, so both styles are captured either way.
     """
 
     def run_command(self, name, *args, **options):

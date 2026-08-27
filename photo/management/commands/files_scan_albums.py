@@ -10,16 +10,14 @@ from django.core.management.base import BaseCommand
 from photo.lib import ignore_folder
 from photo.models import Album
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "Checks for folders that aren't in the database"
 
     def handle(self, *args, **options):
 
-        print("Directories not in database")
-        print("---------------------------------------")
+        self.stdout.write("Directories not in database")
+        self.stdout.write("---------------------------------------")
 
         # Scan directory structure to find dirs not uploaded to DB
         counter = 0
@@ -33,30 +31,30 @@ class Command(BaseCommand):
                 try:
                     Album.objects.get(name=album_path)
                 except Album.DoesNotExist:
-                    print(f"{bcolors.WARNING}{album_path} not found{bcolors.ENDC}")
+                    self.stdout.write(self.style.ERROR(f"{album_path} not found"))
                     counter += 1
 
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} directories not in database{bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} directories not in database"))
+        self.stdout.write("---------------------------------------")
 
         # Scan albums in DB to ensure they all exist on file
-        print("Albums in database but not on disk")
-        print("---------------------------------------")
+        self.stdout.write("Albums in database but not on disk")
+        self.stdout.write("---------------------------------------")
 
         albums = Album.objects.all()
         counter = 0
         for album in albums:
             if not os.path.isdir(settings.PHOTO_ROOT + album.name):
-                print(f"{bcolors.WARNING}{album_path} not found{bcolors.ENDC}")
+                self.stdout.write(self.style.ERROR(f"{album_path} not found"))
                 counter += 1
 
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} albums in database but not on disk{bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} albums in database but not on disk"))
+        self.stdout.write("---------------------------------------")

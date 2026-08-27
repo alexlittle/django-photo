@@ -6,7 +6,6 @@ Two independent passes, neither of which runs unless asked for:
 """
 
 import os
-from unittest import expectedFailure
 
 from django.test import override_settings
 
@@ -105,8 +104,6 @@ class FilesScanPhotosFilesPassTests(CommandTestCase):
         self.assertIn("3 photos not in database", output)
 
     def test_ignored_extensions_are_skipped(self):
-        # A real file has to be present too, otherwise the `dups` bug below
-        # takes the run down before it reaches the summary.
         self.touch("real.jpg")
         self.touch("Thumbs.db")
         self.touch("desktop.ini")
@@ -144,15 +141,14 @@ class FilesScanPhotosFilesPassTests(CommandTestCase):
 
         self.assertIn("Multiple copies of photo in database", output)
 
-    @expectedFailure
     def test_a_scan_that_examines_no_files_does_not_crash(self):
-        # `dups = []` is initialised inside the inner `for name in files` loop
-        # but read after both loops finish, so if the loop body never runs the
-        # name is never bound and the command dies with UnboundLocalError.
-        # That happens on an empty PHOTO_ROOT *and* on any tree where every
-        # file is filtered out by IGNORE_EXTENSIONS -- a folder holding nothing
-        # but Thumbs.db is enough. Hoisting `dups = []` up beside
-        # `folders_to_add` fixes both.
+        # `dups` used to be initialised inside the inner `for name in files`
+        # loop but read after both loops finish, so if the loop body never ran
+        # the name was never bound and the command died with
+        # UnboundLocalError. That happened on an empty PHOTO_ROOT *and* on any
+        # tree where every file is filtered out by IGNORE_EXTENSIONS -- a
+        # folder holding nothing but Thumbs.db was enough. `dups = []` now
+        # lives beside `folders_to_add`, fixing both.
         self.touch("Thumbs.db")
 
         output = self.run_command(COMMAND, files=True)

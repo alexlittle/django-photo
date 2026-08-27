@@ -119,10 +119,10 @@ class ReportMissingSourceTests(CommandTestCase):
 
     @expectedFailure
     def test_a_summary_is_printed(self):
-        # Unlike report_missing_coordinates, this command has no bcolors import
-        # and no closing summary -- it counts matches but never reports the
-        # total, and prints no "OK" when there is nothing to do. Easy to mistake
-        # a finished run for a broken one, especially inside report_full.
+        # Unlike report_missing_coordinates, this command has no closing
+        # summary -- it counts matches but never reports the total, and
+        # prints no "OK" when there is nothing to do. Easy to mistake a
+        # finished run for a broken one, especially inside report_full.
         create_tag("Harrogate", self.location)
         set_tag_prop(create_tag("Leeds", self.location), "source", "me")
 

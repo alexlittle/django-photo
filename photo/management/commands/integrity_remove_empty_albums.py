@@ -6,8 +6,6 @@ from django.core.management.base import BaseCommand
 
 from photo.models import Album
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "Removes any albums with no photos"
@@ -15,17 +13,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         albums = Album.objects.filter(photo=None)
 
-        print("Albums with no photos")
-        print("---------------------------------------")
+        self.stdout.write("Albums with no photos")
+        self.stdout.write("---------------------------------------")
         counter = albums.count()
 
         for a in albums:
-            print("Removing: " + a.name)
+            self.stdout.write("Removing: " + a.name)
             a.delete()
 
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} albums with no photos removed {bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} albums with no photos removed"))
+        self.stdout.write("---------------------------------------")

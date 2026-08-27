@@ -6,8 +6,6 @@ from django.core.management.base import BaseCommand
 
 from photo.models import Tag
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "Removes any unused tags"
@@ -15,17 +13,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tags = Tag.objects.filter(phototag=None)
 
-        print("Unused tags")
-        print("---------------------------------------")
+        self.stdout.write("Unused tags")
+        self.stdout.write("---------------------------------------")
         counter = tags.count()
 
         for t in tags:
-            print("Removing: " + t.name)
+            self.stdout.write("Removing: " + t.name)
             t.delete()
 
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} unused tags removed {bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} unused tags removed"))
+        self.stdout.write("---------------------------------------")

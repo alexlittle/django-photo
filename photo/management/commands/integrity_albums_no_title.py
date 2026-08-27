@@ -8,8 +8,6 @@ from django.urls import reverse
 
 from photo.models import Album
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "find albums with no title set"
@@ -17,18 +15,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         albums = Album.objects.filter(title=None)
 
-        print("Albums with no title")
-        print("---------------------------------------")
+        self.stdout.write("Albums with no title")
+        self.stdout.write("---------------------------------------")
 
         counter = 0
         for a in albums:
             link = reverse("photo:album", args=(a.id,))
-            print(f"{a.name} - {settings.DOMAIN_NAME}{link}")
+            self.stdout.write(f"{a.name} - {settings.DOMAIN_NAME}{link}")
             counter += 1
 
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} albums without a title{bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} albums without a title"))
+        self.stdout.write("---------------------------------------")

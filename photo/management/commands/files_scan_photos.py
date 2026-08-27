@@ -10,8 +10,6 @@ from django.core.management.base import BaseCommand
 from photo.lib import ignore_file, ignore_folder
 from photo.models import Photo
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "Checks for photos that aren't in the database"
@@ -58,10 +56,11 @@ class Command(BaseCommand):
 
         # Scan directory structure to find photos not uploaded to DB
         if options["files"]:
-            print("Photos not uploaded to database")
-            print("---------------------------------------")
+            self.stdout.write("Photos not uploaded to database")
+            self.stdout.write("---------------------------------------")
             counter = 0
             folders_to_add = []
+            dups = []
 
             for root, dirs, files in os.walk(settings.PHOTO_ROOT, topdown=True):
                 if ignore_folder(root):
@@ -73,13 +72,12 @@ class Command(BaseCommand):
 
                     album = root.replace(settings.PHOTO_ROOT, "") + "/"
 
-                    dups = []
                     try:
                         Photo.objects.get(album__name=album, file=name)
                         if options["verbose"]:
-                            print(f"{album}{name} {bcolors.OK}found{bcolors.ENDC}")
+                            self.stdout.write(f"{album}{name} " + self.style.SUCCESS("found"))
                     except Photo.DoesNotExist:
-                        print(f"{album}{name} {bcolors.WARNING} notfound{bcolors.ENDC}")
+                        self.stdout.write(f"{album}{name} " + self.style.ERROR("notfound"))
                         if album not in folders_to_add:
                             folders_to_add.append(album)
                         counter += 1
@@ -87,51 +85,50 @@ class Command(BaseCommand):
                         dups.append(album + name)
 
             if counter == 0:
-                print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+                self.stdout.write(self.style.SUCCESS("OK"))
             else:
-                print("---------------------------------------")
-                print(f"{bcolors.WARNING}{counter} photos not in database{bcolors.ENDC}")
-            print("---------------------------------------")
+                self.stdout.write("---------------------------------------")
+                self.stdout.write(self.style.WARNING(f"{counter} photos not in database"))
+            self.stdout.write("---------------------------------------")
 
-            print("Multiple copies of photo in database")
-            print("---------------------------------------")
+            self.stdout.write("Multiple copies of photo in database")
+            self.stdout.write("---------------------------------------")
             if len(dups) == 0:
-                print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+                self.stdout.write(self.style.SUCCESS("OK"))
             else:
-                print("---------------------------------------")
-                print(
-                    f"{bcolors.WARNING}{len(dups)} photos with multiple "
-                    f"database entries{bcolors.ENDC}"
+                self.stdout.write("---------------------------------------")
+                self.stdout.write(
+                    self.style.WARNING(f"{len(dups)} photos with multiple database entries")
                 )
-                print(dups)
-            print("---------------------------------------")
+                self.stdout.write(str(dups))
+            self.stdout.write("---------------------------------------")
 
         # Scan albums in DB to ensure they all exist on file
         if options["db"]:
             counter = 0
             photos = Photo.objects.all()
 
-            print("Photos in database but not on file")
-            print("---------------------------------------")
+            self.stdout.write("Photos in database but not on file")
+            self.stdout.write("---------------------------------------")
 
             for photo in photos:
                 if os.path.isfile(settings.PHOTO_ROOT + photo.album.name + photo.file):
                     if options["verbose"]:
-                        print(f"{photo.album.name}{photo.file} {bcolors.OK}found{bcolors.ENDC}")
+                        self.stdout.write(
+                            f"{photo.album.name}{photo.file} " + self.style.SUCCESS("found")
+                        )
                 else:
-                    print(
-                        f"{bcolors.WARNING}{photo.album.name}{photo.file} not found{bcolors.ENDC}"
-                    )
+                    self.stdout.write(self.style.ERROR(f"{photo.album.name}{photo.file} not found"))
                     if options["autodelete"]:
                         photo.delete()
-                        print(bcolors.WARNING + "... DELETED" + bcolors.ENDC)
+                        self.stdout.write(self.style.WARNING("... DELETED"))
                     counter += 1
 
             if counter == 0:
-                print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+                self.stdout.write(self.style.SUCCESS("OK"))
             else:
-                print("---------------------------------------")
-                print(
-                    f"{bcolors.WARNING}{counter} photos in database but not on file {bcolors.ENDC}"
+                self.stdout.write("---------------------------------------")
+                self.stdout.write(
+                    self.style.WARNING(f"{counter} photos in database but not on file")
                 )
-            print("---------------------------------------")
+            self.stdout.write("---------------------------------------")

@@ -8,24 +8,22 @@ from django.urls import reverse
 
 from photo.models import Tag
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "Finds all uncategorised tags"
 
     def handle(self, *args, **options):
-        print("Uncategorised tags")
-        print("---------------------------------------")
+        self.stdout.write("Uncategorised tags")
+        self.stdout.write("---------------------------------------")
 
         tags = Tag.objects.filter(tagcategory=None)
         for t in tags:
             link = reverse("admin:photo_tag_change", args=(t.id,))
-            print(f"{t.name} - {settings.DOMAIN_NAME}{link}")
+            self.stdout.write(f"{t.name} - {settings.DOMAIN_NAME}{link}")
 
         if tags.count() == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{tags.count()} uncategorised tags{bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{tags.count()} uncategorised tags"))
+        self.stdout.write("---------------------------------------")

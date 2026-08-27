@@ -7,8 +7,6 @@ from django.core.management.base import BaseCommand
 
 from photo.models import Album
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = "Finds albums with deep directory structure"
@@ -23,17 +21,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         max_dirs = int(options["max_dirs"])
-        print(f"Finds albums deeper than {max_dirs} directories")
-        print("---------------------------------------")
+        self.stdout.write(f"Finds albums deeper than {max_dirs} directories")
+        self.stdout.write("---------------------------------------")
         counter = 0
         for album in Album.objects.all():
             dirs = filter(None, album.name.split("/"))
             if len(list(dirs)) > max_dirs:
-                print(f"{settings.DOMAIN_NAME}album/{album.id} - {album.title} [{album.name}]")
+                self.stdout.write(
+                    f"{settings.DOMAIN_NAME}album/{album.id} - {album.title} [{album.name}]"
+                )
                 counter += 1
         if counter == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{counter} directories deeper than {max_dirs}{bcolors.ENDC}")
-        print("---------------------------------------")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{counter} directories deeper than {max_dirs}"))
+        self.stdout.write("---------------------------------------")

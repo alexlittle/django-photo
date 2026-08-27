@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from photo.models import Tag
 
-from . import bcolors
-
 
 class Command(BaseCommand):
     help = _("Check for tags that are very similar")
@@ -28,8 +26,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        print("Tag diff")
-        print("---------------------------------------")
+        self.stdout.write("Tag diff")
+        self.stdout.write("---------------------------------------")
 
         cutoff = options["cutoff"]
 
@@ -50,13 +48,13 @@ class Command(BaseCommand):
                 "photo:tag_slug", kwargs={"slug": slugify(current_tag)}
             )
             if filtered_matches:
-                print(f"{current_tag} - {url}")
-                print(filtered_matches)
-                print("----------------")
+                self.stdout.write(f"{current_tag} - {url}")
+                self.stdout.write(str(filtered_matches))
+                self.stdout.write("----------------")
                 match_count += 1
 
         if match_count == 0:
-            print(f"{bcolors.WARNING}OK{bcolors.ENDC}")
+            self.stdout.write(self.style.SUCCESS("OK"))
         else:
-            print("---------------------------------------")
-            print(f"{bcolors.WARNING}{match_count} tags close to others{bcolors.ENDC}")
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(f"{match_count} tags close to others"))
