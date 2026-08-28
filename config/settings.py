@@ -172,6 +172,9 @@ ALBUMS_PER_PAGE = 50
 
 IMAGE_EXTENSIONS = ["*.jpg", "*.jpeg", "*.png", "*.tif", "*.gif", "*.bmp", "*.JPG", "*.JPEG"]
 
+# timezone assumed for EXIF DateTimeOriginal values, which have no tzinfo of their own
+PHOTO_EXIF_TIMEZONE = "Europe/London"
+
 # for when comparing tag similarity
 IGNORE_TAG_REGEXS = []
 

@@ -11,8 +11,6 @@ from django.utils.dateparse import parse_datetime
 from photo.lib import add_tags, get_exif
 from photo.models import Album, Photo, PhotoTag, Tag
 
-LONDON = ZoneInfo("Europe/London")
-
 
 class Command(BaseCommand):
     help = "Uploads album to db"
@@ -90,7 +88,7 @@ class Command(BaseCommand):
         try:
             exif_date = exif_tags["DateTimeOriginal"]
             naive = parse_datetime(exif_date.replace(":", "-", 2))
-            photo.date = naive.replace(tzinfo=LONDON)
+            photo.date = naive.replace(tzinfo=ZoneInfo(settings.PHOTO_EXIF_TIMEZONE))
 
             # add year and month tags
             year_tag, _ = Tag.objects.get_or_create(name=photo.date.year)

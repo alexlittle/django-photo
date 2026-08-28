@@ -54,8 +54,7 @@ class Command(BaseCommand):
             else:
                 raise KeyError("DateTimeOriginal/DateTimeDigitized/DateTime")
             naive = parse_datetime(exif_date.replace(":", "-", 2))
-            LONDON = ZoneInfo("Europe/London")
-            photo.date = naive.replace(tzinfo=LONDON)
+            photo.date = naive.replace(tzinfo=ZoneInfo(settings.PHOTO_EXIF_TIMEZONE))
             photo.save()
             print("updated: " + photo.file)
         except KeyError:

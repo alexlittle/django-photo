@@ -1,4 +1,18 @@
 
+:root {
+  --color-text: #5a5a5a;
+  --color-primary: #04689a;
+  --color-primary-rgb: 4, 104, 154;
+  --color-accent: #2fcbfe;
+  --color-accent-rgb: 47, 203, 254;
+  --color-navbar-brand: #111111;
+  --color-nav-link: #010101;
+  --color-white: #ffffff;
+  --color-tag-text: #f8ffff;
+  --color-border-light: #cccccc;
+  --color-selected-bg: lightblue;
+  --shadow-focus-inset: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+}
 
 html {
   position: relative;
@@ -7,7 +21,7 @@ html {
 
 body {
   padding-bottom: 40px;
-  color: #5a5a5a;
+  color: var(--color-text);
   margin-bottom: 60px;
   font-family: 'Ubuntu', sans-serif;
 }
@@ -16,12 +30,12 @@ body {
 /* Customise the navbar */
 
 .navbar-light {
-  	border-bottom: 1px solid #04689a;
+  	border-bottom: 1px solid var(--color-primary);
     background-repeat: repeat-x;
 }
 
 .navbar-light .navbar-brand {
-	color: #111111;
+	color: var(--color-navbar-brand);
 	font-weight: bold;
 }
 
@@ -30,26 +44,22 @@ body {
 }
 
 .strapline {
-	color: #04689a;
+	color: var(--color-primary);
 	font-size: 80%;
 	font-weight: normal;
 }
 
 .navbar-light .navbar-nav > .nav-item > a
 {
-	color: #010101;
+	color: var(--color-nav-link);
 }
 
 .navbar-light .navbar-nav > .nav-item > a:focus,
-.navbar-light .navbar-nav > .nav-item > a:hover
-{
-	color: #04689a;
-}
-
+.navbar-light .navbar-nav > .nav-item > a:hover,
 .navbar-light .navbar-nav > .active  a.nav-link,
 .navbar-light .navbar-nav > .nav-item .active > a.nav-link:focus,
 .navbar-light .navbar-nav > .nav-item .active > a.nav-link:hover {
-    color: #04689a;
+    color: var(--color-primary);
 }
 
 
@@ -66,13 +76,15 @@ body {
     margin-bottom: 20px;
 }
 
+h1, h2 {
+	color: var(--color-primary);
+}
+
 h1 {
-	color: #04689a;
 	font-size: 150%;
 }
 
 h2 {
-	color: #04689a;
 	font-size: 130%;
 }
 
@@ -116,33 +128,24 @@ h2 {
 /*
  * Forms
  */
- 
+
 .form-control:focus {
-	border-color: #2fcbfe;
-	box-shadow: 0 1px 1px rgba(0,0,0,0.075) inset, 0 0 8px rgba(47,203,254,0.6);
+	border-color: var(--color-accent);
+	box-shadow: var(--shadow-focus-inset), 0 0 8px rgba(var(--color-accent-rgb), 0.6);
 	outline: 0 none;
 }
 
-.btn-primary {
-    background-color: #2fcbfe;
-    border-color: #04689a;
-    color: #FFFFFF;
-}
-
+.btn-primary,
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active,
 	.btn-primary.active, .open .dropdown-toggle.btn-primary {
-    background-color: #2fcbfe;
-    border-color: #04689a;
-    color: #FFFFFF;
+    background-color: var(--color-accent);
+    border-color: var(--color-primary);
+    color: var(--color-white);
 }
 
-.btn a {
-    color: #fff;
-    text-decoration: none;
-}
-
+.btn a,
 .btn a:hover, .btn a:focus {
-    color: #fff;
+    color: var(--color-white);
     text-decoration: none;
 }
 
@@ -156,9 +159,9 @@ div.photo {
 }
 
 .tag {
-	background-color: #2fcbfe;
-	color: #f8ffff;
-	border-color: #04689a;
+	background-color: var(--color-accent);
+	color: var(--color-tag-text);
+	border-color: var(--color-primary);
 	padding: 5px;
 	margin: 2px;
 	line-height: 30px;
@@ -173,20 +176,21 @@ div.photo {
 	margin:20px;
 }
 
-.fav-star-selected {
-	color: #04689a;
-	font-size: 20pt;
-	font-weight: bold;
+.fav-star-selected,
+.fav-star-unselected {
+	color: var(--color-primary);
 	text-decoration: none;
 }
+.fav-star-selected {
+	font-size: 20pt;
+	font-weight: bold;
+}
 .fav-star-unselected {
-	color: #04689a;
 	font-size: 15pt;
-	text-decoration: none;
 }
 
 .clearfix {
-	clear:both; 
+	clear:both;
 	float: none;
 	content: "";
   	display: table;
@@ -197,13 +201,13 @@ div.photo {
 }
 
 .photo-thumbnail-container {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
     padding: 10px;
     max-width: 300px;
     height: 500px;
 }
 .photo-thumbnail-container.selected {
-  background-color: lightblue;
+  background-color: var(--color-selected-bg);
 }
 
 .photo-image {
@@ -220,5 +224,4 @@ div.photo {
 .photo-actions {
     margin-top: 20px;
 }
-
 

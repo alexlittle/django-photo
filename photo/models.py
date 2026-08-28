@@ -47,8 +47,8 @@ class CombinedSearch(models.Model):
 
 class Album(models.Model):
     name = models.TextField(blank=False, null=False)
-    title = models.TextField(blank=True, null=True)
-    date_display = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, default="")
+    date_display = models.TextField(blank=True, default="")
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
 
@@ -158,13 +158,13 @@ class Tag(models.Model):
 class Photo(models.Model):
     file = models.CharField(max_length=250, blank=False, null=False, unique=True)
     date = models.DateTimeField(default=timezone.now)
-    title = models.TextField(blank=True, null=True)
+    title = models.TextField(blank=True, default="")
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
     created_date = models.DateTimeField(default=timezone.now)
     updated_date = models.DateTimeField(auto_now=True)
     album_cover = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag, through="PhotoTag", name="tags")
-    file_hash = models.CharField(max_length=128, blank=True, null=True)
+    file_hash = models.CharField(max_length=128, blank=True, default="")
 
     def __str__(self):
         return self.file
