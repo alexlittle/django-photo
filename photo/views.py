@@ -121,7 +121,22 @@ class MapView(TemplateView):
             .distinct()
         )
 
-        context.update({"title": _("Map"), "tags": tags, "sources": sources})
+        map_markers = [
+            {
+                "lat": tag.get_lat(),
+                "lng": tag.get_lng(),
+                "name": tag.name,
+                "tag_url": reverse("photo:tag_slug", kwargs={"slug": tag.slug}),
+                "admin_url": reverse("admin:photo_tag_change", args=(tag.id,)),
+                "photo_count": tag.get_photo_count(),
+            }
+            for tag in tags
+            if tag.get_lat()
+        ]
+
+        context.update(
+            {"title": _("Map"), "tags": tags, "sources": sources, "map_markers": map_markers}
+        )
         return context
 
 

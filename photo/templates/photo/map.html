@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block extra_head_title %}
 {% trans 'Map' %}
@@ -7,15 +8,16 @@
 
 
 {% block extra_styles %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin="anonymous"/>
 {% endblock extra_styles %}
 
 {% block extra_scripts %}
- <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      crossorigin="anonymous"></script>
+ <script src="{% static 'photo/map.js' %}"></script>
 {% endblock extra_scripts %}
 
 {% block content %}
@@ -27,20 +29,13 @@
 {% endfor %}
 
 <div id='mapid' style="width:100%; height:700px"></div>
+
+{{ map_markers|json_script:"map-markers-data" }}
 <script>
-
-var photoMap = L.map('mapid').setView([62.60, 29.76], 3);
-
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(photoMap);
-
-{% for tag in tags %}
-    {% if tag.get_lat %}
-        var marker = L.marker([{{ tag.get_lat }}, {{ tag.get_lng }}]).addTo(photoMap);
-        marker.bindPopup("<b>{{ tag.name }}</b><br><a href='{% url 'photo:tag_slug' tag.slug %}' target='_blank'>{% trans 'View photos' %} ({{ tag.get_photo_count }})</a><br><a href='{% url 'admin:photo_tag_change' tag.id %}' target='_blank'>{% trans 'Edit tag' %}</a>");
-    {% endif %}
-{% endfor %}
+    initPhotoMap('map-markers-data', {
+        viewPhotos: "{% trans 'View photos' %}",
+        editTag: "{% trans 'Edit tag' %}"
+    });
 </script>
 
 {% endblock %}
