@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from photo.models import Album, Photo
 
@@ -19,10 +19,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        date = options["date"].split("-")
-        year = int(date[0])
-        month = int(date[1])
-        day = int(date[2])
+        date_str = options["date"]
+        parts = date_str.split("-")
+        try:
+            year, month, day = (int(part) for part in parts)
+        except (IndexError, ValueError) as exc:
+            raise CommandError(f"Invalid date {date_str!r}, expected YYYY-MM-DD") from exc
         new_date = datetime.date(year, month, day)
         album = Album.objects.get(pk=options["album"])
         photos = Photo.objects.filter(album=album)

@@ -18,24 +18,32 @@ class Command(BaseCommand):
         for p in photos:
             print(p.file + " : " + str(p.date))
 
-            year = int(p.file[4:8])
-            month = int(p.file[8:10])
-            day = int(p.file[10:12])
+            try:
+                year = int(p.file[4:8])
+                month = int(p.file[8:10])
+                day = int(p.file[10:12])
+            except ValueError:
+                print(f"Skipping {p.file}: no date found in filename")
+                continue
 
             if year != p.date.year or month != p.date.month or day != p.date.day:
+                old_year = p.date.year
+                old_month = p.date.strftime("%B")
+
                 new_date = datetime.date(year, month, day)
                 p.date = new_date
                 p.save()
 
-                # add year and month tags
-                year = p.date.year
-                tag, _ = Tag.objects.get_or_create(
-                    name=year, defaults={"tagcategory": date_category}
-                )
-                PhotoTag.objects.get_or_create(photo=p, tag=tag)
+                # remove stale year/month tags from the photo's previous date
+                PhotoTag.objects.filter(photo=p, tag__name__in=[str(old_year), old_month]).delete()
 
-                month = p.date.strftime("%B")
-                tag, _ = Tag.objects.get_or_create(
-                    name=month, defaults={"tagcategory": date_category}
+                # add year and month tags
+                year_tag, _ = Tag.objects.get_or_create(
+                    name=p.date.year, defaults={"tagcategory": date_category}
                 )
-                PhotoTag.objects.get_or_create(photo=p, tag=tag)
+                PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
+
+                month_tag, _ = Tag.objects.get_or_create(
+                    name=p.date.strftime("%B"), defaults={"tagcategory": date_category}
+                )
+                PhotoTag.objects.get_or_create(photo=p, tag=month_tag)

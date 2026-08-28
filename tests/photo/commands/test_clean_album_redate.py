@@ -6,7 +6,6 @@ the whole album is rewritten.
 """
 
 from datetime import date
-from unittest import expectedFailure
 
 from django.core.management.base import CommandError
 
@@ -89,13 +88,10 @@ class CleanAlbumRedateTests(CommandTestCase):
         with self.assertRaises(CommandError):
             self.run_command(COMMAND, "2024-03-09")
 
-    @expectedFailure
     def test_a_malformed_date_argument_is_reported_cleanly(self):
-        # "2024" splits into one part, so date[1] raises IndexError.
         with self.assertRaises(CommandError):
             self.run_command(COMMAND, "2024", album=str(self.album.id))
 
-    @expectedFailure
     def test_a_non_numeric_date_argument_is_reported_cleanly(self):
         with self.assertRaises(CommandError):
             self.run_command(COMMAND, "last-tuesday-ish", album=str(self.album.id))

@@ -42,6 +42,8 @@ def ignore_file(filename):
 
 
 def add_tags(photo, tags_str):
+    if not tags_str:
+        return False
     tags = [x.strip() for x in tags_str.split(",")]
     created = False
     for t in tags:

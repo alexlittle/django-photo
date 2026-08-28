@@ -48,9 +48,11 @@ class Command(BaseCommand):
             for im in image_files:
                 image_file_name = os.path.basename(im)
                 print(image_file_name)
-                # find if image exists
+                # Photo.file is globally unique, so look it up by file alone --
+                # a filename already used in another album stays there rather
+                # than duplicating or erroring.
                 photo, photo_created = Photo.objects.get_or_create(
-                    album=album, file=image_file_name
+                    file=image_file_name, defaults={"album": album}
                 )
 
                 # add all the tags

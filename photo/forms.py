@@ -47,7 +47,7 @@ class ScanFolderForm(forms.Form):
         cleaned_data = super().clean()
         directory = cleaned_data.get("directory")
         # Check directory exists
-        if not os.path.isdir(settings.PHOTO_ROOT + directory):
+        if directory and not os.path.isdir(settings.PHOTO_ROOT + directory):
             raise forms.ValidationError(_("Directory does not exist"))
 
         return cleaned_data

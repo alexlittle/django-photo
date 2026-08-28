@@ -6,7 +6,6 @@ disagrees with the stored date, rewrites it and adds year/month tags.
 """
 
 from datetime import date
-from unittest import expectedFailure
 
 from photo.models import Tag
 from tests.base import (
@@ -16,6 +15,7 @@ from tests.base import (
     create_tag,
     local,
     make_datetime,
+    tag_photo,
 )
 
 COMMAND = "clean_whatsapp_redate"
@@ -131,25 +131,16 @@ class CleanWhatsappRedateTests(CommandTestCase):
 
         self.assertEqual(Tag.objects.get(name="2024").tagcategory, date_category)
 
-    @expectedFailure
     def test_stale_date_tags_are_removed(self):
-        # Unlike clean_retag_dates this never clears old tags, so a photo that
-        # gets redated twice accumulates every year it has ever been assigned.
         stale = create_tag("2020")
         photo = create_photo(self.album, "IMG-20240115-WA0001.jpg", make_datetime(2020, 1, 1))
-        from photo.tests.base import tag_photo
-
         tag_photo(photo, stale)
 
         self.run_command(COMMAND, str(self.album.id))
 
         self.assertNotIn("2020", self.tags_for(photo))
 
-    @expectedFailure
     def test_an_img_file_without_a_date_is_skipped(self):
-        # "img-holiday.jpg" reaches int("olid") and raises ValueError, taking
-        # the run down before later photos are reached. The istartswith filter
-        # is broad enough that this is a realistic filename.
         create_photo(self.album, "img-holiday.jpg", make_datetime(2020, 1, 1))
         later = create_photo(self.album, "IMG-20240115-WA0001.jpg", make_datetime(2020, 1, 1))
 

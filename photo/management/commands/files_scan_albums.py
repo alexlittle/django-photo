@@ -28,9 +28,7 @@ class Command(BaseCommand):
                 if ignore_folder(album_path):
                     continue
 
-                try:
-                    Album.objects.get(name=album_path)
-                except Album.DoesNotExist:
+                if not Album.objects.filter(name=album_path).exists():
                     self.stdout.write(self.style.ERROR(f"{album_path} not found"))
                     counter += 1
 

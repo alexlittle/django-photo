@@ -5,7 +5,6 @@ then Album rows with no directory on disk.
 """
 
 import os
-from unittest import expectedFailure
 
 from django.test import override_settings
 
@@ -117,11 +116,7 @@ class FilesScanAlbumsTests(CommandTestCase):
 
         self.assertIn("1 albums in database but not on disk", output)
 
-    @expectedFailure
     def test_duplicate_album_names_do_not_crash_the_scan(self):
-        # Album.name has no unique constraint, so two rows can share a name and
-        # Album.objects.get() raises MultipleObjectsReturned, which nothing
-        # catches. filter().exists() would be the safer lookup here.
         create_album("/2024/")
         create_album("/2024/")
         self.make_dir("2024")

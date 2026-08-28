@@ -9,7 +9,6 @@ than at ``photo.lib``.
 
 import os
 from datetime import date
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from django.urls import reverse
@@ -51,14 +50,7 @@ class ScanFolderViewTests(PhotoRootTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response.context["form"], None, "Directory does not exist")
 
-    @expectedFailure
     def test_directory_is_required(self):
-        # Currently a 500: ScanFolderForm.clean() does
-        #     os.path.isdir(settings.PHOTO_ROOT + directory)
-        # without checking that `directory` survived field validation, so a
-        # missing directory raises TypeError instead of showing a form error.
-        # Guard it with `if directory and not os.path.isdir(...)` and drop this
-        # decorator.
         response = self.client.post(self.url, {"default_date": "2024-06-01"})
 
         self.assertEqual(response.status_code, 200)

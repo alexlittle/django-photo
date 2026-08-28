@@ -14,7 +14,6 @@ what the view sees -- see test_only_the_album_id_reaches_the_command_stdout.
 import os
 from contextlib import redirect_stdout
 from io import StringIO
-from unittest import expectedFailure
 from unittest.mock import patch
 
 from django.core.management import call_command
@@ -192,11 +191,7 @@ class UploadAlbumTests(PhotoRootTestCase):
         photo = Photo.objects.get(file="a.png")
         self.assertEqual(local(photo.date).date(), date(2019, 5, 1))
 
-    @expectedFailure
     def test_missing_default_tags_are_tolerated(self):
-        # Called without -dt, defaulttags is None and add_tags does
-        # None.split(",") -> AttributeError. ScanFolderView never hits this
-        # because its form supplies "", but a direct command-line run does.
         self.write_jpeg("/2024/", "a.jpg")
 
         command_out = StringIO()
@@ -205,11 +200,7 @@ class UploadAlbumTests(PhotoRootTestCase):
 
         self.assertEqual(Photo.objects.count(), 1)
 
-    @expectedFailure
     def test_a_filename_already_used_in_another_album_is_handled(self):
-        # Photo.file is globally unique, so get_or_create(album=..., file=...)
-        # finds no match and then fails to insert. Two camera dumps that both
-        # contain DSC_0001.jpg cannot both be uploaded.
         create_photo(create_album("/2023/"), "DSC_0001.jpg")
         self.write_jpeg("/2024/", "DSC_0001.jpg")
 
