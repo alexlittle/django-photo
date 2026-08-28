@@ -35,11 +35,13 @@ class Command(BaseCommand):
                 )
             return tag_cache[name]
 
+        new_photo_tags = []
         for p in photos:
             print(p)
             year_tag = get_date_tag(p.date.year)
             month_tag = get_date_tag(p.date.strftime("%B"))
-            PhotoTag.objects.bulk_create(
-                [PhotoTag(photo=p, tag=year_tag), PhotoTag(photo=p, tag=month_tag)]
-            )
+            new_photo_tags.append(PhotoTag(photo=p, tag=year_tag))
+            new_photo_tags.append(PhotoTag(photo=p, tag=month_tag))
             print(f"Added date tags: {year_tag.name} {month_tag.name}")
+
+        PhotoTag.objects.bulk_create(new_photo_tags)

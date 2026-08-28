@@ -1,6 +1,7 @@
 from datetime import date, datetime, time
 
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.utils import timezone
 
 from photo.models import Photo, PhotoTag, Tag, TagCategory
@@ -25,6 +26,10 @@ class Command(BaseCommand):
                 )
             return tag_cache[name]
 
+        changed_photos = []
+        stale_tag_filter = Q()
+        new_photo_tags = []
+
         for p in photos:
             print(p.file + " : " + str(p.date))
 
@@ -41,14 +46,18 @@ class Command(BaseCommand):
                 old_month = p.date.strftime("%B")
 
                 p.date = timezone.make_aware(datetime.combine(date(year, month, day), time.min))
-                p.save()
+                changed_photos.append(p)
 
                 # remove stale year/month tags from the photo's previous date
-                PhotoTag.objects.filter(photo=p, tag__name__in=[str(old_year), old_month]).delete()
+                stale_tag_filter |= Q(photo=p, tag__name__in=[str(old_year), old_month])
 
                 # add year and month tags
                 year_tag = get_date_tag(p.date.year)
-                PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
-
                 month_tag = get_date_tag(p.date.strftime("%B"))
-                PhotoTag.objects.get_or_create(photo=p, tag=month_tag)
+                new_photo_tags.append(PhotoTag(photo=p, tag=year_tag))
+                new_photo_tags.append(PhotoTag(photo=p, tag=month_tag))
+
+        if changed_photos:
+            Photo.objects.bulk_update(changed_photos, ["date"])
+            PhotoTag.objects.filter(stale_tag_filter).delete()
+            PhotoTag.objects.bulk_create(new_photo_tags, ignore_conflicts=True)
