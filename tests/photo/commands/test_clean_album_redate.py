@@ -66,14 +66,6 @@ class CleanAlbumRedateTests(CommandTestCase):
         stored = local(photo.date)
         self.assertEqual((stored.hour, stored.minute), (0, 0))
 
-    def test_assigning_a_naive_date_warns(self):
-        # As with the other redate commands: a datetime.date goes straight into
-        # a DateTimeField, so Django emits a naive-datetime RuntimeWarning.
-        create_photo(self.album, "a.jpg", make_datetime(2020, 1, 1))
-
-        with self.assertWarns(RuntimeWarning):
-            self.run_command(COMMAND, "2024-03-09", album=str(self.album.id))
-
     def test_unknown_album_raises(self):
         with self.assertRaises(Album.DoesNotExist):
             self.run_command(COMMAND, "2024-03-09", album="9999")

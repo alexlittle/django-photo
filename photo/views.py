@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, time
 from io import StringIO
 
 from django.conf import settings
@@ -155,7 +156,7 @@ class SearchView(ListView):
         else:
             search_ids = []
 
-        return Photo.objects.filter(pk__in=search_ids)
+        return Photo.objects.filter(pk__in=search_ids).order_by("-date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -370,7 +371,7 @@ class PhotoUpdateTagsView(FormView):
             for photo_id in photo_ids:
                 try:
                     photo = Photo.objects.get(id=photo_id)
-                    photo.date = date
+                    photo.date = timezone.make_aware(datetime.combine(date, time.min))
                     photo.save()
                     add_or_update_xmp_metadata(photo)
                 except Photo.DoesNotExist:

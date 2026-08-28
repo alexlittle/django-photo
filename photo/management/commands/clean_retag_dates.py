@@ -22,18 +22,24 @@ class Command(BaseCommand):
 
         print(f"Retagging date tags for {album.title}")
         print("---------------------------------------")
+
+        # remove existing date tags for the whole album in one go
+        PhotoTag.objects.filter(photo__in=photos, tag__tagcategory__name="Date").delete()
+
+        tag_cache = {}
+
+        def get_date_tag(name):
+            if name not in tag_cache:
+                tag_cache[name], _ = Tag.objects.get_or_create(
+                    name=name, defaults={"tagcategory": date_category}
+                )
+            return tag_cache[name]
+
         for p in photos:
             print(p)
-            # remove existing date tags
-            PhotoTag.objects.filter(photo=p, tag__tagcategory__name="Date").delete()
-
-            year_tag, _ = Tag.objects.get_or_create(
-                name=p.date.year, defaults={"tagcategory": date_category}
+            year_tag = get_date_tag(p.date.year)
+            month_tag = get_date_tag(p.date.strftime("%B"))
+            PhotoTag.objects.bulk_create(
+                [PhotoTag(photo=p, tag=year_tag), PhotoTag(photo=p, tag=month_tag)]
             )
-            PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
-
-            month_tag, _ = Tag.objects.get_or_create(
-                name=p.date.strftime("%B"), defaults={"tagcategory": date_category}
-            )
-            PhotoTag.objects.get_or_create(photo=p, tag=month_tag)
             print(f"Added date tags: {year_tag.name} {month_tag.name}")

@@ -106,12 +106,6 @@ class CleanWhatsappRedateTests(CommandTestCase):
         stored = local(photo.date)
         self.assertEqual((stored.hour, stored.minute), (0, 0))
 
-    def test_assigning_a_naive_date_warns(self):
-        create_photo(self.album, "IMG-20240115-WA0001.jpg", make_datetime(2020, 1, 1))
-
-        with self.assertWarns(RuntimeWarning):
-            self.run_command(COMMAND, str(self.album.id))
-
     def test_existing_date_tags_are_reused(self):
         existing = create_tag("2024")
         create_photo(self.album, "IMG-20240115-WA0001.jpg", make_datetime(2020, 1, 1))

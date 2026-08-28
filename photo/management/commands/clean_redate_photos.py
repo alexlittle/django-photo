@@ -2,7 +2,6 @@
 Management command to redate photos
 """
 
-import re
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
@@ -54,7 +53,7 @@ class Command(BaseCommand):
                 exif_date = exif_tags["DateTime"]
             else:
                 raise KeyError("DateTimeOriginal/DateTimeDigitized/DateTime")
-            naive = parse_datetime(re.sub(r"\:", r"-", exif_date, count=2))
+            naive = parse_datetime(exif_date.replace(":", "-", 2))
             LONDON = ZoneInfo("Europe/London")
             photo.date = naive.replace(tzinfo=LONDON)
             photo.save()

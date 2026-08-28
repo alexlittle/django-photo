@@ -58,7 +58,7 @@ def rename_photo_file(photo):
     suffix = f"-{photo.id}"
     if root.endswith(suffix):
         # already renamed -- keep this idempotent
-        return True
+        return
 
     current_full_path = settings.PHOTO_ROOT + photo.album.name + photo.file
     new_name = f"{root}{suffix}{ext}"
@@ -72,8 +72,6 @@ def rename_photo_file(photo):
         photo.save()
     except FileNotFoundError:
         print(f"File not found: {photo.file}")
-
-    return True
 
 
 def add_or_update_xmp_metadata(photo):  # image_path, namespace_uri, property_name, property_value):

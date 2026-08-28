@@ -1,6 +1,7 @@
-import datetime
+from datetime import date, datetime, time
 
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 
 from photo.models import Album, Photo
 
@@ -25,7 +26,7 @@ class Command(BaseCommand):
             year, month, day = (int(part) for part in parts)
         except (IndexError, ValueError) as exc:
             raise CommandError(f"Invalid date {date_str!r}, expected YYYY-MM-DD") from exc
-        new_date = datetime.date(year, month, day)
+        new_date = timezone.make_aware(datetime.combine(date(year, month, day), time.min))
         album = Album.objects.get(pk=options["album"])
         photos = Photo.objects.filter(album=album)
         for p in photos:

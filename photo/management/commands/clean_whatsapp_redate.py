@@ -1,6 +1,7 @@
-import datetime
+from datetime import date, datetime, time
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from photo.models import Photo, PhotoTag, Tag, TagCategory
 
@@ -30,8 +31,7 @@ class Command(BaseCommand):
                 old_year = p.date.year
                 old_month = p.date.strftime("%B")
 
-                new_date = datetime.date(year, month, day)
-                p.date = new_date
+                p.date = timezone.make_aware(datetime.combine(date(year, month, day), time.min))
                 p.save()
 
                 # remove stale year/month tags from the photo's previous date

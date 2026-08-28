@@ -21,6 +21,7 @@ class Command(BaseCommand):
             Photo.objects.filter(phototag__tag__slug__in=slug_list)
             .annotate(count=Count("id"))
             .filter(count=len(slug_list))
+            .select_related("album")
         )
 
         if not options["export_path"]:
