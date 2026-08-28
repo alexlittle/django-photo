@@ -48,21 +48,14 @@ class FilesDuplicateFilenamesTests(CommandTestCase):
         with self.assertRaises(IntegrityError), transaction.atomic():
             create_photo(other, "DSC_0001.jpg")
 
-    def test_filenames_differing_only_by_case_are_treated_separately(self):
-        # Whether these collide depends on the database collation: MySQL's
-        # default is case-insensitive and would reject the second row, SQLite
-        # is case-sensitive and accepts it. Worth knowing if this suite is ever
-        # run against both.
+    def test_filenames_differing_only_by_case_collide(self):
+        # Both the local and CI databases use a case-insensitive MySQL
+        # collation, so "A.jpg" collides with an existing "a.jpg" the same way
+        # an exact duplicate would.
         create_photo(self.album, "a.jpg")
-        try:
-            with transaction.atomic():
-                create_photo(self.album, "A.jpg")
-        except IntegrityError:
-            self.skipTest("database collation treats filenames case-insensitively")
 
-        output = self.run_command(COMMAND)
-
-        self.assertIn("OK", output)
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            create_photo(self.album, "A.jpg")
 
     def test_the_summary_sections_are_always_printed(self):
         create_photo(self.album, "a.jpg")
