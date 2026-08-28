@@ -62,7 +62,7 @@ class FilesScanForDuplicatesTests(CommandTestCase):
         self.run_with_answers()
 
         photo.refresh_from_db()
-        self.assertIsNone(photo.file_hash)
+        self.assertEqual(photo.file_hash, "")
 
     def test_a_photo_that_already_has_a_hash_is_not_rehashed(self):
         photo = create_photo(self.album, "a.jpg", file_hash="preexisting")
