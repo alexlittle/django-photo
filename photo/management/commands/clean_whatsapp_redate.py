@@ -16,6 +16,15 @@ class Command(BaseCommand):
 
         photos = Photo.objects.filter(file__istartswith="img-", album__pk=options["album"])
         date_category, _ = TagCategory.objects.get_or_create(name="Date")
+        tag_cache = {}
+
+        def get_date_tag(name):
+            if name not in tag_cache:
+                tag_cache[name], _ = Tag.objects.get_or_create(
+                    name=name, defaults={"tagcategory": date_category}
+                )
+            return tag_cache[name]
+
         for p in photos:
             print(p.file + " : " + str(p.date))
 
@@ -38,12 +47,8 @@ class Command(BaseCommand):
                 PhotoTag.objects.filter(photo=p, tag__name__in=[str(old_year), old_month]).delete()
 
                 # add year and month tags
-                year_tag, _ = Tag.objects.get_or_create(
-                    name=p.date.year, defaults={"tagcategory": date_category}
-                )
+                year_tag = get_date_tag(p.date.year)
                 PhotoTag.objects.get_or_create(photo=p, tag=year_tag)
 
-                month_tag, _ = Tag.objects.get_or_create(
-                    name=p.date.strftime("%B"), defaults={"tagcategory": date_category}
-                )
+                month_tag = get_date_tag(p.date.strftime("%B"))
                 PhotoTag.objects.get_or_create(photo=p, tag=month_tag)

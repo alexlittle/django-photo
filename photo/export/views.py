@@ -35,7 +35,7 @@ class TagToFolderView(View):
         os.makedirs(dest, exist_ok=True)
 
         tag = get_object_or_404(Tag, slug=slug)
-        photos = Photo.objects.filter(phototag__tag=tag)
+        photos = Photo.objects.filter(phototag__tag=tag).select_related("album")
 
         for photo in photos:
             src = os.path.join(settings.PHOTO_ROOT, photo.album.name.lstrip("/"), photo.file)

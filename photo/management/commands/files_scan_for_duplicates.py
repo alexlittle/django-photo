@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # create hashes
-        to_hash = Photo.objects.filter(file_hash="")
+        to_hash = Photo.objects.filter(file_hash="").select_related("album")
 
         for photo in to_hash:
             photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
@@ -34,7 +34,7 @@ class Command(BaseCommand):
         counter = 1
         hashes = Photo.objects.exclude(file_hash="").values("file_hash").distinct()
         for file_hash in hashes:
-            photos = Photo.objects.filter(file_hash=file_hash["file_hash"])
+            photos = Photo.objects.filter(file_hash=file_hash["file_hash"]).select_related("album")
             if photos.count() > 1:
                 print("--- " + str(counter) + " ---")
                 delete_options = []

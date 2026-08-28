@@ -122,7 +122,7 @@ class Command(BaseCommand):
         self.stdout.write("Photos in database but not on file")
         self.stdout.write("---------------------------------------")
 
-        for photo in Photo.objects.all():
+        for photo in Photo.objects.select_related("album").all():
             if self.check_photo_on_disk(photo, verbose, autodelete):
                 counter += 1
 
