@@ -11,6 +11,7 @@ from photo.models import Album
 
 VALID_DATE = "Please enter a valid date."
 DIV_SUBMIT_CLASS = "col-lg-offset-2 col-lg-4"
+BTN_DEFAULT_CLASS = "btn btn-default"
 
 
 class ScanFolderForm(forms.Form):
@@ -38,7 +39,7 @@ class ScanFolderForm(forms.Form):
             "default_date",
             "default_tags",
             Div(
-                Submit("submit", _("Upload"), css_class="btn btn-default"),
+                Submit("submit", _("Upload"), css_class=BTN_DEFAULT_CLASS),
                 css_class=DIV_SUBMIT_CLASS,
             ),
         )
@@ -80,7 +81,7 @@ class EditPhotoForm(forms.Form):
             "tags",
             Div("date", css_class="date-picker-row-fluid"),
             Div(
-                Submit("submit", _("Update"), css_class="btn btn-default"),
+                Submit("submit", _("Update"), css_class=BTN_DEFAULT_CLASS),
                 css_class=DIV_SUBMIT_CLASS,
             ),
         )
@@ -104,7 +105,7 @@ class SearchForm(forms.Form):
         self.helper.form_class = "form-horizontal"
         self.helper.field_class = "col-lg-8"
         self.helper.layout = Layout(
-            FieldWithButtons("q", Submit("submit", _("Go"), css_class="btn btn-default")),
+            FieldWithButtons("q", Submit("submit", _("Go"), css_class=BTN_DEFAULT_CLASS)),
         )
 
 
@@ -146,7 +147,7 @@ class UpdateTagsForm(forms.Form):
             "album",
             Field("next", type="hidden"),
             Div(
-                Submit("submit", _("Update"), css_class="btn btn-default"),
+                Submit("submit", _("Update"), css_class=BTN_DEFAULT_CLASS),
                 css_class=DIV_SUBMIT_CLASS,
             ),
         )

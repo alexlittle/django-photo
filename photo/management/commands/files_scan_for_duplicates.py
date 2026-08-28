@@ -20,43 +20,62 @@ class Command(BaseCommand):
         return hash_sha512.hexdigest()
 
     def handle(self, *args, **options):
-        # create hashes
+        self.hash_unhashed_photos()
+        self.review_duplicate_groups()
+
+    def hash_photo(self, photo):
+        photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
+        if not os.path.isfile(photo_path):
+            return
+
+        sha512hash = self.sha512(photo_path)
+        photo.file_hash = sha512hash
+        photo.save()
+        print(f"created hash for {sha512hash}")
+
+    def hash_unhashed_photos(self):
         to_hash = Photo.objects.filter(file_hash="").select_related("album")
-
         for photo in to_hash:
-            photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
-            if os.path.isfile(photo_path):
-                sha512hash = self.sha512(photo_path)
-                photo.file_hash = sha512hash
-                photo.save()
-                print(f"created hash for {sha512hash}")
+            self.hash_photo(photo)
 
+    def list_duplicate_group(self, photos):
+        """Print each photo in a duplicate group, returning the delete options offered."""
+        delete_options = []
+        for idx, photo in enumerate(photos):
+            link = reverse("photo:edit", args=(photo.id,))
+            print(f"[{idx + 1}] Duplicate: {get_domain()}{link}")
+            print(photo.album.name)
+            delete_options.append({"option": idx + 1, "photo": photo.id})
+        return delete_options
+
+    def parse_selection(self, select_input):
+        try:
+            return int(select_input)
+        except ValueError:
+            return None
+
+    def delete_selected(self, delete_options, selected):
+        for option in delete_options:
+            if option["option"] == selected:
+                try:
+                    Photo.objects.get(pk=option["photo"]).delete()
+                    print("photo deleted")
+                except Photo.DoesNotExist:
+                    print("photo not found")
+
+    def review_duplicate_group(self, counter, photos):
+        print("--- " + str(counter) + " ---")
+        delete_options = self.list_duplicate_group(photos)
+
+        selected = self.parse_selection(input("Select no to delete: "))
+        if selected is not None:
+            self.delete_selected(delete_options, selected)
+
+    def review_duplicate_groups(self):
         counter = 1
         hashes = Photo.objects.exclude(file_hash="").values("file_hash").distinct()
         for file_hash in hashes:
             photos = Photo.objects.filter(file_hash=file_hash["file_hash"]).select_related("album")
             if photos.count() > 1:
-                print("--- " + str(counter) + " ---")
-                delete_options = []
-                for idx, photo in enumerate(photos):
-                    link = reverse("photo:edit", args=(photo.id,))
-                    print(f"[{idx + 1}] Duplicate: {get_domain()}{link}")
-                    print(photo.album.name)
-                    delete_option = {"option": idx + 1, "photo": photo.id}
-                    delete_options.append(delete_option)
+                self.review_duplicate_group(counter, photos)
                 counter += 1
-
-                select_input = input("Select no to delete: ")
-                try:
-                    selected = int(select_input)
-                except ValueError:
-                    selected = None
-
-                if selected is not None:
-                    for option in delete_options:
-                        if option["option"] == selected:
-                            try:
-                                Photo.objects.get(pk=option["photo"]).delete()
-                                print("photo deleted")
-                            except Photo.DoesNotExist:
-                                print("photo not found")

@@ -15,11 +15,21 @@ class Command(BaseCommand):
     help = "Checks for folders that aren't in the database"
 
     def handle(self, *args, **options):
+        self.scan_directories_not_in_database()
+        self.scan_albums_not_on_disk()
 
-        self.stdout.write("Directories not in database")
+    def report_count(self, counter, problem_message):
+        if counter == 0:
+            self.stdout.write(self.style.SUCCESS("OK"))
+        else:
+            self.stdout.write("---------------------------------------")
+            self.stdout.write(self.style.WARNING(problem_message.format(counter)))
         self.stdout.write("---------------------------------------")
 
-        # Scan directory structure to find dirs not uploaded to DB
+    def scan_directories_not_in_database(self):
+        """Walk PHOTO_ROOT looking for directories that have no matching Album row."""
+        self.stdout.write("Directories not in database")
+        self.stdout.write("---------------------------------------")
         counter = 0
 
         for root, dirs, _files in os.walk(os.path.join(settings.PHOTO_ROOT), topdown=True):
@@ -32,27 +42,17 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR(f"{album_path} not found"))
                     counter += 1
 
-        if counter == 0:
-            self.stdout.write(self.style.SUCCESS("OK"))
-        else:
-            self.stdout.write("---------------------------------------")
-            self.stdout.write(self.style.WARNING(f"{counter} directories not in database"))
-        self.stdout.write("---------------------------------------")
+        self.report_count(counter, "{} directories not in database")
 
-        # Scan albums in DB to ensure they all exist on file
+    def scan_albums_not_on_disk(self):
+        """Walk every Album row looking for ones whose directory is missing on disk."""
         self.stdout.write("Albums in database but not on disk")
         self.stdout.write("---------------------------------------")
-
-        albums = Album.objects.all()
         counter = 0
-        for album in albums:
+
+        for album in Album.objects.all():
             if not os.path.isdir(settings.PHOTO_ROOT + album.name):
                 self.stdout.write(self.style.ERROR(f"{album.name} not found"))
                 counter += 1
 
-        if counter == 0:
-            self.stdout.write(self.style.SUCCESS("OK"))
-        else:
-            self.stdout.write("---------------------------------------")
-            self.stdout.write(self.style.WARNING(f"{counter} albums in database but not on disk"))
-        self.stdout.write("---------------------------------------")
+        self.report_count(counter, "{} albums in database but not on disk")
