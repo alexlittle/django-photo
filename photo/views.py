@@ -349,52 +349,69 @@ class PhotoUpdateTagsView(FormView):
         """Process the form when submitted."""
         photo_ids = self.get_photo_ids()
         action = form.cleaned_data.get("action")
-        update_tags = form.cleaned_data.get("tags", "")
-        date = form.cleaned_data.get("date")
-        next_url = form.cleaned_data.get("next")
-        tags = [x.strip() for x in update_tags.split(",") if x.strip()]
 
+        self.apply_tag_changes(action, form.cleaned_data.get("tags", ""), photo_ids)
+
+        if action == "change_date":
+            self.apply_date_change(form.cleaned_data.get("date"), photo_ids)
+
+        if action == "change_album":
+            self.apply_album_change(form.cleaned_data.get("album"), photo_ids)
+
+        return self.redirect_with_photo_ids(form.cleaned_data.get("next"), photo_ids)
+
+    def apply_tag_changes(self, action, tags_str, photo_ids):
+        """Add or remove each named tag from every selected photo."""
+        tags = [x.strip() for x in tags_str.split(",") if x.strip()]
         for tag_name in tags:
             tag, _ = Tag.objects.get_or_create(name=tag_name)
             for photo_id in photo_ids:
-                try:
-                    photo = Photo.objects.get(id=photo_id)
-                    if action == "delete":
-                        PhotoTag.objects.filter(photo=photo, tag=tag).delete()
-                    elif action == "add":
-                        PhotoTag.objects.get_or_create(photo=photo, tag=tag)
-                        add_or_update_xmp_metadata(photo)
-                except Photo.DoesNotExist:
-                    continue
+                self.apply_tag_to_photo(action, tag, photo_id)
 
-        if action == "change_date":
-            for photo_id in photo_ids:
-                try:
-                    photo = Photo.objects.get(id=photo_id)
-                    photo.date = timezone.make_aware(datetime.combine(date, time.min))
-                    photo.save()
-                    add_or_update_xmp_metadata(photo)
-                except Photo.DoesNotExist:
-                    continue
+    def apply_tag_to_photo(self, action, tag, photo_id):
+        try:
+            photo = Photo.objects.get(id=photo_id)
+        except Photo.DoesNotExist:
+            return
 
-        if action == "change_album":
-            new_album = get_object_or_404(Album, pk=form.cleaned_data.get("album"))
-            for photo_id in photo_ids:
-                try:
-                    photo = Photo.objects.get(id=photo_id)
-                    old_path = os.path.join(
-                        settings.PHOTO_ROOT, photo.album.get_safe_name(), photo.file
-                    )
-                    new_path = os.path.join(
-                        settings.PHOTO_ROOT, new_album.get_safe_name(), photo.file
-                    )
-                    os.rename(old_path, new_path)
-                    photo.album = new_album
-                    photo.save()
-                except (Photo.DoesNotExist, FileNotFoundError):
-                    continue
+        if action == "delete":
+            PhotoTag.objects.filter(photo=photo, tag=tag).delete()
+        elif action == "add":
+            PhotoTag.objects.get_or_create(photo=photo, tag=tag)
+            add_or_update_xmp_metadata(photo)
 
-        # Redirect to the next page with updated photo IDs
+    def apply_date_change(self, date, photo_ids):
+        for photo_id in photo_ids:
+            try:
+                photo = Photo.objects.get(id=photo_id)
+            except Photo.DoesNotExist:
+                continue
+            photo.date = timezone.make_aware(datetime.combine(date, time.min))
+            photo.save()
+            add_or_update_xmp_metadata(photo)
+
+    def apply_album_change(self, album_id, photo_ids):
+        new_album = get_object_or_404(Album, pk=album_id)
+        for photo_id in photo_ids:
+            self.move_photo_to_album(photo_id, new_album)
+
+    def move_photo_to_album(self, photo_id, new_album):
+        try:
+            photo = Photo.objects.get(id=photo_id)
+        except Photo.DoesNotExist:
+            return
+
+        old_path = os.path.join(settings.PHOTO_ROOT, photo.album.get_safe_name(), photo.file)
+        new_path = os.path.join(settings.PHOTO_ROOT, new_album.get_safe_name(), photo.file)
+        try:
+            os.rename(old_path, new_path)
+        except FileNotFoundError:
+            return
+
+        photo.album = new_album
+        photo.save()
+
+    def redirect_with_photo_ids(self, next_url, photo_ids):
         url_params = "&".join([f"photo_id={x}" for x in photo_ids])
         if "?" not in next_url:
             next_url += "?"
