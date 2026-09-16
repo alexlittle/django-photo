@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 admin_name = results[i]["adminName1"]
                 country_code = results[i]["countryCode"]
                 print(f"{i} : {top_name}, {name}, {admin_name}, {country_code}")
-            except (IndexError, KeyError):
+            except IndexError, KeyError:
                 pass
 
     def parse_selection(self, accept, num_results):

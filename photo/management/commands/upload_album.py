@@ -96,7 +96,7 @@ class Command(BaseCommand):
 
             month_tag, _ = Tag.objects.get_or_create(name=photo.date.strftime("%B"))
             PhotoTag.objects.get_or_create(photo=photo, tag=month_tag)
-        except (KeyError, AttributeError, ValueError):
+        except KeyError, AttributeError, ValueError:
             return False
 
         return True
