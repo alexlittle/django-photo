@@ -373,6 +373,10 @@ class PhotoUpdateTagsView(FormView):
         if action == "change_album":
             self.apply_album_change(form.cleaned_data.get("album"), photo_ids)
 
+        if action == "delete_photo":
+            self.apply_delete(photo_ids)
+            return HttpResponseRedirect(form.cleaned_data.get("next"))
+
         return self.redirect_with_photo_ids(form.cleaned_data.get("next"), photo_ids)
 
     def apply_tag_changes(self, action, tags_str, photo_ids):
@@ -425,6 +429,10 @@ class PhotoUpdateTagsView(FormView):
 
         photo.album = new_album
         photo.save()
+
+    def apply_delete(self, photo_ids):
+        """Delete each selected photo; the post_delete signal removes the file from disk."""
+        Photo.objects.filter(id__in=photo_ids).delete()
 
     def redirect_with_photo_ids(self, next_url, photo_ids):
         url_params = "&".join([f"photo_id={x}" for x in photo_ids])

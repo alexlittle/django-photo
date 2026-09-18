@@ -13,4 +13,19 @@
 
 {% crispy form %}
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('id_action').closest('form');
+    form.addEventListener('submit', function (event) {
+        var action = document.getElementById('id_action').value;
+        if (action === 'delete_photo') {
+            var confirmMsg = "{% trans 'Are you sure you want to permanently delete the selected photos? This cannot be undone.' %}";
+            if (!window.confirm(confirmMsg)) {
+                event.preventDefault();
+            }
+        }
+    });
+});
+</script>
+
 {% endblock %}

@@ -303,6 +303,28 @@ class PhotoUpdateTagsViewTests(PhotoRootTestCase):
             "the rename fails, so the album should not have changed either",
         )
 
+    def test_delete_photo_removes_the_records_and_the_files(self):
+        first_path = self.write_image(self.first)
+        second_path = self.write_image(self.second)
+
+        response, _write_xmp = self.post([self.first, self.second], action="delete_photo")
+
+        self.assertFalse(Photo.objects.filter(pk=self.first.pk).exists())
+        self.assertFalse(Photo.objects.filter(pk=self.second.pk).exists())
+        self.assertFalse(os.path.exists(first_path))
+        self.assertFalse(os.path.exists(second_path))
+        self.assertRedirects(response, self.next_url, fetch_redirect_response=False)
+
+    def test_delete_photo_leaves_unselected_photos_alone(self):
+        self.write_image(self.first)
+        second_path = self.write_image(self.second)
+
+        self.post([self.first], action="delete_photo")
+
+        self.assertFalse(Photo.objects.filter(pk=self.first.pk).exists())
+        self.assertTrue(Photo.objects.filter(pk=self.second.pk).exists())
+        self.assertTrue(os.path.exists(second_path))
+
     def test_redirect_carries_the_selected_photo_ids(self):
         response, _write_xmp = self.post([self.first, self.second], action="add", tags="beach")
 

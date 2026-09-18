@@ -115,6 +115,7 @@ class UpdateTagsForm(forms.Form):
         ("delete", _("Delete Tag/s")),
         ("change_date", _("Change date")),
         ("change_album", _("Move to album")),
+        ("delete_photo", _("Delete Photo/s")),
     )
 
     action = forms.ChoiceField(required=True, choices=UPDATE_ACTIONS)
