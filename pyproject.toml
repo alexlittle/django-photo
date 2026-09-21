@@ -14,7 +14,7 @@ dependencies = [
     "django==6.1.1",
     "django-autoslug==1.9.9",
     "django-crispy-forms==2.7",
-    "mysqlclient==2.2.8",
+    "mysqlclient==2.3.0",
     "nh3>=0.3.7",
     "pillow==12.3.0",
     "python-dateutil==2.9.0.post0",
@@ -25,8 +25,8 @@ dependencies = [
     "sorl-thumbnail>=12.4",
     "typing-extensions==4.16.0",
     "typing-inspection==0.4.4",
-    "tzdata==2026.3",
-    "urllib3==2.7.0",
+    "tzdata==2026.4",
+    "urllib3==2.8.0",
 ]
 
 
@@ -76,7 +76,7 @@ dev = [
     "pydoclint==0.9.1",
     "setuptools==84.0.0",
     "pytest==9.1.1",
-    "ruff==0.16.7",
+    "ruff==0.16.8",
     "pytest-django==4.14.0",
 ]
 local = [
