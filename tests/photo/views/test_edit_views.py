@@ -280,6 +280,36 @@ class PhotoUpdateTagsViewTests(PhotoRootTestCase):
             photo.refresh_from_db()
             self.assertEqual(local(photo.date).date(), date(2024, 5, 1))
 
+    def test_change_date_only_keeps_each_photos_time(self):
+        self.first.date = make_datetime(2024, 1, 1, 9, 15)
+        self.first.save()
+        self.second.date = make_datetime(2024, 2, 1, 18, 40)
+        self.second.save()
+
+        self.post([self.first, self.second], action="change_date", date="2024-05-01", tags="")
+
+        self.first.refresh_from_db()
+        self.second.refresh_from_db()
+        self.assertEqual(
+            local(self.first.date).replace(tzinfo=None).isoformat(), "2024-05-01T09:15:00"
+        )
+        self.assertEqual(
+            local(self.second.date).replace(tzinfo=None).isoformat(), "2024-05-01T18:40:00"
+        )
+
+    def test_change_date_with_time_sets_the_time(self):
+        self.post([self.first], action="change_date", date="2024-05-01 18:08", tags="")
+
+        self.first.refresh_from_db()
+        self.assertEqual(
+            local(self.first.date).replace(tzinfo=None).isoformat(), "2024-05-01T18:08:00"
+        )
+
+    def test_change_date_rejects_invalid_value(self):
+        response, _ = self.post([self.first], action="change_date", date="01/05/2024", tags="")
+
+        self.assertEqual(response.status_code, 200)
+
     def test_change_album_moves_the_record_and_the_file(self):
         old_path = self.write_image(self.first)
         self.album_dir(self.other_album)

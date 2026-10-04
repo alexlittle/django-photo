@@ -368,7 +368,9 @@ class PhotoUpdateTagsView(FormView):
         self.apply_tag_changes(action, form.cleaned_data.get("tags", ""), photo_ids)
 
         if action == "change_date":
-            self.apply_date_change(form.cleaned_data.get("date"), photo_ids)
+            self.apply_date_change(
+                form.cleaned_data.get("date"), form.cleaned_data.get("time"), photo_ids
+            )
 
         if action == "change_album":
             self.apply_album_change(form.cleaned_data.get("album"), photo_ids)
@@ -399,13 +401,17 @@ class PhotoUpdateTagsView(FormView):
             PhotoTag.objects.get_or_create(photo=photo, tag=tag)
             add_or_update_xmp_metadata(photo)
 
-    def apply_date_change(self, date, photo_ids):
+    def apply_date_change(self, date, new_time, photo_ids):
+        """Set the date; use new_time if given, otherwise keep each photo's local time."""
         for photo_id in photo_ids:
             try:
                 photo = Photo.objects.get(id=photo_id)
             except Photo.DoesNotExist:
                 continue
-            photo.date = timezone.make_aware(datetime.combine(date, time.min))
+            photo_time = new_time
+            if photo_time is None:
+                photo_time = timezone.localtime(photo.date).time() if photo.date else time.min
+            photo.date = timezone.make_aware(datetime.combine(date, photo_time))
             photo.save()
             add_or_update_xmp_metadata(photo)
 

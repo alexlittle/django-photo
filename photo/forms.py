@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from crispy_forms.bootstrap import FieldWithButtons
 from crispy_forms.helper import FormHelper
@@ -9,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from photo.models import Album
 
-VALID_DATE = "Please enter a valid date."
+VALID_DATE = "Please enter a valid date (YYYY-MM-DD) and optionally a time (HH:MM)."
 DIV_SUBMIT_CLASS = "col-lg-offset-2 col-lg-4"
 BTN_DEFAULT_CLASS = "btn btn-default"
 
@@ -120,17 +121,35 @@ class UpdateTagsForm(forms.Form):
 
     action = forms.ChoiceField(required=True, choices=UPDATE_ACTIONS)
     tags = forms.CharField(required=False)
-    date = forms.DateField(
+    date = forms.CharField(
         required=False,
-        error_messages={
-            "required": _(VALID_DATE),
-            "invalid": _(VALID_DATE),
-        },
+        help_text=_("YYYY-MM-DD, optionally followed by HH:MM (otherwise the time is kept)"),
     )
     album = forms.ChoiceField(
         choices=Album.objects.all().order_by("name").values_list("id", "name")
     )
     next = forms.CharField(required=True)
+
+    def clean_date(self):
+        """Parse the date; the time is returned in cleaned_data["time"] (None if not given)."""
+        value = self.cleaned_data.get("date", "").strip()
+        self.time = None
+        if not value:
+            return None
+        for fmt, has_time in (("%Y-%m-%d %H:%M", True), ("%Y-%m-%d", False)):
+            try:
+                parsed = datetime.strptime(value, fmt)
+            except ValueError:
+                continue
+            if has_time:
+                self.time = parsed.time()
+            return parsed.date()
+        raise forms.ValidationError(_(VALID_DATE))
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cleaned_data["time"] = getattr(self, "time", None)
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -152,7 +171,3 @@ class UpdateTagsForm(forms.Form):
                 css_class=DIV_SUBMIT_CLASS,
             ),
         )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
