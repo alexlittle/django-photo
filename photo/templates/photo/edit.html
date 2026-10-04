@@ -23,7 +23,7 @@
 
 <a href="{% url 'photo:album' photo.album.id %}">{{ photo.album.name }}</a><br/>
 
-{% thumbnail photo.get_full_url "300" as thumb %}
+{% thumbnail photo.get_thumbnail_source "300" as thumb %}
 	<img src="{{ thumb.url }}" alt="{% if photo.caption %}{{ photo.caption }}{% endif %}" class="img-thumbnail">
 {% endthumbnail %}
 

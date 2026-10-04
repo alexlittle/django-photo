@@ -196,6 +196,9 @@ class PhotoView(View):
         if not os.path.exists(image_path):
             raise Http404("Image not found")
 
+        if photo.is_video:
+            image_path = photo.get_thumbnail_source()
+
         im = Image.open(image_path)
         response = HttpResponse(content_type="image/jpeg")
 

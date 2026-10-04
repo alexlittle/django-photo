@@ -9,6 +9,8 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from sorl.thumbnail import get_thumbnail
 
+from photo import video
+
 
 class CombinedSearchManager(models.Manager):
     def combined_search(self, query):
@@ -210,9 +212,19 @@ class Photo(models.Model):
     def get_full_url(self):
         return settings.PHOTO_ROOT + self.album.name + self.file
 
+    @property
+    def is_video(self):
+        return video.is_video(self.file)
+
+    def get_thumbnail_source(self):
+        """Path of an image sorl can thumbnail: the file itself, or a frame for videos."""
+        if self.is_video:
+            return video.make_poster(self.get_full_url(), self.id) or self.get_full_url()
+        return self.get_full_url()
+
     def get_thumbnail(self, size):
         """Same sorl-thumbnail mechanism the templates use via {% thumbnail %}."""
-        return get_thumbnail(self.get_full_url(), str(size)).url
+        return get_thumbnail(self.get_thumbnail_source(), str(size)).url
 
     def get_face_count(self):
         count = self.get_prop("face_count")
@@ -227,6 +239,7 @@ def photo_delete_file(sender, instance, **kwargs):
         os.remove(file_to_delete)
     except OSError:
         print("File not removed")
+    video.remove_poster(instance.id)
 
 
 class PhotoProps(models.Model):

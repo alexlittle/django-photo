@@ -225,3 +225,19 @@ div.photo {
     margin-top: 20px;
 }
 
+
+.photo-image {
+    position: relative;
+}
+
+.video-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 0.9rem;
+    pointer-events: none;
+}

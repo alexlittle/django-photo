@@ -28,11 +28,11 @@
 	<tr>
 		<td>
 		{% if a.has_cover %}
-			{% thumbnail a.get_cover.get_full_url  "250" as thumb %}
+			{% thumbnail a.get_cover.get_thumbnail_source "250" as thumb %}
 			<img src="{{ thumb.url }}" alt="{% if a.get_cover.caption %}{{ a.get_cover.caption }}{% endif %}" class="img-thumbnail">
 			{% endthumbnail %}
 		{% else %}
-			{% thumbnail a.get_cover.get_full_url "250" as thumb %}
+			{% thumbnail a.get_cover.get_thumbnail_source "250" as thumb %}
 			<img src="{{ thumb.url }}" alt="{% if a.get_cover.caption %}{{ a.get_cover.caption }}{% endif %}" class="img-thumbnail faded">
 			{% endthumbnail %}
 		{% endif %}

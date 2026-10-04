@@ -84,6 +84,9 @@ def add_or_update_xmp_metadata(photo):  # image_path, namespace_uri, property_na
         property_value (str or list): The value of the property. Use a list for array properties.
     """
 
+    if photo.is_video:
+        return
+
     photo_path = settings.PHOTO_ROOT + photo.album.name + photo.file
     namespace_uri = consts.XMP_NS_DC
     property_name = "subject"

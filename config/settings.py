@@ -170,6 +170,7 @@ IGNORE_FOLDERS = []
 PHOTOS_PER_PAGE = 400
 ALBUMS_PER_PAGE = 50
 
+VIDEO_EXTENSIONS = [".mp4", ".mov", ".m4v", ".webm"]
 IMAGE_EXTENSIONS = ["*.jpg", "*.jpeg", "*.png", "*.tif", "*.gif", "*.bmp", "*.JPG", "*.JPEG"]
 
 # timezone assumed for EXIF DateTimeOriginal values, which have no tzinfo of their own

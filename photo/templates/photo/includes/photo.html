@@ -8,9 +8,10 @@
 <div class="photo col photo-thumbnail-container" data-photo-id="{{ p.id }}">
 	<div class="photo-image">
 		<a href="{% url 'photo:view' p.id %}" data-toggle="lightbox" data-gallery="album-gallery">
-			{% thumbnail p.get_full_url "200" as thumb %}
+			{% thumbnail p.get_thumbnail_source "200" as thumb %}
 			<img src="{{ thumb.url }}" alt="{% if p.caption %}{{ p.caption }}{% endif %}">
 			{% endthumbnail %}
+			{% if p.is_video %}<span class="video-badge" title="{% trans 'Video' %}">&#9654;</span>{% endif %}
 		</a>
 	</div>
 	<div class="photo-data">

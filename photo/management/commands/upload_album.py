@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_datetime
 
 from photo.lib import add_tags, get_exif
 from photo.models import Album, Photo, PhotoTag, Tag
+from photo.video import get_video_date, is_video
 
 
 class Command(BaseCommand):
@@ -48,6 +49,12 @@ class Command(BaseCommand):
             for im in glob.glob(settings.PHOTO_ROOT + directory + img_ext):
                 self.upload_photo(im, album, default_tags, default_date)
 
+        for vid_ext in settings.VIDEO_EXTENSIONS:
+            for vid in glob.glob(settings.PHOTO_ROOT + directory + "*" + vid_ext):
+                self.upload_photo(vid, album, default_tags, default_date)
+            for vid in glob.glob(settings.PHOTO_ROOT + directory + "*" + vid_ext.upper()):
+                self.upload_photo(vid, album, default_tags, default_date)
+
         return str(album.id)
 
     def upload_photo(self, im, album, default_tags, default_date):
@@ -76,7 +83,23 @@ class Command(BaseCommand):
 
         photo.save()
 
+    def add_date_tags(self, photo):
+        """Add year and month tags."""
+        year_tag, _ = Tag.objects.get_or_create(name=photo.date.year)
+        PhotoTag.objects.get_or_create(photo=photo, tag=year_tag)
+
+        month_tag, _ = Tag.objects.get_or_create(name=photo.date.strftime("%B"))
+        PhotoTag.objects.get_or_create(photo=photo, tag=month_tag)
+
     def set_exif_date(self, photo, im):
+        if is_video(im):
+            video_date = get_video_date(im)
+            if video_date is None:
+                return False
+            photo.date = video_date
+            self.add_date_tags(photo)
+            return True
+
         try:
             exif_tags, result = get_exif(im)
         except AttributeError:  # png files don't generally have exif data
@@ -90,12 +113,7 @@ class Command(BaseCommand):
             naive = parse_datetime(exif_date.replace(":", "-", 2))
             photo.date = naive.replace(tzinfo=ZoneInfo(settings.PHOTO_EXIF_TIMEZONE))
 
-            # add year and month tags
-            year_tag, _ = Tag.objects.get_or_create(name=photo.date.year)
-            PhotoTag.objects.get_or_create(photo=photo, tag=year_tag)
-
-            month_tag, _ = Tag.objects.get_or_create(name=photo.date.strftime("%B"))
-            PhotoTag.objects.get_or_create(photo=photo, tag=month_tag)
+            self.add_date_tags(photo)
         except KeyError, AttributeError, ValueError:
             return False
 
