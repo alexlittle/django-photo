@@ -10,6 +10,7 @@ from django.utils.dateparse import parse_datetime
 
 from photo.lib import get_exif
 from photo.models import Album, Photo
+from photo.video import get_video_date
 
 
 class Command(BaseCommand):
@@ -35,6 +36,9 @@ class Command(BaseCommand):
 
         for photo in photos:
             im = settings.PHOTO_ROOT + album.name + photo.file
+            if photo.is_video:
+                self.update_video_date(photo, im)
+                continue
             try:
                 exif_tags, result = get_exif(im)
             except FileNotFoundError:
@@ -42,6 +46,15 @@ class Command(BaseCommand):
                 continue
             if result:
                 self.update_photo_date(photo, exif_tags)
+
+    def update_video_date(self, photo, path):
+        video_date = get_video_date(path)
+        if video_date is None:
+            print("No creation date in video: " + photo.file)
+            return
+        photo.date = video_date
+        photo.save()
+        print("updated: " + photo.file)
 
     def update_photo_date(self, photo, exif_tags):
         try:

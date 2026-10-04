@@ -11,6 +11,7 @@ from unittest import skipUnless
 
 from django.core.management import call_command
 from django.test import override_settings
+from django.urls import reverse
 from PIL import Image
 
 from photo import video
@@ -120,3 +121,94 @@ class VideoFileTests(PhotoRootTestCase):
         photo = create_photo(album, "bad.mp4")
 
         self.assertEqual(photo.get_thumbnail_source(), photo.get_full_url())
+
+
+@skipUnless(HAS_FFMPEG, "ffmpeg not installed")
+class VideoViewTests(PhotoRootTestCase):
+    def setUp(self):
+        super().setUp()
+        album = Album.objects.create(name="/2024/")
+        self.path = os.path.join(self.photo_root, "2024", "clip.mp4")
+        make_clip(self.path)
+        self.photo = create_photo(album, "clip.mp4")
+        self.size = os.path.getsize(self.path)
+        self.url = reverse("photo:video", kwargs={"photo_id": self.photo.id})
+
+    def body(self, response):
+        return b"".join(response.streaming_content)
+
+    def test_serves_the_whole_file(self):
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "video/mp4")
+        self.assertEqual(response["Accept-Ranges"], "bytes")
+        with open(self.path, "rb") as fh:
+            self.assertEqual(self.body(response), fh.read())
+
+    def test_range_request_returns_partial_content(self):
+        response = self.client.get(self.url, headers={"Range": "bytes=10-19"})
+
+        self.assertEqual(response.status_code, 206)
+        self.assertEqual(response["Content-Range"], f"bytes 10-19/{self.size}")
+        with open(self.path, "rb") as fh:
+            fh.seek(10)
+            self.assertEqual(self.body(response), fh.read(10))
+
+    def test_open_ended_and_suffix_ranges(self):
+        response = self.client.get(self.url, headers={"Range": "bytes=5-"})
+        self.assertEqual(response["Content-Range"], f"bytes 5-{self.size - 1}/{self.size}")
+
+        response = self.client.get(self.url, headers={"Range": "bytes=-4"})
+        self.assertEqual(len(self.body(response)), 4)
+
+    def test_unsatisfiable_range_is_416(self):
+        response = self.client.get(self.url, headers={"Range": f"bytes={self.size + 5}-"})
+
+        self.assertEqual(response.status_code, 416)
+
+    def test_non_video_is_404(self):
+        photo = create_photo(Album.objects.get(name="/2024/"), "a.jpg")
+
+        response = self.client.get(reverse("photo:video", kwargs={"photo_id": photo.id}))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_view_returns_the_poster_frame_for_a_video(self):
+        response = self.client.get(reverse("photo:view", kwargs={"photo_id": self.photo.id}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "image/jpeg")
+
+
+@skipUnless(HAS_FFMPEG, "ffmpeg not installed")
+class VideoWithOtherCommandsTests(PhotoRootTestCase):
+    def setUp(self):
+        super().setUp()
+        self.album = Album.objects.create(name="/2024/")
+        make_clip(
+            os.path.join(self.photo_root, "2024", "clip.mp4"),
+            creation_time="2023-07-04T10:20:30Z",
+        )
+        self.photo = create_photo(self.album, "clip.mp4")
+
+    def test_redate_command_uses_video_metadata_and_does_not_crash(self):
+        with redirect_stdout(StringIO()):
+            call_command("clean_redate_photos", album=str(self.album.id))
+
+        self.photo.refresh_from_db()
+        self.assertEqual(local(self.photo.date).date().isoformat(), "2023-07-04")
+
+    def test_rewrite_exif_command_skips_videos(self):
+        with redirect_stdout(StringIO()) as out:
+            call_command("clean_rewrite_exif_data", album=str(self.album.id))
+
+        self.assertNotIn("error", out.getvalue().lower())
+
+    def test_album_page_and_edit_page_render(self):
+        response = self.client.get(reverse("photo:album", kwargs={"album_id": self.album.id}))
+        self.assertContains(response, "video-badge")
+        self.assertContains(response, reverse("photo:video", kwargs={"photo_id": self.photo.id}))
+
+        response = self.client.get(reverse("photo:edit", kwargs={"photo_id": self.photo.id}))
+        self.assertContains(response, "<video")

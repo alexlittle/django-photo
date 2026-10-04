@@ -24,7 +24,7 @@ $(document).ready(function() {
 
   // Click handler for toggling selection (same as before)
   $('.photo-image').on('click', function(event) {
-    if ($(event.target).closest('a[data-toggle="lightbox"]').length) {
+    if ($(event.target).closest('a[data-toggle="lightbox"], a.video-link').length) {
       return;
     }
 

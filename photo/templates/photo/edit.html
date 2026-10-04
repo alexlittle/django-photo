@@ -23,9 +23,14 @@
 
 <a href="{% url 'photo:album' photo.album.id %}">{{ photo.album.name }}</a><br/>
 
-{% thumbnail photo.get_thumbnail_source "300" as thumb %}
-	<img src="{{ thumb.url }}" alt="{% if photo.caption %}{{ photo.caption }}{% endif %}" class="img-thumbnail">
-{% endthumbnail %}
+{% if photo.is_video %}
+	<video controls preload="metadata" style="max-width: 100%; max-height: 480px;"
+		   poster="{% url 'photo:view' photo.id %}" src="{% url 'photo:video' photo.id %}"></video>
+{% else %}
+	{% thumbnail photo.get_thumbnail_source "300" as thumb %}
+		<img src="{{ thumb.url }}" alt="{% if photo.caption %}{{ photo.caption }}{% endif %}" class="img-thumbnail">
+	{% endthumbnail %}
+{% endif %}
 
 <br/>{{ photo.file }}
 

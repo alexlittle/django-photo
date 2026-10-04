@@ -17,6 +17,7 @@ urlpatterns = [
     ),
     path("tag/<str:slug>/", photo_views.TagSlugView.as_view(), name="tag_slug"),
     path("photo/view/<int:photo_id>.jpg", photo_views.PhotoView.as_view(), name="view"),
+    path("photo/video/<int:photo_id>/", photo_views.PhotoVideoView.as_view(), name="video"),
     path("photo/edit/<int:photo_id>/", photo_views.PhotoEditView.as_view(), name="edit"),
     path("photo/star/<int:photo_id>/", photo_views.PhotoStarView.as_view(), name="star"),
     path("photo/unstar/<int:photo_id>/", photo_views.PhotoUnstarView.as_view(), name="unstar"),

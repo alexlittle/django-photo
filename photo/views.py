@@ -1,12 +1,14 @@
 import json
+import mimetypes
 import os
+import re
 from datetime import datetime, time
 from io import StringIO
 
 from django.conf import settings
 from django.core import management
 from django.db.models import Count, Max
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -209,6 +211,70 @@ class PhotoView(View):
             im.save(response, "PNG")
 
         return response
+
+
+class PhotoVideoView(View):
+    """Stream a video file, honouring Range requests so browsers can seek."""
+
+    CHUNK_SIZE = 1024 * 1024
+
+    def get(self, request, photo_id):
+        photo = get_object_or_404(Photo, pk=photo_id)
+        if not photo.is_video:
+            raise Http404("Not a video")
+        path = os.path.join(settings.PHOTO_ROOT, photo.album.name.lstrip("/"), photo.file)
+        if not os.path.isfile(path):
+            raise Http404("Video not found")
+
+        size = os.path.getsize(path)
+        content_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
+        start, end = 0, size - 1
+        status = 200
+
+        byte_range = self.parse_range(request.headers.get("Range", ""), size)
+        if byte_range == "invalid":
+            response = HttpResponse(status=416)
+            response["Content-Range"] = f"bytes */{size}"
+            return response
+        if byte_range:
+            start, end = byte_range
+            status = 206
+
+        response = StreamingHttpResponse(
+            self.read_range(path, start, end), status=status, content_type=content_type
+        )
+        response["Accept-Ranges"] = "bytes"
+        response["Content-Length"] = str(end - start + 1)
+        if status == 206:
+            response["Content-Range"] = f"bytes {start}-{end}/{size}"
+        return response
+
+    @staticmethod
+    def parse_range(header, size):
+        """Return (start, end), None if no usable header, or "invalid" if unsatisfiable."""
+        match = re.fullmatch(r"bytes=(\d*)-(\d*)", header.strip())
+        if not match or not any(match.groups()):
+            return None
+        first, last = match.groups()
+        if first == "":  # suffix range: last N bytes
+            start, end = max(size - int(last), 0), size - 1
+        else:
+            start = int(first)
+            end = min(int(last), size - 1) if last else size - 1
+        if start >= size or start > end:
+            return "invalid"
+        return start, end
+
+    def read_range(self, path, start, end):
+        with open(path, "rb") as fh:
+            fh.seek(start)
+            remaining = end - start + 1
+            while remaining > 0:
+                chunk = fh.read(min(self.CHUNK_SIZE, remaining))
+                if not chunk:
+                    break
+                remaining -= len(chunk)
+                yield chunk
 
 
 class PhotoViewAnnotated(View):
