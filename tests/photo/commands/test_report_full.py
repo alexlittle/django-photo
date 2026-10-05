@@ -1,6 +1,6 @@
 """Tests for the ``report_full`` management command.
 
-A runner: it calls fifteen other commands in sequence. ``call_command`` is
+A runner: it calls seventeen other commands in sequence. ``call_command`` is
 patched at this module, so these tests cover the orchestration -- which
 commands, in what order, with what arguments -- rather than re-running the
 individual commands, which have their own test files.
@@ -22,6 +22,8 @@ EXPECTED_SEQUENCE = [
     "files_scan_albums",
     "files_scan_photos",
     "files_scan_photos",
+    "files_scan_videos",
+    "files_scan_videos",
     "files_duplicate_filenames",
     "integrity_uncategorised_tags",
     "integrity_remove_unused_tags",
@@ -50,10 +52,10 @@ class ReportFullTests(CommandTestCase):
 
         self.assertEqual(self.called_names(call_command), EXPECTED_SEQUENCE)
 
-    def test_fifteen_commands_are_run(self):
+    def test_seventeen_commands_are_run(self):
         call_command = self.invoke()
 
-        self.assertEqual(call_command.call_count, 15)
+        self.assertEqual(call_command.call_count, 17)
 
     def test_deep_structure_gets_a_threshold(self):
         call_command = self.invoke()
@@ -70,6 +72,12 @@ class ReportFullTests(CommandTestCase):
 
         call_command.assert_any_call("files_scan_photos", files=True)
         call_command.assert_any_call("files_scan_photos", db=True)
+
+    def test_video_scanning_runs_both_passes(self):
+        call_command = self.invoke()
+
+        call_command.assert_any_call("files_scan_videos", files=True)
+        call_command.assert_any_call("files_scan_videos", db=True)
 
     def test_no_destructive_flags_are_passed_to_the_scanners(self):
         # files_scan_photos --autodelete is not used here, so the scan reports

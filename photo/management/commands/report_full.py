@@ -19,6 +19,12 @@ class Command(BaseCommand):
         # Missing photos (in db but not disk)
         call_command("files_scan_photos", db=True)
 
+        # Missing videos (not in db but on disk)
+        call_command("files_scan_videos", files=True)
+
+        # Missing videos (in db but not disk)
+        call_command("files_scan_videos", db=True)
+
         # duplicate photo filenames
         call_command("files_duplicate_filenames")
 

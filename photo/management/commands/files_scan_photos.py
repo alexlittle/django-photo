@@ -1,5 +1,8 @@
 """
-Management command to find any photos that haven't been uploaded
+Management command to find any photos that haven't been uploaded.
+
+Video files are handled separately by ``files_scan_videos`` (a subclass of this
+command), so they are ignored here.
 """
 
 import os
@@ -9,10 +12,20 @@ from django.core.management.base import BaseCommand, CommandError
 
 from photo.lib import ignore_file, ignore_folder
 from photo.models import Photo
+from photo.video import is_video
 
 
 class Command(BaseCommand):
     help = "Checks for photos that aren't in the database"
+    # Singular/plural noun used in the report; files_scan_videos overrides these hooks.
+    label = "photos"
+    # IGNORE_EXTENSIONS is a photo-side filter; the video scanner turns it off because
+    # IGNORE_EXTENSIONS typically lists the video extensions themselves.
+    use_ignore_extensions = True
+
+    def wants(self, filename):
+        """Whether this command is responsible for the file (photos: everything but videos)."""
+        return not is_video(filename)
 
     def add_arguments(self, parser):
 
@@ -79,7 +92,7 @@ class Command(BaseCommand):
 
     def scan_files_not_in_database(self, verbose):
         """Walk PHOTO_ROOT looking for files that have no matching Photo row."""
-        self.stdout.write("Photos not uploaded to database")
+        self.stdout.write(f"{self.label.capitalize()} not uploaded to database")
         self.stdout.write("---------------------------------------")
         counter = 0
 
@@ -88,14 +101,14 @@ class Command(BaseCommand):
                 dirs[:] = []
                 continue
             for name in files:
-                if ignore_file(name):
+                if not self.wants(name) or (self.use_ignore_extensions and ignore_file(name)):
                     continue
                 if self.find_photo_on_disk(root, name, verbose) is not None:
                     counter += 1
 
-        self.report_count(counter, "{} photos not in database")
+        self.report_count(counter, "{} " + self.label + " not in database")
 
-        self.stdout.write("Multiple copies of photo in database")
+        self.stdout.write(f"Multiple copies of {self.label[:-1]} in database")
         self.stdout.write("---------------------------------------")
         # Photo.file is unique=True at the model level, so a photo can
         # never have more than one database entry.
@@ -119,11 +132,13 @@ class Command(BaseCommand):
         """Walk every Photo row looking for ones whose file is missing on disk."""
         counter = 0
 
-        self.stdout.write("Photos in database but not on file")
+        self.stdout.write(f"{self.label.capitalize()} in database but not on file")
         self.stdout.write("---------------------------------------")
 
         for photo in Photo.objects.select_related("album").all():
+            if not self.wants(photo.file):
+                continue
             if self.check_photo_on_disk(photo, verbose, autodelete):
                 counter += 1
 
-        self.report_count(counter, "{} photos in database but not on file")
+        self.report_count(counter, "{} " + self.label + " in database but not on file")
