@@ -297,6 +297,38 @@ class PhotoUpdateTagsViewTests(PhotoRootTestCase):
             local(self.second.date).replace(tzinfo=None).isoformat(), "2024-05-01T18:40:00"
         )
 
+    def test_change_date_skips_unknown_photo_ids(self):
+        with patch("photo.views.add_or_update_xmp_metadata"):
+            response = self.client.post(
+                f"{reverse('photo:update_tags')}?photo_id=999999&photo_id={self.first.id}",
+                {
+                    "action": "change_date",
+                    "date": "2024-05-01",
+                    "tags": "",
+                    "album": str(self.album.id),
+                    "next": self.next_url,
+                },
+            )
+
+        self.assertEqual(response.status_code, 302)
+        self.first.refresh_from_db()
+        self.assertEqual(local(self.first.date).date(), date(2024, 5, 1))
+
+    def test_change_album_skips_unknown_photo_ids(self):
+        self.album_dir(self.other_album)
+
+        response = self.client.post(
+            f"{reverse('photo:update_tags')}?photo_id=999999",
+            {
+                "action": "change_album",
+                "tags": "",
+                "album": str(self.other_album.id),
+                "next": self.next_url,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+
     def test_change_date_with_time_sets_the_time(self):
         self.post([self.first], action="change_date", date="2024-05-01 18:08", tags="")
 
