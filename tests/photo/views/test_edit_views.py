@@ -305,6 +305,11 @@ class PhotoUpdateTagsViewTests(PhotoRootTestCase):
             local(self.first.date).replace(tzinfo=None).isoformat(), "2024-05-01T18:08:00"
         )
 
+    def test_change_date_with_empty_date_is_rejected_not_a_crash(self):
+        response, _ = self.post([self.first], action="change_date", date="", tags="")
+
+        self.assertEqual(response.status_code, 200)
+
     def test_change_date_rejects_invalid_value(self):
         response, _ = self.post([self.first], action="change_date", date="01/05/2024", tags="")
 

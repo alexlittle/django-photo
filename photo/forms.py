@@ -149,6 +149,8 @@ class UpdateTagsForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         cleaned_data["time"] = getattr(self, "time", None)
+        if cleaned_data.get("action") == "change_date" and not cleaned_data.get("date"):
+            self.add_error("date", _(VALID_DATE))
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
