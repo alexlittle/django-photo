@@ -12,7 +12,7 @@
 		{% else %}
 		<a href="{% url 'photo:view' p.id %}" data-toggle="lightbox" data-gallery="album-gallery">
 		{% endif %}
-			{% thumbnail p.get_thumbnail_source "200" as thumb %}
+			{% thumbnail p.get_thumbnail_source "300" as thumb %}
 			<img src="{{ thumb.url }}" alt="{% if p.caption %}{{ p.caption }}{% endif %}">
 			{% endthumbnail %}
 			{% if p.is_video %}<span class="video-badge" title="{% trans 'Video' %}">&#9654;</span>{% endif %}
