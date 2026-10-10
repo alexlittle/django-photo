@@ -15,6 +15,22 @@ DIV_SUBMIT_CLASS = "col-lg-offset-2 col-lg-4"
 BTN_DEFAULT_CLASS = "btn btn-default"
 
 
+def parse_date_and_time(value, form):
+    """Parse 'YYYY-MM-DD[ HH:MM]'; sets form.time when a time was given and returns the date."""
+    value = value.strip()
+    if not value:
+        return None
+    for fmt, has_time in (("%Y-%m-%d %H:%M", True), ("%Y-%m-%d", False)):
+        try:
+            parsed = datetime.strptime(value, fmt)
+        except ValueError:
+            continue
+        if has_time:
+            form.time = parsed.time()
+        return parsed.date()
+    raise forms.ValidationError(_(VALID_DATE))
+
+
 class ScanFolderForm(forms.Form):
     directory = forms.CharField(
         required=True,
@@ -63,13 +79,16 @@ class EditPhotoForm(forms.Form):
         required=True,
         error_messages={"required": _("Please enter at least one tag")},
     )
-    date = forms.DateTimeField(
+    date = forms.CharField(
         required=True,
-        error_messages={
-            "required": _(VALID_DATE),
-            "invalid": _(VALID_DATE),
-        },
+        error_messages={"required": _(VALID_DATE)},
+        help_text=_("YYYY-MM-DD, optionally followed by HH:MM (otherwise the time is kept)"),
     )
+
+    def clean_date(self):
+        """Parse the date; the time is returned in cleaned_data["time"] (None if not given)."""
+        self.time = None
+        return parse_date_and_time(self.cleaned_data.get("date", ""), self)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,6 +108,7 @@ class EditPhotoForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+        cleaned_data["time"] = getattr(self, "time", None)
         return cleaned_data
 
 

@@ -352,7 +352,7 @@ class PhotoEditView(View):
         data = {
             "tags": ", ".join(tags),
             "title": photo.title,
-            "date": photo.date,
+            "date": timezone.localtime(photo.date).strftime("%Y-%m-%d %H:%M"),
         }
         form = self.form_class(initial=data)
         context = {
@@ -371,8 +371,11 @@ class PhotoEditView(View):
             new_tags = form.cleaned_data.get("tags")
             add_tags(photo, new_tags)
             photo.title = form.cleaned_data.get("title")
-            photo.date = form.cleaned_data.get("date").replace(
-                hour=photo.date.hour, minute=photo.date.minute
+            new_time = form.cleaned_data.get("time")
+            if new_time is None:
+                new_time = timezone.localtime(photo.date).time()
+            photo.date = timezone.make_aware(
+                datetime.combine(form.cleaned_data.get("date"), new_time)
             )
             photo.save()
             add_or_update_xmp_metadata(photo)

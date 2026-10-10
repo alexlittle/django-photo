@@ -167,6 +167,20 @@ class PhotoEditViewTests(PhotoRootTestCase):
             (2024, 3, 9, 15, 45),
         )
 
+    def test_post_with_a_time_updates_the_time_of_day(self):
+        with (
+            patch("photo.views.add_tags"),
+            patch("photo.views.add_or_update_xmp_metadata"),
+        ):
+            self.client.post(self.url, {"title": "", "tags": "beach", "date": "2024-03-09 08:30"})
+
+        self.photo.refresh_from_db()
+        updated = local(self.photo.date)
+        self.assertEqual(
+            (updated.year, updated.month, updated.day, updated.hour, updated.minute),
+            (2024, 3, 9, 8, 30),
+        )
+
     def test_tags_are_required(self):
         with (
             patch("photo.views.add_tags") as add_tags,
