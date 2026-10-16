@@ -12,6 +12,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect, StreamingHt
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import content_disposition_header
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, ListView, TemplateView, View
 from PIL import Image, ImageDraw
@@ -244,6 +245,7 @@ class PhotoVideoView(View):
             self.read_range(path, start, end), status=status, content_type=content_type
         )
         response["Accept-Ranges"] = "bytes"
+        response["Content-Disposition"] = content_disposition_header(False, photo.file)
         response["Content-Length"] = str(end - start + 1)
         if status == 206:
             response["Content-Range"] = f"bytes {start}-{end}/{size}"
