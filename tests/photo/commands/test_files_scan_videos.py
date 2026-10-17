@@ -95,6 +95,15 @@ class FilesScanVideosTests(CommandTestCase):
         self.assertNotIn("Thumbs.db", output)
         self.assertNotIn("hidden.mp4", output)
 
+    def test_a_folder_ignored_as_an_album_does_not_hide_its_subfolders(self):
+        # "/\\d{4}/$" ignores the year folder itself; videos in /2008/2008-misc/ must still show
+        self.touch("moved.mp4", album_name="/2008/2008-misc/")
+
+        with override_settings(IGNORE_FOLDERS=[r"/\d{4}/$"]):
+            output = self.run_command(COMMAND, files=True)
+
+        self.assertIn("/2008/2008-misc/moved.mp4", output)
+
     def test_db_pass_reports_a_video_row_with_no_file(self):
         create_photo(self.album, "ghost.mp4")
 

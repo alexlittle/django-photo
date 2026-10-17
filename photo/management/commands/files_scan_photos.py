@@ -100,6 +100,10 @@ class Command(BaseCommand):
             if ignore_folder(root):
                 dirs[:] = []
                 continue
+            # patterns may also target the album-style path (as files_scan_albums uses). Those
+            # skip only this folder: e.g. "/\d{4}/$" ignores /2008/ itself, not /2008/2008-misc/
+            if ignore_folder(root.replace(settings.PHOTO_ROOT, "") + "/"):
+                continue
             for name in files:
                 if not self.wants(name) or (self.use_ignore_extensions and ignore_file(name)):
                     continue

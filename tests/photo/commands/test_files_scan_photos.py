@@ -122,6 +122,17 @@ class FilesScanPhotosFilesPassTests(CommandTestCase):
         self.assertNotIn("hidden.jpg", output)
         self.assertIn("visible.jpg", output)
 
+    def test_ignored_folders_can_be_anchored_to_the_album_path(self):
+        # same style of pattern files_scan_albums matches: relative to PHOTO_ROOT
+        self.touch("frame.jpg", album_name="/video_frames/")
+        self.touch("visible.jpg")
+
+        with override_settings(IGNORE_FOLDERS=[r"^/video_frames/"]):
+            output = self.run_command(COMMAND, files=True)
+
+        self.assertNotIn("frame.jpg", output)
+        self.assertIn("visible.jpg", output)
+
     def test_a_file_in_an_album_that_does_not_exist_is_reported(self):
         self.touch("stray.jpg", album_name="/1999/")
 
