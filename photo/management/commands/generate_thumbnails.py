@@ -35,9 +35,9 @@ class Command(BaseCommand):
             help="Only generate thumbnails for photos in the album with this name.",
         )
 
-    def handle(self, *args, **options):
+    def parse_sizes(self, raw_sizes):
         sizes = []
-        for raw in options["sizes"].split(","):
+        for raw in raw_sizes.split(","):
             raw = raw.strip()
             if not raw:
                 continue
@@ -45,22 +45,47 @@ class Command(BaseCommand):
                 sizes.append(int(raw))
             except ValueError:
                 self.stderr.write(self.style.WARNING(f"Ignoring invalid thumbnail size: {raw}"))
+        return sizes
 
+    def get_photos(self, album_name):
+        """Return the photos to process, or None if the named album doesn't exist."""
+        photos = Photo.objects.all()
+        if not album_name:
+            return photos
+        try:
+            album = Album.objects.get(name=album_name)
+        except Album.DoesNotExist:
+            self.stderr.write(self.style.ERROR(f"Album not found: {album_name}"))
+            return None
+        return photos.filter(album=album)
+
+    def generate_for_photo(self, photo, sizes):
+        """Generate each size for a photo and return (generated, failed) counts."""
+        generated = 0
+        failed = 0
+        for size in sizes:
+            try:
+                # Force sorl to generate and cache the thumbnail.
+                photo.get_thumbnail(size)
+                generated += 1
+            except Exception as exc:  # noqa: BLE001 - report and continue
+                failed += 1
+                self.stderr.write(
+                    self.style.WARNING(
+                        f"Failed thumbnail size {size} for photo {photo.id} ({photo.file}): {exc}"
+                    )
+                )
+        return generated, failed
+
+    def handle(self, *args, **options):
+        sizes = self.parse_sizes(options["sizes"])
         if not sizes:
             self.stderr.write(self.style.ERROR("No valid thumbnail sizes given."))
             return
 
-        album = None
-        if options["album"]:
-            try:
-                album = Album.objects.get(name=options["album"])
-            except Album.DoesNotExist:
-                self.stderr.write(self.style.ERROR(f"Album not found: {options['album']}"))
-                return
-
-        photos = Photo.objects.all()
-        if album is not None:
-            photos = photos.filter(album=album)
+        photos = self.get_photos(options["album"])
+        if photos is None:
+            return
 
         total = photos.count()
         self.stdout.write(f"Generating thumbnails for {total} photo(s), sizes: {sizes}")
@@ -68,19 +93,9 @@ class Command(BaseCommand):
         generated = 0
         failed = 0
         for index, photo in enumerate(photos.iterator(), start=1):
-            for size in sizes:
-                try:
-                    # Force sorl to generate and cache the thumbnail.
-                    photo.get_thumbnail(size)
-                    generated += 1
-                except Exception as exc:  # noqa: BLE001 - report and continue
-                    failed += 1
-                    self.stderr.write(
-                        self.style.WARNING(
-                            f"Failed thumbnail size {size} for photo {photo.id} "
-                            f"({photo.file}): {exc}"
-                        )
-                    )
+            photo_generated, photo_failed = self.generate_for_photo(photo, sizes)
+            generated += photo_generated
+            failed += photo_failed
 
             if index % PROGRESS_EVERY == 0 or index == total:
                 self.stdout.write(f"  processed {index}/{total} photos...")
