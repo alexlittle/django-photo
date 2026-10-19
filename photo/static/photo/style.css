@@ -216,6 +216,7 @@ div.photo {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .photo-data input[type="checkbox"] {
@@ -226,10 +227,6 @@ div.photo {
     margin-top: 20px;
 }
 
-
-.photo-image {
-    position: relative;
-}
 
 .photo-image > a {
     position: relative;

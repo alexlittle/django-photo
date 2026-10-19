@@ -64,11 +64,14 @@ def build_cover_page(album_id, album, tag_id, tag, style_centered):
         photo_page.append(Image(image))
 
     if album_id and album.title:
-        photo_page.append(Spacer(1, 12))
-        photo_page.append(Paragraph(make_font_tag(40, album.title), style_centered))
-        photo_page.append(Spacer(1, 50))
+        items = [
+            Spacer(1, 12),
+            Paragraph(make_font_tag(40, album.title), style_centered),
+            Spacer(1, 50),
+        ]
         if album.date_display:
-            photo_page.append(Paragraph(make_font_tag(25, album.date_display), style_centered))
+            items.append(Paragraph(make_font_tag(25, album.date_display), style_centered))
+        photo_page.extend(items)
 
     if tag_id:
         photo_page.append(Spacer(1, 12))
@@ -83,16 +86,27 @@ def build_photo_pages(photos, style_centered):
     for photo in photos:
         print(photo)
         image = os.path.join(settings.MEDIA_ROOT, "..", photo.get_thumbnail(700)[1:])
-        photo_page.append(Image(image))
-        photo_page.append(Spacer(1, 12))
+        items = [
+            Image(image),
+            Spacer(1, 12),
+        ]
         if photo.title:
             ptext = make_font_tag(20, f"[id:{photo.id}] - {photo.title}")
-            photo_page.append(Paragraph(ptext, style_centered))
-            photo_page.append(Spacer(1, 15))
+            items.extend(
+                [
+                    Paragraph(ptext, style_centered),
+                    Spacer(1, 15),
+                ]
+            )
 
         ptext = make_font_tag(12, photo.date.strftime("%B %Y"))
-        photo_page.append(Paragraph(ptext, style_centered))
-        photo_page.append(Spacer(1, 12))
+        items.extend(
+            [
+                Paragraph(ptext, style_centered),
+                Spacer(1, 12),
+            ]
+        )
+        photo_page.extend(items)
 
     return photo_page
 
