@@ -16,7 +16,7 @@ dependencies = [
     "django-crispy-forms==2.7",
     "mysqlclient==2.3.0",
     "nh3>=0.3.7",
-    "pillow==12.3.0",
+    "pillow==13.0.0",
     "python-dateutil==2.9.0.post0",
     "python-xmp-toolkit==2.1.0",
     "reportlab==5.0.1",
