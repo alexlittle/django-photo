@@ -19,7 +19,7 @@ dependencies = [
     "pillow==13.0.0",
     "python-dateutil==2.9.0.post0",
     "python-xmp-toolkit==2.1.0",
-    "reportlab==5.0.1",
+    "reportlab==5.1.0",
     "requests==2.34.2",
     "six==1.17.0",
     "sorl-thumbnail>=12.4",
@@ -74,9 +74,9 @@ dev = [
     "pytest-cov==7.1.0",
     "interrogate==1.7.0",
     "pydoclint==0.11.1",
-    "setuptools==84.1.0",
+    "setuptools==84.2.1",
     "pytest==9.1.1",
-    "ruff==0.17.1",
+    "ruff==0.17.2",
     "pytest-django==4.14.0",
 ]
 local = [
